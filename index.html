@@ -3,7 +3,7 @@
 <meta name="description" content="AthenianKeys — Private concierge in Athens, Zakynthos & Crete.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=GFS+Didot&family=Manrope:wght@300;400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Italiana&family=Hanken+Grotesk:wght@300;400;500;600&family=GFS+Didot&family=Manrope:wght@400;500;600&display=swap">
 
 <!--
   ╔══════════════════════════════════════════════════════════════════╗
@@ -36,8 +36,9 @@
   --scrim:       rgba(12, 26, 46, .22);
   --danger:      #B4232F;
 
-  --font-display: "GFS Didot", "Didot", "Bodoni 72", Georgia, serif;
-  --font-body:    "Manrope", "Helvetica Neue", Arial, system-ui, sans-serif;
+  /* Italiana / Hanken Grotesk για Αγγλικά· GFS Didot / Manrope καλύπτουν τα ελληνικά γράμματα */
+  --font-display: "Italiana", "GFS Didot", "Didot", "Bodoni 72", Georgia, serif;
+  --font-body:    "Hanken Grotesk", "Manrope", "Helvetica Neue", Arial, system-ui, sans-serif;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -61,7 +62,7 @@
 /* ─── 2. ΠΕΡΙΕΧΟΜΕΝΟ / CONTENT ──────────────────────────────────── */
 const CONFIG = {
   brand: "AthenianKeys",
-  defaultLang: "el",                       // "el" ή "en"
+  defaultLang: "en",                       // "en" ή "el"
 
   // Στοιχεία επικοινωνίας (προσωρινά – αλλάξτε τα)
   contact: {
@@ -711,8 +712,8 @@ textarea.input { height: auto; min-height: 6.5rem; padding: .85rem 1.05rem; resi
   };
   const esc = (s) => String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
 
-  let lang = store.get("ak-lang") || CONFIG.defaultLang;
-  if (!CONFIG.text[lang]) lang = "el";
+  let lang = store.get("ak-lang-v2") || CONFIG.defaultLang;
+  if (!CONFIG.text[lang]) lang = "en";
   const T = (k) => CONFIG.text[lang][k] ?? k;
   const C = CONFIG.contact;
   const telHref = (n) => "tel:" + n.replace(/[^\d+]/g, "");
@@ -909,7 +910,7 @@ textarea.input { height: auto; min-height: 6.5rem; padding: .85rem 1.05rem; resi
   });
   $("#scrim").addEventListener("click", closeSheet);
   document.addEventListener("keydown", e => { if (e.key === "Escape") closeSheet(); });
-  $("#langBtn").addEventListener("click", () => { lang = lang === "el" ? "en" : "el"; store.set("ak-lang", lang); render(); });
+  $("#langBtn").addEventListener("click", () => { lang = lang === "el" ? "en" : "el"; store.set("ak-lang-v2", lang); render(); });
 
   $("#form").addEventListener("change", (e) => {
     if (e.target.name === "service") { state.service = e.target.value; $("#formError").textContent = ""; }
