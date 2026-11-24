@@ -72,11 +72,77 @@ const CONFIG = {
     email:    "hello@atheniankeys.gr",
   },
 
+  // Προορισμοί: φωτογραφία, πληροφορίες και εμπειρίες. Οι φωτογραφίες είναι στον φάκελο images/
   regions: [
-    { id: "athens",    el: "Αθήνα",    en: "Athens",    coords: "37.98° N · 23.73° E" },
-    { id: "zakynthos", el: "Ζάκυνθος", en: "Zakynthos", coords: "37.78° N · 20.90° E" },
-    { id: "crete",     el: "Κρήτη",    en: "Crete",     coords: "35.34° N · 25.13° E" },
+    { id: "athens", el: "Αθήνα", en: "Athens", coords: "37.98° N · 23.73° E", image: "images/athens.jpg",
+      intro: {
+        el: "Η πόλη της Ακρόπολης, των ταρατσών με θέα και της Αθηναϊκής Ριβιέρας. Ιδανική για ένα city break με ιστορία, γαστρονομία και θάλασσα σε απόσταση μισής ώρας.",
+        en: "The city of the Acropolis, rooftop views and the Athens Riviera. Ideal for a city break with history, great food and the sea half an hour away." },
+      facts: {
+        el: [["Καλύτερη εποχή", "Απρ – Οκτ"], ["Από αεροδρόμιο", "35΄ στο κέντρο"], ["Για", "Ιστορία, φαγητό"]],
+        en: [["Best time", "Apr – Oct"], ["From airport", "35 min to centre"], ["Known for", "History, dining"]] },
+      experiences: [
+        { id: "acropolis", image: "images/ath-acropolis.jpg",
+          el: { title: "Ακρόπολη με την πρώτη ώρα", text: "Ιδιωτική ξενάγηση με πιστοποιημένο ξεναγό τη στιγμή που ανοίγει ο χώρος, πριν από τον κόσμο και τη ζέστη." },
+          en: { title: "Acropolis at opening time", text: "A private tour with a licensed guide as the gates open, ahead of the crowds and the heat." } },
+        { id: "sounion", image: "images/ath-sounion.jpg",
+          el: { title: "Ηλιοβασίλεμα στο Σούνιο", text: "Διαδρομή στην παραλιακή της Αθηναϊκής Ριβιέρας μέχρι τον Ναό του Ποσειδώνα και δείπνο δίπλα στη θάλασσα." },
+          en: { title: "Sunset at Sounion", text: "A drive along the Athens Riviera to the Temple of Poseidon, followed by dinner by the sea." } },
+        { id: "plaka", image: "images/ath-plaka.jpg",
+          el: { title: "Βράδυ στην Πλάκα", text: "Βόλτα στα σοκάκια της παλιάς πόλης και τραπέζι σε ταράτσα με θέα την φωτισμένη Ακρόπολη." },
+          en: { title: "An evening in Plaka", text: "A walk through the old town's lanes and a rooftop table facing the illuminated Acropolis." } },
+        { id: "lycabettus", image: "images/ath-lycabettus.jpg",
+          el: { title: "Λυκαβηττός το σούρουπο", text: "Η πιο όμορφη θέα της Αθήνας, με cocktails την ώρα που ανάβουν τα φώτα της πόλης." },
+          en: { title: "Lycabettus at dusk", text: "The best view over Athens, with cocktails as the city lights come on." } },
+      ] },
+
+    { id: "zakynthos", el: "Ζάκυνθος", en: "Zakynthos", coords: "37.78° N · 20.90° E", image: "images/zakynthos.jpg",
+      intro: {
+        el: "Το νησί του Ναυαγίου, των Γαλάζιων Σπηλιών και των θαλάσσιων χελωνών. Τα καλύτερα σημεία του φαίνονται από τη θάλασσα, με ιδιωτικό σκάφος.",
+        en: "The island of Navagio, the Blue Caves and the sea turtles. Its best spots are seen from the water, on a private boat." },
+      facts: {
+        el: [["Καλύτερη εποχή", "Μάι – Σεπ"], ["Από Αθήνα", "50΄ πτήση"], ["Για", "Σκάφος, παραλίες"]],
+        en: [["Best time", "May – Sep"], ["From Athens", "50 min flight"], ["Known for", "Boats, beaches"]] },
+      experiences: [
+        { id: "navagio", image: "images/zak-navagio.jpg",
+          el: { title: "Ναυάγιο με ιδιωτικό σκάφος", text: "Πρωινή αναχώρηση για να φτάσετε στον κόλπο πριν από τα πολλά σκάφη, με στάσεις για κολύμπι στη διαδρομή." },
+          en: { title: "Navagio by private boat", text: "An early departure to reach the cove before the crowds, with swim stops along the way." } },
+        { id: "bluecaves", image: "images/zak-bluecaves.jpg",
+          el: { title: "Γαλάζιες Σπηλιές", text: "Κολύμπι μέσα στις σπηλιές όπου το νερό παίρνει έντονο γαλάζιο χρώμα με το φως του πρωινού." },
+          en: { title: "The Blue Caves", text: "Swim inside the caves where the water turns bright blue in the morning light." } },
+        { id: "bochali", image: "images/zak-bochali.jpg",
+          el: { title: "Δείπνο στο Μπόχαλη", text: "Τραπέζι στον λόφο πάνω από την πόλη, με θέα το λιμάνι και το ηλιοβασίλεμα." },
+          en: { title: "Dinner at Bochali", text: "A table on the hill above town, overlooking the harbour at sunset." } },
+        { id: "gerakas", image: "images/zak-gerakas.jpg",
+          el: { title: "Γέρακας και χελώνες", text: "Η προστατευμένη παραλία όπου γεννούν οι χελώνες Caretta caretta, με ξενάγηση που σέβεται τους κανόνες του θαλάσσιου πάρκου." },
+          en: { title: "Gerakas & sea turtles", text: "The protected beach where Caretta caretta turtles nest, with a guide who follows the marine park rules." } },
+      ] },
+
+    { id: "crete", el: "Κρήτη", en: "Crete", coords: "35.34° N · 25.13° E", image: "images/crete.jpg",
+      intro: {
+        el: "Το μεγαλύτερο ελληνικό νησί: μινωικά ανάκτορα, φαράγγια, λιμνοθάλασσες και μια από τις καλύτερες κουζίνες της Μεσογείου.",
+        en: "Greece's largest island: Minoan palaces, gorges, lagoons and one of the best kitchens in the Mediterranean." },
+      facts: {
+        el: [["Καλύτερη εποχή", "Απρ – Νοε"], ["Από Αθήνα", "50΄ πτήση"], ["Για", "Φύση, κουζίνα"]],
+        en: [["Best time", "Apr – Nov"], ["From Athens", "50 min flight"], ["Known for", "Nature, food"]] },
+      experiences: [
+        { id: "knossos", image: "images/cre-knossos.jpg",
+          el: { title: "Κνωσός με αρχαιολόγο", text: "Το ανάκτορο του Μίνωα με ιδιωτικό αρχαιολόγο και επίσκεψη στο Αρχαιολογικό Μουσείο Ηρακλείου." },
+          en: { title: "Knossos with an archaeologist", text: "The Palace of Minos with a private archaeologist, plus the Heraklion Archaeological Museum." } },
+        { id: "balos", image: "images/cre-balos.jpg",
+          el: { title: "Μπάλος με σκάφος", text: "Η λιμνοθάλασσα με τα τιρκουάζ νερά, με ιδιωτικό σκάφος από την Κίσαμο και στάση στη Γραμβούσα." },
+          en: { title: "Balos by boat", text: "The turquoise lagoon by private boat from Kissamos, with a stop at Gramvousa." } },
+        { id: "elafonisi", image: "images/cre-elafonisi.jpg",
+          el: { title: "Ελαφονήσι", text: "Η παραλία με τη ροζ άμμο και τα ρηχά νερά, με ιδιωτική μεταφορά και τραπέζι σε ταβέρνα της περιοχής." },
+          en: { title: "Elafonisi", text: "The pink-sand beach with shallow water, with a private transfer and lunch at a local taverna." } },
+        { id: "samaria", image: "images/cre-samaria.jpg",
+          el: { title: "Φαράγγι της Σαμαριάς", text: "Πεζοπορία 16 χλμ. με οδηγό, μεταφορές και σκάφος επιστροφής από την Αγία Ρουμέλη." },
+          en: { title: "Samaria Gorge", text: "A 16 km guided hike, with transfers and the boat back from Agia Roumeli." } },
+      ] },
   ],
+
+  // Πηγές φωτογραφιών (Wikimedia Commons)
+  photoCredits: [],
 
   // Υπηρεσίες – προσθέστε/αφαιρέστε ελεύθερα. icon: car, yacht, dining, villa, compass, chef, sparkle
   services: [
@@ -156,7 +222,8 @@ const CONFIG = {
       why1: "Ένας προσωπικός συνεργάτης για όλο το ταξίδι",
       why2: "Διαθέσιμοι 24 ώρες, 7 ημέρες",
       why3: "Ελεγμένοι συνεργάτες, διαφανείς τιμές",
-      regionsTitle: "Περιοχές",
+      regionsTitle: "Προορισμοί", regionsHint: "Πατήστε για να εξερευνήσετε",
+      expTitle: "Εμπειρίες", expCta: "Αίτημα για αυτή την εμπειρία", planTrip: "Σχεδιάστε το ταξίδι σας", back: "Πίσω", photoCredits: "Φωτογραφίες", expLabel: "Εμπειρία",
       servicesTitle: "Υπηρεσίες", servicesIntro: "Πατήστε μια υπηρεσία για λεπτομέρειες.",
       sheetCta: "Αίτημα για αυτή την υπηρεσία", close: "Κλείσιμο",
       requestTitle: "Αίτημα", requestIntro: "Συμπληρώστε τα βασικά. Το μήνυμα ανοίγει έτοιμο στο WhatsApp ή στο email σας.",
@@ -192,7 +259,8 @@ const CONFIG = {
       why1: "One personal concierge for your whole trip",
       why2: "Available 24 hours, 7 days",
       why3: "Trusted partners, transparent prices",
-      regionsTitle: "Regions",
+      regionsTitle: "Destinations", regionsHint: "Tap to explore",
+      expTitle: "Experiences", expCta: "Request this experience", planTrip: "Plan your trip", back: "Back", photoCredits: "Photos", expLabel: "Experience",
       servicesTitle: "Services", servicesIntro: "Tap a service for details.",
       sheetCta: "Request this service", close: "Close",
       requestTitle: "Request", requestIntro: "Fill in the basics. Your message opens ready to send in WhatsApp or email.",
@@ -394,10 +462,57 @@ a { color: inherit; text-decoration: none; }
 .checks svg { width: 1.1rem; height: 1.1rem; color: var(--accent); margin-top: .15rem; }
 
 /* ─── ΠΕΡΙΟΧΕΣ ─────────────────────────────────────────────────── */
-.regions { display: grid; border-top: 1px solid var(--line); }
-.region { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; padding: .95rem 0; border-bottom: 1px solid var(--line); }
-.region b { font-family: var(--font-display); font-weight: 400; font-size: 1.25rem; }
-.region span { font-size: .72rem; color: var(--muted); letter-spacing: .06em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+/* Κάθετες κάρτες προορισμών με liquid glass πλαίσιο */
+.photo {                                   /* κοινό «παράθυρο» φωτογραφίας */
+  position: relative; overflow: hidden; display: block;
+  background: linear-gradient(160deg, var(--blob-1), var(--accent));  /* αν λείπει η φωτογραφία */
+}
+.photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.dest {
+  flex: 0 0 10.6rem; scroll-snap-align: start; padding: .35rem; border-radius: 1.9rem; text-align: left;
+  transition: transform .35s cubic-bezier(.34,1.56,.64,1);
+}
+.dest:active { transform: scale(.96); }
+.dest .photo { aspect-ratio: 3 / 4.3; border-radius: 1.55rem; }
+.dest .photo img { transition: transform 1.2s cubic-bezier(.2,.8,.2,1); }
+.dest:hover .photo img { transform: scale(1.05); }
+.caption {                                  /* γυάλινη ετικέτα πάνω στη φωτογραφία */
+  position: absolute; left: .45rem; right: .45rem; bottom: .45rem; z-index: 1;
+  padding: .55rem .75rem .6rem; border-radius: 1.15rem; color: #fff;
+  background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.32);
+  -webkit-backdrop-filter: blur(16px) saturate(160%); backdrop-filter: blur(16px) saturate(160%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.35);
+  text-shadow: 0 1px 8px rgba(0,0,0,.25);
+}
+.caption b { display: block; font-family: var(--font-display); font-weight: 400; font-size: 1.2rem; line-height: 1.15; }
+.caption span { display: block; font-size: .62rem; letter-spacing: .08em; opacity: .9; font-variant-numeric: tabular-nums; margin-top: .1rem; }
+.exp { flex: 0 0 8.2rem; padding: .3rem; border-radius: 1.5rem; text-align: left; transition: transform .35s cubic-bezier(.34,1.56,.64,1); }
+.exp:active { transform: scale(.95); }
+.exp .photo { aspect-ratio: 3 / 4.1; border-radius: 1.25rem; }
+.exp .caption { left: .3rem; right: .3rem; bottom: .3rem; padding: .45rem .55rem; border-radius: .95rem; }
+.exp .caption b { font-family: var(--font-body); font-weight: 600; font-size: .72rem; line-height: 1.25; }
+
+/* Σελίδα προορισμού */
+.view[data-view="region"].is-active { animation: none; }
+.region-top { display: flex; align-items: center; justify-content: space-between; padding-top: .6rem; }
+.back { height: 2.4rem; padding: 0 .95rem 0 .7rem; border-radius: 999px; display: inline-flex; align-items: center; gap: .35rem; font-size: .82rem; font-weight: 600; }
+.back svg { width: 1rem; height: 1rem; transform: scaleX(-1); }
+.region-hero { margin-top: .9rem; padding: .4rem; border-radius: 2.2rem; }
+.region-hero .photo { aspect-ratio: 4 / 4.6; border-radius: 1.85rem; }
+.region-hero .caption { left: .7rem; right: .7rem; bottom: .7rem; padding: .9rem 1.1rem 1rem; border-radius: 1.4rem; }
+.region-hero .caption b { font-size: 2.3rem; }
+.region-hero .caption span { font-size: .7rem; }
+.region-body > * { animation: rise .7s cubic-bezier(.2,.8,.2,1) both; }
+.region-body > *:nth-child(2) { animation-delay: .08s; } .region-body > *:nth-child(3) { animation-delay: .16s; }
+.region-body > *:nth-child(4) { animation-delay: .24s; } .region-body > *:nth-child(5) { animation-delay: .32s; }
+.region-intro { margin: 1.4rem 0 0; color: var(--muted); font-size: .95rem; }
+.facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; margin-top: 1.3rem; }
+.fact { border-radius: 1.2rem; padding: .75rem .75rem .8rem; min-width: 0; }
+.fact small { display: block; font-size: .6rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.fact b { display: block; font-size: .8rem; font-weight: 600; margin-top: .2rem; line-height: 1.3; }
+.sheet-photo { aspect-ratio: 16 / 10; border-radius: 1.4rem; margin-bottom: 1.1rem; }
+.flip-clone { position: fixed; z-index: 25; object-fit: cover; pointer-events: none; margin: 0; }
+.credits { margin-top: 1.2rem; font-size: .62rem; color: var(--muted); line-height: 1.5; text-align: center; }
 
 .foot { margin-top: 2.4rem; text-align: center; color: var(--muted); font-size: .72rem; letter-spacing: .08em; }
 .foot b { font-family: var(--font-display); font-weight: 400; font-size: 1rem; letter-spacing: .02em; color: var(--ink); display: block; margin-bottom: .2rem; }
@@ -485,14 +600,14 @@ textarea.input { height: auto; min-height: 6.5rem; padding: .85rem 1.05rem; resi
   display: flex; align-items: center; justify-content: center; gap: 0;
   color: var(--muted); font-size: .8rem; font-weight: 600; letter-spacing: .01em;
   border: 1px solid transparent;
-  transition: flex-grow .55s cubic-bezier(.3,1.2,.4,1), gap .55s cubic-bezier(.3,1.2,.4,1),
+  transition: flex-grow .6s cubic-bezier(.34,1.56,.64,1), gap .6s cubic-bezier(.34,1.56,.64,1),
               background-color .4s ease, border-color .4s ease, color .3s ease, box-shadow .4s ease;
   -webkit-tap-highlight-color: transparent;
 }
 .nav a svg { flex: none; width: 1.35rem; height: 1.35rem; transition: transform .4s cubic-bezier(.3,1.3,.5,1); }
 .nav a span {                     /* η ετικέτα εμφανίζεται μόνο στην ενεργή επιλογή */
   max-width: 0; opacity: 0; overflow: hidden; white-space: nowrap;
-  transition: max-width .55s cubic-bezier(.3,1.2,.4,1), opacity .3s ease;
+  transition: max-width .6s cubic-bezier(.34,1.56,.64,1), opacity .3s ease;
 }
 .nav a:active svg { transform: scale(.88); }
 .nav a[aria-current="page"] {
@@ -501,6 +616,10 @@ textarea.input { height: auto; min-height: 6.5rem; padding: .85rem 1.05rem; resi
   box-shadow: inset 0 1px 0 var(--shine), 0 .3rem 1rem -0.4rem var(--glass-shadow);
 }
 .nav a[aria-current="page"] span { max-width: 8rem; opacity: 1; transition-delay: 0s, .12s; }
+.nav a[aria-current="page"] svg { animation: bounce .65s cubic-bezier(.34,1.56,.64,1); }
+.nav a.pop { animation: squish .6s cubic-bezier(.34,1.56,.64,1); }
+@keyframes bounce { 0% { transform: scale(.6) translateY(3px); } 55% { transform: scale(1.18) translateY(-2px); } 100% { transform: none; } }
+@keyframes squish { 0% { transform: scale(.92, .9); } 45% { transform: scale(1.05, 1.06); } 70% { transform: scale(.99, .98); } 100% { transform: none; } }
 
 /* ─── SHEET (popup) ────────────────────────────────────────────── */
 .scrim {
@@ -598,13 +717,16 @@ textarea.input { height: auto; min-height: 6.5rem; padding: .85rem 1.05rem; resi
       </div>
 
       <div class="section">
-        <div class="section-head"><h2 class="h2" data-t="regionsTitle"></h2></div>
-        <div class="regions" id="regions"></div>
+        <div class="section-head"><h2 class="h2" data-t="regionsTitle"></h2><span class="eyebrow" data-t="regionsHint"></span></div>
+        <div class="rail" id="regions"></div>
       </div>
 
       <div class="meander" aria-hidden="true"></div>
       <footer class="foot"><b data-brand></b><span data-t="footer"></span> · © <span id="year"></span></footer>
     </section>
+
+    <!-- ΣΕΛΙΔΑ ΠΡΟΟΡΙΣΜΟΥ (γεμίζει αυτόματα από το CONFIG) -->
+    <section class="view" data-view="region" id="regionView"></section>
 
     <!-- ΥΠΗΡΕΣΙΕΣ -->
     <section class="view" data-view="services">
@@ -668,6 +790,7 @@ textarea.input { height: auto; min-height: 6.5rem; padding: .85rem 1.05rem; resi
       </div>
       <div class="meander" aria-hidden="true"></div>
       <footer class="foot"><b data-brand></b><span data-t="footer"></span></footer>
+      <p class="credits" id="credits"></p>
     </section>
   </main>
 </div>
@@ -734,6 +857,63 @@ textarea.input { height: auto; min-height: 6.5rem; padding: .85rem 1.05rem; resi
   const waHref = (msg) => `https://wa.me/${C.whatsapp}` + (msg ? `?text=${encodeURIComponent(msg)}` : "");
 
   const state = { services: [], region: null, guests: 2 };
+  let currentRegion = null, pendingFlip = null;
+  const img = (src, alt) => src ? `<img src="${esc(src)}" alt="${esc(alt)}" loading="eager" decoding="async" onerror="this.remove()">` : "";
+
+  /* ── Σελίδα προορισμού ──────────────────────────────────── */
+  function renderRegion(id) {
+    const r = CONFIG.regions.find(x => x.id === id); if (!r) return;
+    $("#regionView").innerHTML = `
+      <div class="region-top">
+        <button class="back glass" type="button" data-back>${svg("arrow")}<span>${esc(T("back"))}</span></button>
+        <span class="eyebrow">${esc(T("regionsTitle"))}</span>
+      </div>
+      <div class="region-hero glass">
+        <span class="photo" id="regionPhoto">${img(r.image, r[lang])}
+          <span class="caption"><b>${esc(r[lang])}</b><span>${r.coords}</span></span></span>
+      </div>
+      <div class="region-body">
+        <p class="region-intro">${esc(r.intro[lang])}</p>
+        <div class="facts">${r.facts[lang].map(([k, v]) => `<div class="fact glass"><small>${esc(k)}</small><b>${esc(v)}</b></div>`).join("")}</div>
+        <div class="section">
+          <div class="section-head"><h2 class="h2">${esc(T("expTitle"))}</h2></div>
+          <div class="rail">${r.experiences.map(x => `
+            <button class="exp glass" type="button" data-exp="${r.id}:${x.id}">
+              <span class="photo">${img(x.image, x[lang].title)}<span class="caption"><b>${esc(x[lang].title)}</b></span></span>
+            </button>`).join("")}</div>
+        </div>
+        <a class="btn btn-primary btn-block" href="#request" data-plan="${r.id}"><span>${esc(T("planTrip"))}</span>${svg("arrow")}</a>
+      </div>`;
+  }
+  function expSheet(key) {
+    const [rid, xid] = key.split(":");
+    const r = CONFIG.regions.find(x => x.id === rid); const x = r?.experiences.find(e => e.id === xid); if (!x) return;
+    openSheet(`
+      <div class="sheet-head" style="margin-bottom:.9rem">
+        <span class="eyebrow">${esc(r[lang])} · ${esc(T("expLabel"))}</span>
+        <button class="icon-btn" type="button" data-close aria-label="${esc(T("close"))}">${svg("close")}</button>
+      </div>
+      <div class="photo sheet-photo">${img(x.image, x[lang].title)}</div>
+      <h3 id="sheetTitle" style="margin-top:0">${esc(x[lang].title)}</h3>
+      <p>${esc(x[lang].text)}</p>
+      <div style="height:1.4rem"></div>
+      <button class="btn btn-primary btn-block" type="button" data-exp-request="${key}"><span>${esc(T("expCta"))}</span>${svg("arrow")}</button>`);
+  }
+
+  /* Zoom: η φωτογραφία «μεγαλώνει» από την κάρτα και κεντράρεται στη νέα σελίδα */
+  function flip(fromBox, toBox) {
+    const fromImg = fromBox?.querySelector("img"), toImg = toBox?.querySelector("img");
+    if (!fromImg || !toImg || matchMedia("(prefers-reduced-motion: reduce)").matches || !toImg.animate) return;
+    const a = fromBox.getBoundingClientRect(), b = toBox.getBoundingClientRect();
+    const ra = getComputedStyle(fromBox).borderTopLeftRadius, rb = getComputedStyle(toBox).borderTopLeftRadius;
+    const c = fromImg.cloneNode(); c.removeAttribute("onerror"); c.className = "flip-clone"; c.removeAttribute("style");
+    document.body.appendChild(c);
+    toImg.style.opacity = "0";
+    const box = (r, rad) => ({ left: r.left + "px", top: r.top + "px", width: r.width + "px", height: r.height + "px", borderRadius: rad });
+    const anim = c.animate([box(a, ra), box(b, rb)], { duration: 720, easing: "cubic-bezier(.2,.9,.22,1)", fill: "forwards" });
+    const done = () => { toImg.style.opacity = ""; c.remove(); };
+    anim.onfinish = done; anim.oncancel = done;
+  }
 
   /* ── Render ─────────────────────────────────────────────── */
   function render() {
@@ -758,7 +938,13 @@ textarea.input { height: auto; min-height: 6.5rem; padding: .85rem 1.05rem; resi
       </button>`).join("");
 
     $("#regions").innerHTML = CONFIG.regions.map(r => `
-      <div class="region"><b>${esc(r[lang])}</b><span>${r.coords}</span></div>`).join("");
+      <button class="dest glass" type="button" data-region="${r.id}">
+        <span class="photo">${img(r.image, r[lang])}
+          <span class="caption"><b>${esc(r[lang])}</b><span>${r.coords}</span></span></span>
+      </button>`).join("");
+    const cr = CONFIG.photoCredits || [];
+    $("#credits").textContent = cr.length ? T("photoCredits") + ": " + cr.join(" · ") : "";
+    if (currentRegion) renderRegion(currentRegion);
     $("#regionsInline").textContent = CONFIG.regions.map(r => r[lang]).join(" · ");
 
     $("#serviceChips").innerHTML = CONFIG.services.map(s => `
@@ -786,12 +972,27 @@ textarea.input { height: auto; min-height: 6.5rem; padding: .85rem 1.05rem; resi
   /* ── Routing (#home, #services, #request, #contact) ─────── */
   const VIEWS = ["home", "services", "request", "contact"];
   function route() {
-    const v = VIEWS.includes(location.hash.slice(1)) ? location.hash.slice(1) : "home";
+    const h = location.hash.slice(1);
+    const isRegion = CONFIG.regions.some(r => r.id === h);
+    const v = isRegion ? "region" : VIEWS.includes(h) ? h : "home";
+    currentRegion = isRegion ? h : null;
+    if (isRegion) renderRegion(h);
     document.querySelectorAll(".view").forEach(el => el.classList.toggle("is-active", el.dataset.view === v));
+    const navV = isRegion ? "home" : v;
     document.querySelectorAll("#nav a").forEach(a => {
-      if (a.getAttribute("href") === "#" + v) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+      const on = a.getAttribute("href") === "#" + navV;
+      if (on && !a.hasAttribute("aria-current")) { a.classList.remove("pop"); void a.offsetWidth; a.classList.add("pop"); }
+      if (on) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
     });
-    window.scrollTo(0, 0);
+    const f = pendingFlip; pendingFlip = null;
+    if (f && f.back && v === "home") {
+      const card = document.querySelector(`#regions [data-region="${f.back}"]`);
+      card?.scrollIntoView({ block: "center", inline: "center" });
+      flip(f.from, card?.querySelector(".photo"));
+    } else {
+      window.scrollTo(0, 0);
+      if (f && isRegion) flip(f.from, $("#regionPhoto"));
+    }
   }
 
   /* ── Popup sheet ────────────────────────────────────────── */
@@ -899,6 +1100,11 @@ textarea.input { height: auto; min-height: 6.5rem; padding: .85rem 1.05rem; resi
     const msg = buildMessage();
     setTimeout(() => sentSheet(msg), 400);
   }
+  function setRegion(id) {
+    state.region = id;
+    const inp = document.querySelector(`#regionChips input[value="${id}"]`); if (inp) inp.checked = true;
+    updateSendLinks();
+  }
   function setGuests(n) { state.guests = Math.min(99, Math.max(1, n)); $("#fGuests").textContent = state.guests; updateSendLinks(); }
 
   /* ── Events ─────────────────────────────────────────────── */
@@ -906,6 +1112,22 @@ textarea.input { height: auto; min-height: 6.5rem; padding: .85rem 1.05rem; resi
     const o = e.target.closest("[data-open]"); if (o) return serviceSheet(o.dataset.open);
     const c = e.target.closest("[data-copy]"); if (c) { e.preventDefault(); return copy(c.dataset.copy); }
     if (e.target.closest("[data-close]")) return closeSheet();
+    const rg = e.target.closest("[data-region]");
+    if (rg) { pendingFlip = { from: rg.querySelector(".photo") }; location.hash = rg.dataset.region; return; }
+    if (e.target.closest("[data-back]")) { pendingFlip = { from: $("#regionPhoto"), back: currentRegion }; location.hash = "home"; return; }
+    const ex = e.target.closest("[data-exp]"); if (ex) return expSheet(ex.dataset.exp);
+    const pl = e.target.closest("[data-plan]"); if (pl) { setRegion(pl.dataset.plan); return; }
+    const er = e.target.closest("[data-exp-request]");
+    if (er) {
+      const [rid, xid] = er.dataset.expRequest.split(":");
+      const x = CONFIG.regions.find(q => q.id === rid).experiences.find(q => q.id === xid);
+      if (!state.services.includes("experiences")) state.services.push("experiences");
+      const inp = document.querySelector('#serviceChips input[value="experiences"]'); if (inp) inp.checked = true;
+      setRegion(rid);
+      const notes = $("#fNotes"), line = `${T("expLabel")}: ${x[lang].title}`;
+      if (!notes.value.includes(line)) notes.value = (notes.value ? notes.value + "\n" : "") + line;
+      closeSheet(); $("#formError").textContent = ""; updateSendLinks(); location.hash = "request"; return;
+    }
     const r = e.target.closest("[data-request]");
     if (r) {
       if (!state.services.includes(r.dataset.request)) state.services.push(r.dataset.request); closeSheet();
