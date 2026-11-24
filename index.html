@@ -1321,7 +1321,7 @@ html.ak-splash .app, html.ak-splash .nav-wrap { visibility: hidden; }
     for (let i = 0; i < n; i++) v.setInt16(44 + i * 2, Math.round(out[i] / peak * .85 * 32767), true);
     return bytes;
   }
-  let chimeBytes = null, chimeAudio = null, chimePlayed = false;
+  let chimeBytes = null, chimeAudio = null, chimeOn = false, wa = null, waBuf = null, waStarted = false, waTimer = null;
   function prepareChime() {
     try {
       chimeBytes = chimeWav();
@@ -1332,23 +1332,37 @@ html.ak-splash .app, html.ak-splash .nav-wrap { visibility: hidden; }
       chimeAudio = new Audio(src); chimeAudio.preload = "auto"; chimeAudio.setAttribute("playsinline", ""); chimeAudio.load();
     } catch {}
   }
-  function chime() {                         // καλείται μέσα στο άγγιγμα/κλικ του επισκέπτη
-    if (chimePlayed) return; chimePlayed = true;
+  // Ξεκλειδώνει τον ήχο σε κάθε άγγιγμα (χωρίς να ακούγεται), ώστε να μπορεί να παίξει αμέσως μετά
+  function unlockSound(prime) {
     try { if (navigator.audioSession) navigator.audioSession.type = "playback"; } catch {}
     if (!chimeBytes) prepareChime();
-    // Το AudioContext ξεκλειδώνεται τώρα, μέσα στο άγγιγμα, ώστε να είναι έτοιμο ως εφεδρεία
-    let ctx = null;
-    try { ctx = new (window.AudioContext || window.webkitAudioContext)(); ctx.resume?.(); } catch {}
-    let ok = false;
-    try { chimeAudio.currentTime = 0; const p = chimeAudio.play(); if (p) p.then(() => { ok = true; }, () => {}); else ok = !chimeAudio.paused; } catch {}
-    setTimeout(() => {                       // αν το <audio> δεν ξεκίνησε, παίζει μέσω Web Audio
-      if (ok && !chimeAudio.paused) { ctx?.close?.(); return; }
-      if (!ctx || !chimeBytes) return;
-      try {
-        const done = (buf) => { const s = ctx.createBufferSource(); s.buffer = buf; s.connect(ctx.destination); s.start(); };
-        const r = ctx.decodeAudioData(chimeBytes.buffer.slice(0), done, () => {}); r?.catch?.(() => {});
-      } catch {}
-    }, 350);
+    try { wa = wa || new (window.AudioContext || window.webkitAudioContext)(); if (wa.state !== "running") wa.resume?.(); } catch {}
+    if (wa && !waBuf && chimeBytes) { try { const r = wa.decodeAudioData(chimeBytes.buffer.slice(0), b => { waBuf = b; }, () => {}); r?.catch?.(() => {}); } catch {} }
+    if (prime && chimeAudio && !chimeOn && chimeAudio.paused && !chimeAudio.dataset.primed) {
+      try { chimeAudio.muted = true; const p = chimeAudio.play();
+        p?.then(() => { if (!chimeOn) { chimeAudio.pause(); chimeAudio.currentTime = 0; } chimeAudio.muted = false; chimeAudio.dataset.primed = "1"; }, () => { chimeAudio.muted = false; }); } catch {}
+    }
+  }
+  function playWebAudio() {
+    if (chimeOn || waStarted || !wa || !waBuf || wa.state !== "running") return false;
+    try { const s = wa.createBufferSource(); s.buffer = waBuf; s.connect(wa.destination); s.start(); waStarted = chimeOn = true; return true; } catch { return false; }
+  }
+  // Παίζει το καμπανάκι μία φορά. Μπορεί να κληθεί από πολλά γεγονότα (σήκωμα δαχτύλου, touchend, click):
+  // αν μια προσπάθεια μπλοκαριστεί, η επόμενη ξαναδοκιμάζει.
+  function chime() {
+    if (chimeOn) return;
+    if (chimeAudio && !chimeAudio.paused && !chimeAudio.muted) { chimeOn = true; return; }   // ήδη παίζει
+    unlockSound();
+    try {
+      chimeAudio.muted = false; chimeAudio.currentTime = 0;
+      const p = chimeAudio.play();
+      p?.then(() => { if (waStarted) chimeAudio.pause(); else chimeOn = true; }, () => {});
+    } catch {}
+    clearTimeout(waTimer);
+    waTimer = setTimeout(() => {             // αν το <audio> δεν ξεκίνησε, παίζει μέσω Web Audio
+      if (chimeOn || (chimeAudio && !chimeAudio.paused && !chimeAudio.muted)) { chimeOn = true; return; }
+      playWebAudio();
+    }, 400);
   }
   function initSplash() {
     if (PREVIEW) return;
@@ -1404,7 +1418,7 @@ html.ak-splash .app, html.ak-splash .nav-wrap { visibility: hidden; }
     };
     sw.addEventListener("pointerup", release);
     sw.addEventListener("pointercancel", release);
-    sw.addEventListener("touchend", () => { if (done) chime(); });   // επιπλέον «ξεκλείδωμα» ήχου για iPhone
+    sw.addEventListener("touchend", () => { if (done) chime(); else unlockSound(true); });   // στο iPhone ο ήχος επιτρέπεται στο touchend
     sw.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); measure(); finish(true); } });
     sw.addEventListener("click", (e) => { e.preventDefault(); if (done) chime(); });
     requestAnimationFrame(() => { measure(); paint(); });
