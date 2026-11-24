@@ -66,6 +66,7 @@
 const CONFIG = {
   brand: "AthenianKeys",
   defaultLang: "en",                       // "en" ή "el"
+  introSound: "sounds/chime.mp3",          // ήχος του διακόπτη στη σελίδα εισόδου ("" = παράγεται αυτόματα)
 
   // Στοιχεία επικοινωνίας (προσωρινά – αλλάξτε τα)
   contact: {
@@ -1322,20 +1323,25 @@ html.ak-splash .app, html.ak-splash .nav-wrap { visibility: hidden; }
     return bytes;
   }
   let chimeBytes = null, chimeAudio = null, chimeOn = false, wa = null, waBuf = null, waStarted = false, waTimer = null;
+  // Ο ήχος φορτώνεται από αρχείο MP3 (CONFIG.introSound). Αν λείπει, φτιάχνεται επί τόπου ως WAV.
+  function useGeneratedChime() {
+    try { chimeBytes = chimeWav(); chimeAudio.src = URL.createObjectURL(new Blob([chimeBytes], { type: "audio/wav" })); chimeAudio.load(); } catch {}
+  }
   function prepareChime() {
+    if (chimeAudio) return;
     try {
-      chimeBytes = chimeWav();
-      // Προτιμάται blob: (λιγότεροι περιορισμοί), με data: ως εναλλακτική
-      let src;
-      try { src = URL.createObjectURL(new Blob([chimeBytes], { type: "audio/wav" })); }
-      catch { let bin = ""; for (let i = 0; i < chimeBytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, chimeBytes.subarray(i, i + 0x8000)); src = "data:audio/wav;base64," + btoa(bin); }
-      chimeAudio = new Audio(src); chimeAudio.preload = "auto"; chimeAudio.setAttribute("playsinline", ""); chimeAudio.load();
+      chimeAudio = new Audio(); chimeAudio.preload = "auto"; chimeAudio.setAttribute("playsinline", "");
+      const src = CONFIG.introSound;
+      if (!src) { useGeneratedChime(); return; }
+      chimeAudio.addEventListener("error", useGeneratedChime, { once: true });
+      chimeAudio.src = src; chimeAudio.load();
+      fetch(src).then(r => r.ok ? r.arrayBuffer() : Promise.reject()).then(b => { if (!chimeBytes) chimeBytes = new Uint8Array(b); }).catch(() => {});
     } catch {}
   }
   // Ξεκλειδώνει τον ήχο σε κάθε άγγιγμα (χωρίς να ακούγεται), ώστε να μπορεί να παίξει αμέσως μετά
   function unlockSound(prime) {
     try { if (navigator.audioSession) navigator.audioSession.type = "playback"; } catch {}
-    if (!chimeBytes) prepareChime();
+    prepareChime();
     try { wa = wa || new (window.AudioContext || window.webkitAudioContext)(); if (wa.state !== "running") wa.resume?.(); } catch {}
     if (wa && !waBuf && chimeBytes) { try { const r = wa.decodeAudioData(chimeBytes.buffer.slice(0), b => { waBuf = b; }, () => {}); r?.catch?.(() => {}); } catch {} }
     if (prime && chimeAudio && !chimeOn && chimeAudio.paused && !chimeAudio.dataset.primed) {
