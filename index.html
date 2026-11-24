@@ -1291,26 +1291,45 @@ html.ak-splash .app, html.ak-splash .nav-wrap { visibility: hidden; }
   $("#privacyNote").hidden = !backendOn;
 
   /* ── Σελίδα εισόδου: διακόπτης, ήχος, μετάβαση ──────────── */
-  let actx = null;
-  function unlockAudio() {
-    try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === "suspended") actx.resume(); } catch {}
-  }
-  function chime() {                         // καμπανάκι αναγγελιών αεροδρομίου (3 νότες, συντίθεται live)
-    if (!actx) return;
-    const t0 = actx.currentTime + .05, sr = actx.sampleRate;
-    const out = actx.createGain(); out.gain.value = .3; out.connect(actx.destination);
-    const rev = actx.createConvolver(), len = Math.floor(sr * 2.8), ir = actx.createBuffer(2, len, sr);
-    for (let c = 0; c < 2; c++) { const d = ir.getChannelData(c); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3); }
-    rev.buffer = ir; const wet = actx.createGain(); wet.gain.value = .28; out.connect(rev); rev.connect(wet); wet.connect(actx.destination);
-    [[392.0, 0], [493.88, .42], [587.33, .84]].forEach(([f, dt], n) => {
-      const t = t0 + dt, dur = n === 2 ? 3.2 : 2.2;
+  /* Καμπανάκι αναγγελιών αεροδρομίου: 3 νότες (Σολ-Σι-Ρε) με αντήχηση αίθουσας.
+     Φτιάχνεται μία φορά ως αρχείο WAV και παίζει από στοιχείο <audio>, που
+     δουλεύει και στο iPhone (και με τον διακόπτη σίγασης). */
+  function chimeWav() {
+    const sr = 16000, n = Math.floor(sr * 4.4), d = new Float32Array(n);
+    [[392.0, 0], [493.88, .42], [587.33, .84]].forEach(([f, dt], k) => {
+      const s0 = Math.floor(dt * sr), dur = k === 2 ? 3.2 : 2.2;
       [[1, 1], [2, .32], [3, .1], [4.2, .05]].forEach(([m, a]) => {
-        const o = actx.createOscillator(), g = actx.createGain();
-        o.type = "sine"; o.frequency.value = f * m;
-        g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.42 * a, t + .012); g.gain.exponentialRampToValueAtTime(.0001, t + dur / m ** .4);
-        o.connect(g); g.connect(out); o.start(t); o.stop(t + dur + .1);
+        const w = 2 * Math.PI * f * m / sr, tau = dur / m ** .4 / 9.2 * sr;
+        for (let i = 0; s0 + i < n; i++) {
+          const env = i < 190 ? i / 190 : Math.exp(-(i - 190) / tau);
+          if (env < 2e-4 && i > 190) break;
+          d[s0 + i] += a * env * Math.sin(w * i);
+        }
       });
     });
+    const out = new Float32Array(n);                         // αντήχηση: 4 παράλληλα comb filters
+    [1557, 1617, 1491, 1422].map(x => Math.round(x * sr / 44100 * 1.6)).forEach(L => {
+      const buf = new Float32Array(L); let j = 0;
+      for (let i = 0; i < n; i++) { const y = buf[j]; buf[j] = d[i] + y * .8; out[i] += y * .07; j = (j + 1) % L; }
+    });
+    let peak = 0; for (let i = 0; i < n; i++) { out[i] += d[i]; peak = Math.max(peak, Math.abs(out[i])); }
+    const bytes = new Uint8Array(44 + n * 2), v = new DataView(bytes.buffer);
+    const str = (o, s) => [...s].forEach((c, i) => v.setUint8(o + i, c.charCodeAt(0)));
+    str(0, "RIFF"); v.setUint32(4, 36 + n * 2, true); str(8, "WAVEfmt "); v.setUint32(16, 16, true); v.setUint16(20, 1, true);
+    v.setUint16(22, 1, true); v.setUint32(24, sr, true); v.setUint32(28, sr * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+    str(36, "data"); v.setUint32(40, n * 2, true);
+    for (let i = 0; i < n; i++) v.setInt16(44 + i * 2, Math.round(out[i] / peak * .85 * 32767), true);
+    let bin = ""; for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+    return "data:audio/wav;base64," + btoa(bin);
+  }
+  let chimeAudio = null, chimePlayed = false;
+  function prepareChime() {
+    try { chimeAudio = new Audio(chimeWav()); chimeAudio.preload = "auto"; chimeAudio.load(); } catch {}
+  }
+  function chime() {                         // καλείται μέσα στο άγγιγμα/κλικ του επισκέπτη
+    if (chimePlayed) return; chimePlayed = true;
+    try { if (navigator.audioSession) navigator.audioSession.type = "playback"; } catch {}
+    try { if (!chimeAudio) prepareChime(); chimeAudio.currentTime = 0; chimeAudio.play()?.catch(() => {}); } catch {}
   }
   function initSplash() {
     if (PREVIEW) return;
@@ -1326,10 +1345,10 @@ html.ak-splash .app, html.ak-splash .nav-wrap { visibility: hidden; }
       fill.style.height = `${knob.offsetHeight + off}px`; fill.style.opacity = .18 + .82 * p;
       icon.style.transform = `rotate(${-90 * p}deg)`; cue.style.opacity = 1 - p * 1.6;
     };
-    const finish = () => {
+    const finish = (withSound) => {
       if (done) return; done = true;
       sw.classList.add("springing", "on"); sw.setAttribute("aria-checked", "true");
-      off = travel; paint(); chime(); navigator.vibrate?.(18);
+      off = travel; paint(); if (withSound) chime(); navigator.vibrate?.(18);
       setTimeout(enter, reduce ? 150 : 650);
     };
     const enter = () => {
@@ -1348,7 +1367,7 @@ html.ak-splash .app, html.ak-splash .nav-wrap { visibility: hidden; }
       setTimeout(() => splash.remove(), 1060);
     };
     sw.addEventListener("pointerdown", (e) => {
-      if (done) return; unlockAudio(); measure();
+      if (done) return; measure();
       sw.classList.remove("springing"); sw.setPointerCapture(e.pointerId);
       start = e.clientY; base = off; moved = 0;
     });
@@ -1356,18 +1375,21 @@ html.ak-splash .app, html.ak-splash .nav-wrap { visibility: hidden; }
       if (start === null || done) return;
       moved = Math.max(moved, Math.abs(start - e.clientY));
       off = Math.min(travel, Math.max(0, base + (start - e.clientY))); paint();
-      if (off >= travel) { start = null; finish(); }
+      if (off >= travel) finish(false);                          // ο ήχος παίζει μόλις σηκωθεί το δάχτυλο
     });
     const release = () => {
-      if (start === null || done) return; start = null;
-      if (moved < 6 || off > travel * .55) finish();            // πάτημα ή αρκετό σύρσιμο: ενεργοποίηση
+      if (start === null) return; start = null;
+      if (done) { chime(); return; }
+      if (moved < 6 || off > travel * .55) finish(true);        // πάτημα ή αρκετό σύρσιμο: ενεργοποίηση
       else { sw.classList.add("springing"); off = 0; paint(); }  // αλλιώς επιστρέφει κάτω με ελατήριο
     };
     sw.addEventListener("pointerup", release);
     sw.addEventListener("pointercancel", release);
-    sw.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); unlockAudio(); measure(); finish(); } });
-    sw.addEventListener("click", (e) => e.preventDefault());
+    sw.addEventListener("touchend", () => { if (done) chime(); });   // επιπλέον «ξεκλείδωμα» ήχου για iPhone
+    sw.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); measure(); finish(true); } });
+    sw.addEventListener("click", (e) => { e.preventDefault(); if (done) chime(); });
     requestAnimationFrame(() => { measure(); paint(); });
+    setTimeout(prepareChime, 300);
   }
   render();
   route();
