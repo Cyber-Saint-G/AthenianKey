@@ -58,6 +58,9 @@
 }
 </style>
 
+<!-- Σύνδεση με τη βάση (Supabase) για αιτήματα, στατιστικά και CMS. Ρυθμίζεται στο config.js -->
+<script src="config.js"></script>
+
 <script>
 /* ─── 2. ΠΕΡΙΕΧΟΜΕΝΟ / CONTENT ──────────────────────────────────── */
 const CONFIG = {
@@ -237,6 +240,7 @@ const CONFIG = {
       fNamePh: "π.χ. Μαρία Παπαδοπούλου", fPhonePh: "+30 …", fEmailPh: "name@email.com",
       fNotesPh: "Ώρα, αριθμός πτήσης, προτιμήσεις…",
       sendWhatsapp: "Αποστολή με WhatsApp", sendEmail: "Αποστολή με email",
+      privacyNote: "Με την αποστολή, τα στοιχεία σας αποθηκεύονται με ασφάλεια μόνο για την εξυπηρέτηση του αιτήματός σας. Δεν τα μοιραζόμαστε με τρίτους.", refLabel: "Κωδικός αιτήματος",
       errService: "Επιλέξτε τουλάχιστον μία υπηρεσία.", errName: "Γράψτε το όνομά σας.", errPhone: "Γράψτε ένα τηλέφωνο επικοινωνίας.",
       sentTitle: "Το μήνυμά σας είναι έτοιμο",
       sentText: "Ολοκληρώστε την αποστολή στην εφαρμογή που άνοιξε. Αν δεν άνοιξε, αντιγράψτε το μήνυμα και στείλτε το σε:",
@@ -274,6 +278,7 @@ const CONFIG = {
       fNamePh: "e.g. Anna Smith", fPhonePh: "+44 …", fEmailPh: "name@email.com",
       fNotesPh: "Time, flight number, preferences…",
       sendWhatsapp: "Send via WhatsApp", sendEmail: "Send via email",
+      privacyNote: "By sending, your details are stored securely and used only to handle your request. We never share them with third parties.", refLabel: "Request code",
       errService: "Choose at least one service.", errName: "Enter your name.", errPhone: "Enter a contact phone number.",
       sentTitle: "Your message is ready",
       sentText: "Finish sending it in the app that opened. If nothing opened, copy the message and send it to:",
@@ -517,6 +522,9 @@ a { color: inherit; text-decoration: none; }
 .fact b { display: block; font-size: .8rem; font-weight: 600; margin-top: .2rem; line-height: 1.3; }
 .sheet-photo { aspect-ratio: 16 / 10; border-radius: 1.4rem; margin-bottom: 1.1rem; }
 .flip-clone { position: fixed; z-index: 25; object-fit: cover; pointer-events: none; margin: 0; }
+.privacy { margin: -.4rem 0 0; font-size: .72rem; color: var(--muted); line-height: 1.5; }
+.ak-loading .app, .ak-loading .nav-wrap { opacity: 0; }
+.app, .nav-wrap { transition: opacity .4s ease; }
 .credits { margin-top: 1.2rem; font-size: .62rem; color: var(--muted); line-height: 1.5; text-align: center; }
 
 .foot { margin-top: 2.4rem; text-align: center; color: var(--muted); font-size: .72rem; letter-spacing: .08em; }
@@ -779,6 +787,7 @@ textarea.input { height: auto; min-height: 6.5rem; padding: .85rem 1.05rem; resi
           <a class="btn btn-primary btn-block" id="sendWa" href="#" target="_blank" rel="noopener"><svg data-icon="whatsapp"></svg><span data-t="sendWhatsapp"></span></a>
           <a class="btn glass btn-block" id="sendMail" href="#"><svg data-icon="mail"></svg><span data-t="sendEmail"></span></a>
         </div>
+        <p class="privacy" id="privacyNote" data-t="privacyNote" hidden></p>
       </form>
     </section>
 
@@ -823,6 +832,17 @@ textarea.input { height: auto; min-height: 6.5rem; padding: .85rem 1.05rem; resi
 /* ═══ ΛΟΓΙΚΗ / APP LOGIC ═════════════════════════════════════════
    Συνήθως δεν χρειάζεται αλλαγή εδώ. */
 (() => {
+  /* ── Back end (Supabase): αιτήματα, επισκεψιμότητα, περιεχόμενο ── */
+  const DEFAULTS = JSON.parse(JSON.stringify(CONFIG));          // αρχικό περιεχόμενο του κώδικα
+  window.AK_DEFAULT_CONFIG = DEFAULTS;                            // το διαβάζει το admin dashboard
+  const BK = window.AK_BACKEND || {};
+  const backendOn = !!(BK.supabaseUrl && BK.supabaseAnonKey);
+  const PREVIEW = new URLSearchParams(location.search).has("preview");
+  const api = (path, opts = {}) => fetch(BK.supabaseUrl.replace(/\/$/, "") + path, {
+    ...opts, headers: { "Content-Type": "application/json", apikey: BK.supabaseAnonKey, Authorization: "Bearer " + BK.supabaseAnonKey },
+  });
+  const rpc = (fn, body) => backendOn ? api("/rest/v1/rpc/" + fn, { method: "POST", keepalive: true, body: JSON.stringify(body) }).catch(() => null) : null;
+
   const ICONS = {
     home:"M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z",
     grid:"M4 4h6.5v6.5H4zM13.5 4H20v6.5h-6.5zM4 13.5h6.5V20H4zM13.5 13.5H20V20h-6.5z",
@@ -861,9 +881,10 @@ textarea.input { height: auto; min-height: 6.5rem; padding: .85rem 1.05rem; resi
   const telHref = (n) => "tel:" + n.replace(/[^\d+]/g, "");
   const waHref = (msg) => `https://wa.me/${C.whatsapp}` + (msg ? `?text=${encodeURIComponent(msg)}` : "");
 
-  const state = { services: [], region: null, guests: 2 };
+  const newRef = () => "AK-" + Array.from(crypto.getRandomValues(new Uint8Array(8)), b => "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"[b % 32]).join("");
+  const state = { services: [], region: null, guests: 2, ref: newRef(), sent: false };
   let currentRegion = null, pendingFlip = null;
-  const img = (src, alt) => src ? `<img src="${esc(src)}" alt="${esc(alt)}" loading="eager" decoding="async" onerror="this.remove()">` : "";
+  const img = (src, alt) => src && /^(https:\/\/|images\/|blob:)/.test(src) ? `<img src="${esc(src)}" alt="${esc(alt)}" loading="eager" decoding="async" onerror="this.remove()">` : "";
 
   /* ── Σελίδα προορισμού ──────────────────────────────────── */
   function renderRegion(id) {
@@ -918,6 +939,47 @@ textarea.input { height: auto; min-height: 6.5rem; padding: .85rem 1.05rem; resi
     const anim = c.animate([box(a, ra), box(b, rb)], { duration: 850, easing: "cubic-bezier(.25,.85,.25,1)", fill: "forwards" });
     const done = () => { toImg.style.opacity = ""; c.remove(); };
     anim.onfinish = done; anim.oncancel = done;
+  }
+
+  /* ── Περιεχόμενο από το CMS (εφαρμόζεται πάνω στο CONFIG) ── */
+  const strings = (o) => Object.fromEntries(Object.entries(o || {}).filter(([, v]) => typeof v === "string"));
+  function applyContent(d) {
+    if (!d || typeof d !== "object") return;
+    const base = JSON.parse(JSON.stringify(DEFAULTS));
+    CONFIG.brand = typeof d.brand === "string" && d.brand.trim() ? d.brand : base.brand;
+    Object.assign(CONFIG.contact, base.contact, strings(d.contact));
+    Object.keys(CONFIG.text).forEach(l => Object.assign(CONFIG.text[l], base.text[l], strings(d.text?.[l])));
+    CONFIG.services = Array.isArray(d.services) && d.services.length ? d.services : base.services;
+    CONFIG.regions = Array.isArray(d.regions) && d.regions.length ? d.regions : base.regions;
+    CONFIG.photoCredits = Array.isArray(d.photoCredits) ? d.photoCredits : base.photoCredits;
+    state.services = state.services.filter(id => CONFIG.services.some(x => x.id === id));
+    render(); route(true);
+  }
+  window.AK_applyContent = (d, l) => { if (CONFIG.text[l]) lang = l; applyContent(d); };   // για την προεπισκόπηση του dashboard
+  function loadContent() {
+    if (!backendOn || PREVIEW) return;                         // στην προεπισκόπηση το περιεχόμενο το δίνει το dashboard
+    document.documentElement.classList.add("ak-loading");
+    const reveal = () => document.documentElement.classList.remove("ak-loading");
+    const timer = setTimeout(reveal, 1500);
+    api("/rest/v1/site_content?id=eq.1&select=data")
+      .then(r => r.ok ? r.json() : [])
+      .then(rows => { if (rows[0]?.data) applyContent(rows[0].data); })
+      .catch(() => {})
+      .finally(() => { clearTimeout(timer); reveal(); });
+  }
+
+  /* ── Επισκεψιμότητα χωρίς cookies ───────────────────────── */
+  let lastTracked = null, firstView = true;
+  function track(path) {
+    if (!backendOn || PREVIEW || path === lastTracked) return;
+    lastTracked = path;
+    const ua = navigator.userAgent;
+    const device = /iPad|Tablet/i.test(ua) || (/Android/i.test(ua) && !/Mobi/i.test(ua)) ? "tablet"
+                 : /Mobi|iPhone|Android/i.test(ua) ? "mobile" : "desktop";
+    let ref = null;
+    if (firstView && document.referrer) { try { if (new URL(document.referrer).host !== location.host) ref = document.referrer; } catch {} }
+    firstView = false;
+    rpc("track_view", { p_path: path, p_referrer: ref, p_device: device, p_lang: lang });
   }
 
   /* ── Render ─────────────────────────────────────────────── */
@@ -976,7 +1038,7 @@ textarea.input { height: auto; min-height: 6.5rem; padding: .85rem 1.05rem; resi
 
   /* ── Routing (#home, #services, #request, #contact) ─────── */
   const VIEWS = ["home", "services", "request", "contact"];
-  function route() {
+  function route(silent) {
     const h = location.hash.slice(1);
     const isRegion = CONFIG.regions.some(r => r.id === h);
     const v = isRegion ? "region" : VIEWS.includes(h) ? h : "home";
@@ -995,9 +1057,10 @@ textarea.input { height: auto; min-height: 6.5rem; padding: .85rem 1.05rem; resi
       card?.scrollIntoView({ block: "center", inline: "center" });
       flip(f.from, card?.querySelector(".photo"));
     } else {
-      window.scrollTo(0, 0);
+      if (silent !== true) window.scrollTo(0, 0);
       if (f && isRegion) flip(f.from, $("#regionPhoto"));
     }
+    if (silent !== true) track("/#" + (isRegion ? h : v));
   }
 
   /* ── Popup sheet ────────────────────────────────────────── */
@@ -1071,7 +1134,7 @@ textarea.input { height: auto; min-height: 6.5rem; padding: .85rem 1.05rem; resi
     const ss = CONFIG.services.filter(x => state.services.includes(x.id));
     const r = CONFIG.regions.find(x => x.id === state.region);
     const lines = [
-      T("msgHeader"), "",
+      T("msgHeader"), `${T("refLabel")}: ${state.ref}`, "",
       `${T("fService")}: ${ss.length ? ss.map(x => x[lang].title).join(", ") : "–"}`,
       `${T("fRegion")}: ${r ? r[lang] : "–"}`,
       `${T("fDate")}: ${val("#fDate") || "–"}`,
@@ -1103,6 +1166,12 @@ textarea.input { height: auto; min-height: 6.5rem; padding: .85rem 1.05rem; resi
     updateSendLinks();
     if (!validate()) { e.preventDefault(); return; }
     const msg = buildMessage();
+    if (!PREVIEW) rpc("submit_request", { p: {
+      ref: state.ref, services: state.services, region: state.region, date: val("#fDate") || null,
+      guests: state.guests, name: val("#fName"), phone: val("#fPhone"), email: val("#fEmail"),
+      notes: val("#fNotes"), lang, channel: e.currentTarget.id === "sendWa" ? "whatsapp" : "email",
+    } });
+    state.sent = true;
     setTimeout(() => sentSheet(msg), 400);
   }
   function setRegion(id) {
@@ -1151,6 +1220,9 @@ textarea.input { height: auto; min-height: 6.5rem; padding: .85rem 1.05rem; resi
     updateSendLinks();
   });
   $("#form").addEventListener("input", updateSendLinks);
+  const freshRef = () => { if (state.sent) { state.sent = false; state.ref = newRef(); } };
+  $("#form").addEventListener("input", freshRef, true);
+  $("#form").addEventListener("change", freshRef, true);
   $("#form").addEventListener("submit", e => e.preventDefault());
   $("#gMinus").addEventListener("click", () => setGuests(state.guests - 1));
   $("#gPlus").addEventListener("click", () => setGuests(state.guests + 1));
@@ -1160,7 +1232,9 @@ textarea.input { height: auto; min-height: 6.5rem; padding: .85rem 1.05rem; resi
 
   window.addEventListener("hashchange", () => { closeSheet(); route(); });
 
+  $("#privacyNote").hidden = !backendOn;
   render();
   route();
+  loadContent();
 })();
 </script>

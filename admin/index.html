@@ -1,0 +1,1240 @@
+<!doctype html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<title>AthenianKeys Admin</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Manrope:wght@400;500;600;700&display=swap">
+
+<!--
+  ╔══════════════════════════════════════════════════════════════════╗
+  ║  ADMIN DASHBOARD                                                 ║
+  ║  • Σύνδεση με βάση: ../config.js (ίδιο αρχείο με το site)          ║
+  ║  • Χρώματα: το :root παρακάτω                                     ║
+  ║  • Ρυθμίσεις ασφαλείας: SETTINGS στην αρχή του <script>           ║
+  ║  Η πραγματική προστασία γίνεται στη βάση (Row Level Security).    ║
+  ╚══════════════════════════════════════════════════════════════════╝
+-->
+<style>
+/* Layout: sidebar σε υπολογιστή, κάτω μπάρα σε κινητό · ίδια παλέτα με το site */
+:root {
+  --bg: #F3F6FA; --panel: #FFFFFF; --panel-2: #F7F9FC; --ink: #0C1A2E; --muted: #5A6A82;
+  --line: rgba(12, 26, 46, .09); --line-strong: rgba(12, 26, 46, .16);
+  --accent: #1D4A8C; --accent-ink: #FFFFFF; --accent-soft: rgba(29, 74, 140, .09);
+  --s-new: #1D4A8C; --s-new-bg: rgba(29, 74, 140, .1);
+  --s-confirmed: #8A5A00; --s-confirmed-bg: rgba(214, 150, 20, .16);
+  --s-completed: #17694A; --s-completed-bg: rgba(30, 140, 95, .13);
+  --s-cancelled: #9A2B33; --s-cancelled-bg: rgba(180, 35, 47, .1);
+  --chart-2: #6FA3E8; --danger: #B4232F; --ok: #17694A;
+  --shadow: 0 .8rem 2.4rem -1rem rgba(18, 40, 78, .22);
+  --glass: rgba(255, 255, 255, .72); --scrim: rgba(12, 26, 46, .28);
+  --font-brand: "Marcellus", "GFS Didot", Georgia, serif;
+  --font-ui: "Manrope", "Helvetica Neue", Arial, system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #070E19; --panel: #0E1828; --panel-2: #122036; --ink: #E8EEF7; --muted: #8B9AB1;
+    --line: rgba(232, 238, 247, .09); --line-strong: rgba(232, 238, 247, .18);
+    --accent: #8FB5EE; --accent-ink: #07101D; --accent-soft: rgba(143, 181, 238, .12);
+    --s-new: #9DBEF2; --s-new-bg: rgba(143, 181, 238, .14);
+    --s-confirmed: #F0C46A; --s-confirmed-bg: rgba(240, 196, 106, .14);
+    --s-completed: #74D3A8; --s-completed-bg: rgba(116, 211, 168, .13);
+    --s-cancelled: #F08A93; --s-cancelled-bg: rgba(240, 138, 147, .13);
+    --chart-2: #3D6CB0; --danger: #F08A93; --ok: #74D3A8;
+    --shadow: 0 .8rem 2.4rem -1rem rgba(0, 0, 0, .6);
+    --glass: rgba(14, 24, 40, .78); --scrim: rgba(0, 0, 0, .5);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #070E19; --panel: #0E1828; --panel-2: #122036; --ink: #E8EEF7; --muted: #8B9AB1;
+  --line: rgba(232, 238, 247, .09); --line-strong: rgba(232, 238, 247, .18);
+  --accent: #8FB5EE; --accent-ink: #07101D; --accent-soft: rgba(143, 181, 238, .12);
+  --s-new: #9DBEF2; --s-new-bg: rgba(143, 181, 238, .14);
+  --s-confirmed: #F0C46A; --s-confirmed-bg: rgba(240, 196, 106, .14);
+  --s-completed: #74D3A8; --s-completed-bg: rgba(116, 211, 168, .13);
+  --s-cancelled: #F08A93; --s-cancelled-bg: rgba(240, 138, 147, .13);
+  --chart-2: #3D6CB0; --danger: #F08A93; --ok: #74D3A8;
+  --shadow: 0 .8rem 2.4rem -1rem rgba(0, 0, 0, .6);
+  --glass: rgba(14, 24, 40, .78); --scrim: rgba(0, 0, 0, .5);
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; }
+:root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+body { background: var(--bg); color: var(--ink); font: 500 15px/1.5 var(--font-ui); -webkit-font-smoothing: antialiased; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+a { color: var(--accent); }
+[hidden] { display: none !important; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.num { font-variant-numeric: tabular-nums; }
+.muted { color: var(--muted); }
+.small { font-size: .8rem; }
+
+/* ── Login ─────────────────────────────────────────────── */
+.login { min-height: 100vh; display: grid; place-items: center;
+  padding-block: 2rem; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.login-card { width: 100%; max-width: 24rem; background: var(--panel); border: 1px solid var(--line); border-radius: 1.6rem; padding: 2rem 1.6rem; box-shadow: var(--shadow); }
+.brand { font-family: var(--font-brand); font-size: 1.5rem; display: flex; align-items: center; gap: .5rem; }
+.brand svg { width: 1.1rem; height: 1.1rem; color: var(--accent); }
+.brand small { font-family: var(--font-ui); font-size: .68rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-left: .3rem; }
+.login h1 { font-size: 1.15rem; margin: 1.6rem 0 .3rem; }
+.login form { display: grid; gap: .9rem; margin-top: 1.2rem; }
+
+/* ── Form controls ─────────────────────────────────────── */
+.field { display: grid; gap: .35rem; min-width: 0; }
+.label { font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.input { width: 100%; min-height: 2.75rem; padding: .55rem .8rem; border-radius: .8rem; background: var(--panel); border: 1px solid var(--line-strong); outline: none; }
+.input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+textarea.input { min-height: 5.5rem; resize: vertical; line-height: 1.5; }
+.btn { min-height: 2.6rem; padding: 0 1rem; border-radius: .8rem; border: 1px solid var(--line-strong); background: var(--panel); font-weight: 700; font-size: .88rem;
+  display: inline-flex; align-items: center; justify-content: center; gap: .45rem; transition: transform .15s, background .2s; white-space: nowrap; }
+.btn:active { transform: scale(.97); }
+.btn svg { width: 1.05rem; height: 1.05rem; }
+.btn-primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+.btn-danger { color: var(--danger); }
+.btn-ghost { background: transparent; border-color: transparent; }
+.btn-sm { min-height: 2.1rem; padding: 0 .7rem; font-size: .8rem; border-radius: .65rem; }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.msg { font-size: .85rem; padding: .65rem .8rem; border-radius: .7rem; }
+.msg.err { color: var(--danger); background: var(--s-cancelled-bg); }
+.msg.ok { color: var(--ok); background: var(--s-completed-bg); }
+.msg.info { color: var(--muted); background: var(--panel-2); }
+.chips { display: flex; gap: .4rem; flex-wrap: wrap; }
+.chip { min-height: 2.1rem; padding: 0 .8rem; border-radius: 999px; border: 1px solid var(--line-strong); background: var(--panel); font-size: .8rem; font-weight: 700; display: inline-flex; align-items: center; gap: .4rem; }
+.chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+.chip .count { opacity: .7; font-variant-numeric: tabular-nums; }
+
+/* ── Shell ─────────────────────────────────────────────── */
+.shell { display: grid; grid-template-columns: 15rem minmax(0, 1fr); min-height: 100vh; background: linear-gradient(90deg, var(--panel) 15rem, transparent 15rem); }
+.side { position: sticky; top: 0; height: 100vh; padding: 1.4rem 1rem; border-right: 1px solid var(--line); background: var(--panel); display: flex; flex-direction: column; gap: 1.6rem; }
+.nav { display: grid; gap: .2rem; }
+.nav a { display: flex; align-items: center; gap: .7rem; padding: .65rem .8rem; border-radius: .8rem; color: var(--muted); text-decoration: none; font-weight: 700; font-size: .9rem; }
+.nav a svg { width: 1.2rem; height: 1.2rem; flex: none; }
+.nav a[aria-current="page"] { background: var(--accent-soft); color: var(--accent); }
+.nav .badge { margin-left: auto; min-width: 1.4rem; height: 1.4rem; padding: 0 .35rem; border-radius: 999px; background: var(--accent); color: var(--accent-ink); font-size: .7rem; display: grid; place-items: center; font-variant-numeric: tabular-nums; }
+.side-foot { margin-top: auto; font-size: .78rem; color: var(--muted); display: grid; gap: .5rem; }
+.side-foot b { color: var(--ink); font-weight: 600; overflow-wrap: anywhere; }
+.main { min-width: 0; padding-block: 1.6rem 3rem; padding-left: max(16px, 2rem, env(safe-area-inset-left, 0px)); padding-right: max(16px, 2rem, env(safe-area-inset-right, 0px)); }
+.topbar { display: none; }
+.page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.3rem; }
+.page-head h1 { margin: 0; font-size: 1.6rem; letter-spacing: -.01em; }
+.page-head p { margin: .2rem 0 0; color: var(--muted); font-size: .9rem; }
+.demo-bar { background: var(--s-confirmed-bg); color: var(--s-confirmed); font-size: .8rem; font-weight: 700; padding: .5rem .9rem; border-radius: .8rem; margin-bottom: 1rem; }
+
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 1.1rem; }
+.card-pad { padding: 1.1rem 1.2rem; }
+.card h2 { font-size: .95rem; margin: 0 0 .8rem; }
+.toolbar { display: flex; gap: .6rem; flex-wrap: wrap; align-items: center; margin-bottom: .9rem; }
+.toolbar .search { flex: 1 1 14rem; }
+.toolbar .input { min-height: 2.4rem; }
+.toolbar .dates { display: flex; gap: .4rem; align-items: center; }
+.toolbar .dates .input { width: 9.5rem; }
+
+/* Status pill */
+.pill { display: inline-flex; align-items: center; height: 1.55rem; padding: 0 .6rem; border-radius: 999px; font-size: .72rem; font-weight: 700; white-space: nowrap; }
+.pill.new { color: var(--s-new); background: var(--s-new-bg); }
+.pill.confirmed { color: var(--s-confirmed); background: var(--s-confirmed-bg); }
+.pill.completed { color: var(--s-completed); background: var(--s-completed-bg); }
+.pill.cancelled { color: var(--s-cancelled); background: var(--s-cancelled-bg); }
+.dot { width: .55rem; height: .55rem; border-radius: 50%; background: var(--accent); display: inline-block; flex: none; }
+
+/* Tables */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: .86rem; }
+th { text-align: left; font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 700; padding: .7rem .8rem; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th button { all: unset; cursor: pointer; display: inline-flex; gap: .25rem; align-items: center; }
+th button:focus-visible { outline: 2px solid var(--accent); }
+td { padding: .75rem .8rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+tbody tr { cursor: pointer; transition: background .15s; }
+tbody tr:hover { background: var(--panel-2); }
+tr.unseen td { font-weight: 700; }
+td .sub { display: block; color: var(--muted); font-size: .78rem; font-weight: 500; overflow-wrap: anywhere; }
+.empty { padding: 2.5rem 1rem; text-align: center; color: var(--muted); }
+
+/* Request list (cards on mobile) */
+.rq-list { display: none; }
+.rq { display: grid; gap: .35rem; padding: .9rem 1rem; border-bottom: 1px solid var(--line); cursor: pointer; text-align: left; background: none; border-left: 0; border-right: 0; border-top: 0; width: 100%; }
+.rq-top { display: flex; align-items: center; gap: .5rem; justify-content: space-between; }
+.rq-top b { display: flex; align-items: center; gap: .45rem; font-size: .95rem; }
+.rq .sub { color: var(--muted); font-size: .8rem; }
+
+/* KPI */
+.kpis { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: .7rem; margin-bottom: .9rem; }
+.kpi { padding: .9rem 1rem; }
+.kpi small { display: block; font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.kpi b { display: block; font-size: 1.5rem; font-weight: 700; margin-top: .2rem; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.kpi .delta { font-size: .75rem; font-weight: 700; color: var(--muted); }
+.kpi .delta.up { color: var(--ok); } .kpi .delta.down { color: var(--danger); }
+.grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .9rem; margin-bottom: .9rem; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .9rem; margin-bottom: .9rem; }
+.chart svg { width: 100%; height: auto; display: block; overflow: visible; }
+.chart .ax { fill: var(--muted); font-size: 10px; font-family: var(--font-ui); }
+.chart .grid { stroke: var(--line); }
+.legend { display: flex; gap: 1rem; font-size: .75rem; color: var(--muted); margin-bottom: .5rem; }
+.legend i { display: inline-block; width: .7rem; height: .7rem; border-radius: .2rem; margin-right: .35rem; vertical-align: -1px; }
+.bars { display: grid; gap: .55rem; }
+.bar-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .2rem .6rem; font-size: .84rem; }
+.bar-row span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bar-row b { font-variant-numeric: tabular-nums; font-weight: 700; }
+.bar-row .track { grid-column: 1 / -1; height: .4rem; border-radius: 999px; background: var(--panel-2); overflow: hidden; }
+.bar-row .track i { display: block; height: 100%; border-radius: inherit; background: var(--accent); }
+
+/* Drawer */
+.scrim { position: fixed; inset: 0; background: var(--scrim); z-index: 40; opacity: 0; pointer-events: none; transition: opacity .25s; }
+.scrim.open { opacity: 1; pointer-events: auto; }
+.drawer { position: fixed; z-index: 41; top: 0; right: 0; bottom: 0; width: min(34rem, 100%); background: var(--panel); border-left: 1px solid var(--line);
+  transform: translateX(102%); transition: transform .35s cubic-bezier(.2,.9,.25,1); display: flex; flex-direction: column; box-shadow: var(--shadow);
+  padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+.drawer.open { transform: none; }
+.drawer.wide { width: min(64rem, 100%); }
+.drawer-head { display: flex; align-items: center; justify-content: space-between; gap: .8rem; padding: 1rem max(1.2rem, env(safe-area-inset-right, 0px)) 1rem 1.2rem; border-bottom: 1px solid var(--line); }
+.drawer-head h2 { margin: 0; font-size: 1.05rem; display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; }
+.drawer-body { overflow-y: auto; padding: 1.1rem max(1.2rem, env(safe-area-inset-right, 0px)) 1.5rem 1.2rem; display: grid; gap: 1.1rem; align-content: start; flex: 1; }
+.drawer-foot { padding: .9rem max(1.2rem, env(safe-area-inset-right, 0px)) .9rem 1.2rem; border-top: 1px solid var(--line); display: flex; gap: .6rem; justify-content: flex-end; flex-wrap: wrap; }
+.dl { display: grid; grid-template-columns: 9rem minmax(0, 1fr); gap: .55rem 1rem; font-size: .88rem; margin: 0; }
+.dl dt { color: var(--muted); }
+.dl dd { margin: 0; overflow-wrap: anywhere; white-space: pre-wrap; }
+.section-t { font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: 0 0 .6rem; }
+.seg { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .35rem; }
+.seg button { min-height: 2.5rem; border-radius: .7rem; border: 1px solid var(--line-strong); background: var(--panel); font-weight: 700; font-size: .8rem; }
+.seg button[aria-pressed="true"].new { background: var(--s-new-bg); color: var(--s-new); border-color: currentColor; }
+.seg button[aria-pressed="true"].confirmed { background: var(--s-confirmed-bg); color: var(--s-confirmed); border-color: currentColor; }
+.seg button[aria-pressed="true"].completed { background: var(--s-completed-bg); color: var(--s-completed); border-color: currentColor; }
+.seg button[aria-pressed="true"].cancelled { background: var(--s-cancelled-bg); color: var(--s-cancelled); border-color: currentColor; }
+.timeline { list-style: none; margin: 0; padding: 0; display: grid; gap: .5rem; font-size: .82rem; }
+.timeline li { display: flex; gap: .6rem; align-items: center; }
+.copy { border: 0; background: none; color: var(--accent); padding: 0 .3rem; font-size: .78rem; font-weight: 700; }
+
+/* CMS */
+.tabs { display: flex; gap: .3rem; overflow-x: auto; padding-bottom: .2rem; margin-bottom: 1rem; scrollbar-width: none; }
+.tabs button { flex: none; min-height: 2.3rem; padding: 0 .9rem; border-radius: .7rem; border: 0; background: transparent; color: var(--muted); font-weight: 700; font-size: .86rem; }
+.tabs button[aria-selected="true"] { background: var(--panel); color: var(--ink); box-shadow: 0 0 0 1px var(--line); }
+.fields { display: grid; gap: .9rem; }
+.fieldgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; }
+.fieldgrid .full { grid-column: 1 / -1; }
+.block { padding: 1rem 1.1rem; display: grid; gap: .9rem; }
+.block-head { display: flex; align-items: center; justify-content: space-between; gap: .6rem; flex-wrap: wrap; }
+.block-head h3 { margin: 0; font-size: .98rem; }
+.slot { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr); gap: .8rem; align-items: center; }
+.thumb { width: 5.5rem; aspect-ratio: 3/4; border-radius: .7rem; background: var(--panel-2) center / cover no-repeat; border: 1px solid var(--line); }
+.lib { display: grid; grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr)); gap: .7rem; }
+.lib-item { border: 1px solid var(--line); border-radius: .9rem; overflow: hidden; background: var(--panel); display: grid; text-align: left; padding: 0; }
+.lib-item .thumb { width: 100%; aspect-ratio: 4/3; border: 0; border-radius: 0; }
+.lib-item .meta { padding: .5rem .6rem .6rem; font-size: .72rem; color: var(--muted); display: grid; gap: .3rem; }
+.lib-item .meta b { color: var(--ink); font-size: .76rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lib-item.pick { cursor: pointer; } .lib-item.pick:hover { border-color: var(--accent); }
+.savebar { position: sticky; bottom: 1rem; z-index: 5; margin-top: 1.2rem; display: flex; align-items: center; gap: .7rem; flex-wrap: wrap; justify-content: space-between;
+  padding: .75rem .9rem; border-radius: 1rem; background: var(--glass); border: 1px solid var(--line-strong); box-shadow: var(--shadow);
+  -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); }
+.savebar .acts { display: flex; gap: .5rem; flex-wrap: wrap; }
+.preview-frame { width: min(26rem, 100%); height: min(52rem, calc(100vh - 12rem)); margin: 0 auto; display: block; border: 1px solid var(--line-strong); border-radius: 1.6rem; background: var(--bg); }
+.mini-btns { display: flex; gap: .3rem; }
+.ver { display: flex; align-items: center; justify-content: space-between; gap: .8rem; padding: .8rem 1rem; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.ver b { font-size: .9rem; } .ver .sub { color: var(--muted); font-size: .78rem; display: block; }
+
+.toast { position: fixed; z-index: 60; left: 50%; bottom: calc(1.2rem + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 1rem); opacity: 0; pointer-events: none;
+  background: var(--ink); color: var(--bg); padding: .6rem 1rem; border-radius: 999px; font-size: .84rem; font-weight: 700; transition: all .3s; max-width: calc(100% - 2rem); }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* ── Mobile ────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .shell { grid-template-columns: minmax(0, 1fr); background: none; }
+  .side { display: none; }
+  .topbar { display: flex; align-items: center; justify-content: space-between; position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
+    padding: .7rem max(16px, env(safe-area-inset-right, 0px)) .7rem max(16px, env(safe-area-inset-left, 0px)); background: var(--glass); border-bottom: 1px solid var(--line);
+    -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); }
+  body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 21; background: var(--bg); }
+  .main { padding-block: 1.1rem 7rem; }
+  .bottom-nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; display: grid; grid-template-columns: repeat(5, 1fr);
+    padding: .4rem max(.5rem, env(safe-area-inset-right, 0px)) calc(.4rem + env(safe-area-inset-bottom, 0px)) max(.5rem, env(safe-area-inset-left, 0px));
+    background: var(--glass); border-top: 1px solid var(--line); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); }
+  .bottom-nav a { display: grid; justify-items: center; gap: .15rem; padding: .35rem 0; color: var(--muted); text-decoration: none; font-size: .66rem; font-weight: 700; position: relative; }
+  .bottom-nav a svg { width: 1.3rem; height: 1.3rem; }
+  .bottom-nav a[aria-current="page"] { color: var(--accent); }
+  .bottom-nav .badge { position: absolute; top: .1rem; left: calc(50% + .35rem); min-width: 1.1rem; height: 1.1rem; padding: 0 .25rem; border-radius: 999px; background: var(--accent); color: var(--accent-ink); font-size: .6rem; display: grid; place-items: center; }
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid-2, .grid-3, .fieldgrid { grid-template-columns: minmax(0, 1fr); }
+  .rq-table { display: none; }
+  .rq-list { display: block; }
+  .dl { grid-template-columns: minmax(0, 1fr); gap: .1rem; }
+  .dl dt { margin-top: .5rem; font-size: .75rem; }
+  .seg { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .savebar { bottom: calc(5rem + env(safe-area-inset-bottom, 0px)); }
+  .toolbar .dates { flex: 1 1 100%; } .toolbar .dates .input { flex: 1; width: auto; }
+}
+@media (min-width: 901px) { .bottom-nav { display: none; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: .01ms !important; animation: none !important; } }
+</style>
+</head>
+<body>
+
+<!-- ═══ ΣΥΝΔΕΣΗ ═══ -->
+<section class="login" id="loginView">
+  <div class="login-card">
+    <div class="brand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="12" r="4.2"/><path d="M12.2 12H21M17.5 12v3M20 12v2.2"/></svg>AthenianKeys<small>Admin</small></div>
+    <h1>Σύνδεση διαχειριστή</h1>
+    <p class="muted small" style="margin:0">Πρόσβαση μόνο για τον λογαριασμό διαχειριστή.</p>
+    <form id="loginForm" novalidate>
+      <label class="field"><span class="label">Email</span><input class="input" id="loginEmail" type="email" autocomplete="username" required></label>
+      <label class="field"><span class="label">Κωδικός</span><input class="input" id="loginPass" type="password" autocomplete="current-password" required></label>
+      <div class="msg err" id="loginErr" role="alert" hidden></div>
+      <div class="msg info" id="loginInfo" hidden></div>
+      <button class="btn btn-primary" id="loginBtn" type="submit">Σύνδεση</button>
+      <button class="btn" id="demoBtn" type="button" hidden>Δοκιμαστική προβολή με δείγμα δεδομένων</button>
+    </form>
+  </div>
+</section>
+
+<!-- ═══ ΕΦΑΡΜΟΓΗ ═══ -->
+<div class="shell" id="appView" hidden>
+  <aside class="side">
+    <div class="brand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="12" r="4.2"/><path d="M12.2 12H21M17.5 12v3M20 12v2.2"/></svg>AthenianKeys</div>
+    <nav class="nav" id="sideNav"></nav>
+    <div class="side-foot">
+      <span>Συνδεδεμένος ως<br><b id="whoami"></b></span>
+      <button class="btn btn-sm" type="button" data-logout>Αποσύνδεση</button>
+    </div>
+  </aside>
+  <header class="topbar">
+    <div class="brand" style="font-size:1.2rem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="12" r="4.2"/><path d="M12.2 12H21M17.5 12v3M20 12v2.2"/></svg>AthenianKeys</div>
+    <button class="btn btn-sm" type="button" data-logout>Έξοδος</button>
+  </header>
+  <main class="main" id="main"></main>
+  <nav class="bottom-nav" id="bottomNav"></nav>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+  <div class="drawer-head"><h2 id="drawerTitle"></h2><button class="btn btn-sm btn-ghost" type="button" data-close aria-label="Κλείσιμο">✕</button></div>
+  <div class="drawer-body" id="drawerBody"></div>
+  <div class="drawer-foot" id="drawerFoot" hidden></div>
+</aside>
+<div class="toast" id="toast" role="status"></div>
+
+<script src="../config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+/* ═══ ΡΥΘΜΙΣΕΙΣ ═════════════════════════════════════════════════════ */
+const SETTINGS = {
+  idleMinutes: 15,                        // αυτόματη αποσύνδεση μετά από αδράνεια
+  pollSeconds: 60,                        // έλεγχος για νέα αιτήματα
+  maxUploadMB: 15,                        // μέγιστο αρχείο που δέχεται η φόρμα (πριν τη συμπίεση)
+  imageMaxPx: 1800,                       // οι φωτογραφίες μικραίνουν αυτόματα σε αυτή τη διάσταση
+  imageQuality: 0.82,                     // ποιότητα WebP
+  siteCandidates: ["../index.html", "site.html"],   // πού βρίσκεται το site (για προεπισκόπηση)
+};
+
+(() => {
+"use strict";
+/* ── Βοηθητικά ─────────────────────────────────────────── */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = (v) => String(v ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const clone = (o) => JSON.parse(JSON.stringify(o));
+const fmtDate = (d) => d ? new Date(d).toLocaleDateString("el-GR", { day: "2-digit", month: "2-digit", year: "numeric" }) : "–";
+const fmtDateTime = (d) => d ? new Date(d).toLocaleString("el-GR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "–";
+const fmtMoney = (n) => (Number(n) || 0).toLocaleString("el-GR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 });
+const fmtNum = (n) => (Number(n) || 0).toLocaleString("el-GR");
+const isoDay = (d) => { const x = new Date(d); x.setMinutes(x.getMinutes() - x.getTimezoneOffset()); return x.toISOString().slice(0, 10); };
+const addDays = (s, n) => { const d = new Date(s + "T12:00:00"); d.setDate(d.getDate() + n); return isoDay(d); };
+const ago = (d) => {
+  const m = Math.round((Date.now() - new Date(d)) / 60000);
+  if (m < 1) return "μόλις τώρα"; if (m < 60) return `πριν ${m}΄`;
+  const h = Math.round(m / 60); if (h < 24) return `πριν ${h} ώρ.`;
+  const dd = Math.round(h / 24); return dd < 30 ? `πριν ${dd} ημ.` : fmtDate(d);
+};
+const ICON = {
+  requests: "M4 5h16v14H4zM4 9h16M8 13h5",
+  stats: "M4 20V10M10 20V4M16 20v-7M22 20H2",
+  customers: "M16 19v-1.5a3.5 3.5 0 0 0-3.5-3.5h-5A3.5 3.5 0 0 0 4 17.5V19M10 10.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM20 19v-1.5a3.5 3.5 0 0 0-2.5-3.3M15.5 3.7a3.5 3.5 0 0 1 0 6.6",
+  content: "M4 20h4L19.5 8.5a2.1 2.1 0 0 0-3-3L5 17zM14.5 7.5l3 3",
+  settings: "M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z",
+};
+const svg = (n) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${ICON[n]}"/></svg>`;
+let toastT;
+function toast(t) { const el = $("#toast"); el.textContent = t; el.classList.add("show"); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove("show"), 2600); }
+function copyText(t) {
+  const done = () => toast("Αντιγράφηκε");
+  try { navigator.clipboard.writeText(t).then(done, () => toast(t)); } catch { toast(t); }
+}
+
+const STATUS = {
+  new:       { label: "Νέο" },
+  confirmed: { label: "Επιβεβαιωμένο" },
+  completed: { label: "Ολοκληρωμένο" },
+  cancelled: { label: "Ακυρωμένο" },
+};
+const pill = (s) => `<span class="pill ${esc(s)}">${esc(STATUS[s]?.label || s)}</span>`;
+const PATH_LABEL = { "/#home": "Αρχική", "/#services": "Υπηρεσίες", "/#request": "Αίτημα", "/#contact": "Επικοινωνία" };
+
+/* ══════════════════════════════════════════════════════════════════
+   ΠΡΟΣΒΑΣΗ ΣΤΑ ΔΕΔΟΜΕΝΑ
+   Δύο υλοποιήσεις με το ίδιο interface: Supabase (πραγματική) και
+   Demo (δείγμα δεδομένων στη μνήμη, τίποτα δεν αποθηκεύεται).
+   ══════════════════════════════════════════════════════════════════ */
+const BK = window.AK_BACKEND || {};
+const configured = !!(BK.supabaseUrl && BK.supabaseAnonKey && window.supabase);
+
+function supabaseApi() {
+  const sb = window.supabase.createClient(BK.supabaseUrl, BK.supabaseAnonKey, {
+    auth: { storage: window.sessionStorage, persistSession: true, autoRefreshToken: true, detectSessionInUrl: false },
+  });
+  const ok = ({ data, error }) => { if (error) throw error; return data; };
+  const BUCKET = "site-images";
+  return {
+    demo: false,
+    async session() { return (await sb.auth.getSession()).data.session; },
+    async loginStatus(email) { return ok(await sb.rpc("admin_login_status", { p_email: email })) || 0; },
+    async logLogin(email, success) { try { await sb.rpc("admin_log_login", { p_email: email, p_success: success }); } catch {} },
+    async signIn(email, password) { return ok(await sb.auth.signInWithPassword({ email, password })); },
+    async isAdmin() { return !!ok(await sb.rpc("is_admin")); },
+    async signOut() { try { await sb.auth.signOut(); } catch {} },
+    async changePassword(password) { return ok(await sb.auth.updateUser({ password })); },
+    async requests() {
+      const rows = [];
+      for (let from = 0; ; from += 1000) {
+        const page = ok(await sb.from("requests").select("*").order("created_at", { ascending: false }).range(from, from + 999));
+        rows.push(...page); if (page.length < 1000) break;
+      }
+      return rows;
+    },
+    async updateRequest(id, patch) { return ok(await sb.from("requests").update(patch).eq("id", id).select().single()); },
+    async requestEvents(id) { return ok(await sb.from("request_events").select("*").eq("request_id", id).order("at")); },
+    async customers() { return ok(await sb.rpc("admin_customers")); },
+    async traffic(from, to) { return ok(await sb.rpc("admin_traffic_stats", { p_from: from, p_to: to })); },
+    async business(from, to) { return ok(await sb.rpc("admin_business_stats", { p_from: from, p_to: to })); },
+    async content() { return ok(await sb.from("site_content").select("data, version_id, updated_at").eq("id", 1).maybeSingle()); },
+    async versions() { return ok(await sb.from("content_versions").select("id, note, created_at").order("id", { ascending: false }).limit(200)); },
+    async version(id) { return ok(await sb.from("content_versions").select("data").eq("id", id).single()).data; },
+    async publish(data, note) { return ok(await sb.rpc("publish_content", { p_data: data, p_note: note || null })); },
+    async images() {
+      const list = ok(await sb.storage.from(BUCKET).list("uploads", { limit: 1000, sortBy: { column: "created_at", order: "desc" } }));
+      return list.filter(f => f.id).map(f => ({ name: "uploads/" + f.name, url: sb.storage.from(BUCKET).getPublicUrl("uploads/" + f.name).data.publicUrl,
+        size: f.metadata?.size, created: f.created_at }));
+    },
+    async upload(blob, name) {
+      ok(await sb.storage.from(BUCKET).upload(name, blob, { contentType: blob.type, upsert: false, cacheControl: "31536000" }));
+      return sb.storage.from(BUCKET).getPublicUrl(name).data.publicUrl;
+    },
+    async removeImage(name) { ok(await sb.storage.from(BUCKET).remove([name])); },
+  };
+}
+
+function demoApi() {
+  // Ντετερμινιστικά τυχαία δείγματα (ίδια σε κάθε άνοιγμα)
+  let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const pick = (a) => a[Math.floor(rnd() * a.length)];
+  const names = ["Anna Schmidt", "James Carter", "Μαρία Παπαδοπούλου", "Sophie Martin", "Luca Rossi", "Γιώργος Αντωνίου", "Emily Clark", "Hans Müller",
+    "Olivia Brown", "Νίκος Κωνσταντίνου", "Chloé Dubois", "Daniel Levi", "Ελένη Γεωργίου", "Mark Wilson", "Isabella García", "Oliver Smith", "Κατερίνα Δημητρίου",
+    "Noah Johnson", "Lena Fischer", "Αλέξανδρος Νικολάου", "Ava Taylor", "Pierre Laurent"];
+  const services = ["transfers", "yachts", "dining", "villas", "experiences", "chef", "events"];
+  const regions = ["athens", "zakynthos", "crete"];
+  const now = Date.now(), DAY = 864e5;
+  const customers = names.map((n, i) => ({
+    id: "c" + i, full_name: n, phone: "+30 69" + String(10000000 + Math.floor(rnd() * 89999999)),
+    email: i % 4 === 3 ? null : n.toLowerCase().normalize("NFD").replace(/[^a-z ]/g, "").trim().replace(/\s+/g, ".") + "@example.com",
+    first_seen_at: null, last_request_at: null, request_count: 0,
+  }));
+  const requests = [];
+  for (let i = 0; i < 46; i++) {
+    const c = i < customers.length ? customers[i] : pick(customers);
+    const created = new Date(now - Math.floor(rnd() * 44 * DAY) - Math.floor(rnd() * DAY));
+    const st = created > now - 2 * DAY ? "new" : pick(["new", "confirmed", "confirmed", "completed", "completed", "cancelled"]);
+    const sv = [pick(services)]; if (rnd() > .6) sv.push(pick(services));
+    requests.push({
+      id: "r" + i, ref: "AK-" + (100000 + i * 7919).toString(36).toUpperCase().padStart(6, "X") + "DEMO".slice(0, 2), created_at: created.toISOString(), customer_id: c.id,
+      services: [...new Set(sv)], region: pick(regions), travel_date: isoDay(new Date(created.getTime() + (10 + rnd() * 90) * DAY)),
+      guests: 1 + Math.floor(rnd() * 7), full_name: c.full_name, phone: c.phone, email: c.email,
+      notes: pick(["", "Arriving on flight A3 602 at 14:20.", "Anniversary dinner, table with a view please.", "Δύο παιδιά 5 και 8 ετών.", "Prefer a crewed motor yacht.", ""]),
+      lang: pick(["en", "en", "el"]), channel: pick(["whatsapp", "whatsapp", "email"]), status: st,
+      amount: st === "confirmed" || st === "completed" ? Math.round(300 + rnd() * 4200) : null, admin_notes: null,
+      seen_at: st === "new" && rnd() > .4 ? null : created.toISOString(), status_changed_at: null, updated_at: created.toISOString(),
+    });
+  }
+  requests.sort((a, b) => b.created_at.localeCompare(a.created_at));
+  const events = [];
+  const traffic = {}; // ανά ημέρα
+  for (let d = 0; d < 400; d++) {
+    const day = isoDay(new Date(now - d * DAY)); const base = 40 + 25 * Math.sin(d / 5) + rnd() * 30;
+    const visitors = Math.round(base); const visits = Math.round(visitors * 1.15); const pageviews = Math.round(visits * (2.4 + rnd()));
+    traffic[day] = { visitors, visits, pageviews };
+  }
+  let content = null, versions = [], vid = 0; const images = [];
+  const wait = (v) => new Promise(r => setTimeout(() => r(clone(v)), 120));
+  const inRange = (iso, f, t) => { const d = isoDay(iso); return d >= f && d <= t; };
+  const days = (f, t) => { const out = []; for (let d = f; d <= t; d = addDays(d, 1)) out.push(d); return out; };
+  function recalcCustomers() {
+    customers.forEach(c => {
+      const rs = requests.filter(r => r.customer_id === c.id);
+      c.request_count = rs.length;
+      c.first_seen_at = rs.length ? rs[rs.length - 1].created_at : null;
+      c.last_request_at = rs.length ? rs[0].created_at : null;
+    });
+  }
+  recalcCustomers();
+  return {
+    demo: true,
+    async session() { return null; },
+    async loginStatus() { return 0; }, async logLogin() {}, async signIn() {}, async isAdmin() { return true; }, async signOut() {},
+    async changePassword() { throw new Error("Στη δοκιμαστική προβολή δεν αλλάζει κωδικός."); },
+    async requests() { return wait(requests); },
+    async updateRequest(id, patch) {
+      const r = requests.find(x => x.id === id);
+      if (patch.status && patch.status !== r.status) { events.push({ request_id: id, at: new Date().toISOString(), from_status: r.status, to_status: patch.status }); r.status_changed_at = new Date().toISOString(); }
+      Object.assign(r, patch, { updated_at: new Date().toISOString() }); return wait(r);
+    },
+    async requestEvents(id) { return wait(events.filter(e => e.request_id === id)); },
+    async customers() {
+      return wait(customers.filter(c => c.request_count).map(c => {
+        const l = requests.find(r => r.customer_id === c.id) || {};
+        return { ...c, last_ref: l.ref, last_region: l.region, last_services: l.services, last_travel_date: l.travel_date, last_guests: l.guests, last_status: l.status, last_notes: l.notes, last_amount: l.amount };
+      }).sort((a, b) => (b.last_request_at || "").localeCompare(a.last_request_at || "")));
+    },
+    async traffic(f, t) {
+      const ds = days(f, t); const daily = ds.map(d => ({ d, ...(traffic[d] || { visitors: 0, visits: 0, pageviews: 0 }) }));
+      const sum = (k) => daily.reduce((a, x) => a + x[k], 0); const pv = sum("pageviews"), vs = sum("visits");
+      const share = (pairs, total) => pairs.map(([k, p]) => ({ k, n: Math.round(total * p) }));
+      return wait({ pageviews: pv, visits: vs, visitors: sum("visitors"), daily,
+        pages: share([["/#home", .34], ["/#services", .17], ["/#zakynthos", .12], ["/#request", .1], ["/#athens", .09], ["/#crete", .08], ["/#contact", .06]], pv),
+        sources: share([["direct", .38], ["Google", .31], ["Instagram", .16], ["Facebook", .08], ["WhatsApp", .05]], vs),
+        devices: share([["mobile", .71], ["desktop", .23], ["tablet", .06]], sum("visitors")) });
+    },
+    async business(f, t) {
+      const q = requests.filter(r => inRange(r.created_at, f, t)); const paid = (r) => ["confirmed", "completed"].includes(r.status);
+      const newC = customers.filter(c => c.first_seen_at && inRange(c.first_seen_at, f, t));
+      const count = (arr) => Object.entries(arr.reduce((m, k) => (m[k] = (m[k] || 0) + 1, m), {})).map(([k, n]) => ({ k, n })).sort((a, b) => b.n - a.n);
+      return wait({ requests: q.length, revenue: q.filter(paid).reduce((a, r) => a + (r.amount || 0), 0), new_customers: newC.length,
+        daily: days(f, t).map(d => ({ d, requests: q.filter(r => isoDay(r.created_at) === d).length,
+          revenue: q.filter(r => paid(r) && isoDay(r.created_at) === d).reduce((a, r) => a + (r.amount || 0), 0),
+          new_customers: newC.filter(c => isoDay(c.first_seen_at) === d).length })),
+        by_status: count(q.map(r => r.status)), by_service: count(q.flatMap(r => r.services)), by_region: count(q.map(r => r.region || "-")) });
+    },
+    async content() { return wait(content); },
+    async versions() { return wait(versions.slice().reverse().map(({ id, note, created_at }) => ({ id, note, created_at }))); },
+    async version(id) { return wait(versions.find(v => v.id === id).data); },
+    async publish(data, note) { vid++; versions.push({ id: vid, data: clone(data), note, created_at: new Date().toISOString() });
+      content = { data: clone(data), version_id: vid, updated_at: new Date().toISOString() }; return wait(vid); },
+    async images() { return wait(images); },
+    async upload(blob, name) { const url = URL.createObjectURL(blob); images.unshift({ name, url, size: blob.size, created: new Date().toISOString() }); return url; },
+    async removeImage(name) { const i = images.findIndex(x => x.name === name); if (i >= 0) images.splice(i, 1); },
+  };
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   ΣΥΝΔΕΣΗ, ΑΔΡΑΝΕΙΑ, ΠΛΟΗΓΗΣΗ
+   ══════════════════════════════════════════════════════════════════ */
+let API = null, ME = "";
+const cache = { requests: null, customers: null };
+
+async function boot() {
+  $("#demoBtn").hidden = configured;
+  if (!configured) {
+    $("#loginInfo").hidden = false;
+    $("#loginInfo").textContent = "Η σύνδεση με τη βάση δεν έχει ρυθμιστεί ακόμη (config.js). Μπορείτε να δείτε το dashboard με δείγμα δεδομένων.";
+    $("#loginBtn").disabled = true;
+    return;
+  }
+  API = supabaseApi();
+  const s = await API.session().catch(() => null);
+  if (s && await API.isAdmin().catch(() => false)) { ME = s.user.email; enterApp(); }
+}
+
+$("#loginForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  if (!API) return;
+  const email = $("#loginEmail").value.trim(), pass = $("#loginPass").value;
+  const err = $("#loginErr"); err.hidden = true;
+  if (!email || !pass) { err.textContent = "Συμπληρώστε email και κωδικό."; err.hidden = false; return; }
+  const btn = $("#loginBtn"); btn.disabled = true; btn.textContent = "Σύνδεση…";
+  try {
+    const locked = await API.loginStatus(email);
+    if (locked > 0) throw new Error(`Πολλές αποτυχημένες προσπάθειες. Δοκιμάστε ξανά σε ${Math.ceil(locked / 60)} λεπτά.`);
+    try { await API.signIn(email, pass); }
+    catch (x) { await API.logLogin(email, false); throw new Error(/rate|too many/i.test(x.message) ? "Πολλές προσπάθειες. Δοκιμάστε ξανά αργότερα." : "Λάθος email ή κωδικός."); }
+    if (!await API.isAdmin()) { await API.logLogin(email, false); await API.signOut(); throw new Error("Αυτός ο λογαριασμός δεν έχει πρόσβαση διαχειριστή."); }
+    await API.logLogin(email, true);
+    ME = email; $("#loginPass").value = ""; enterApp();
+  } catch (x) { err.textContent = x.message || "Η σύνδεση απέτυχε."; err.hidden = false; }
+  finally { btn.disabled = !API; btn.textContent = "Σύνδεση"; }
+});
+$("#demoBtn").addEventListener("click", () => { API = demoApi(); ME = "demo@atheniankeys"; enterApp(); });
+
+let idleTimer, pollTimer, lastActive = Date.now();
+function enterApp() {
+  $("#loginView").hidden = true; $("#appView").hidden = false; $("#whoami").textContent = ME;
+  ["pointerdown", "keydown", "scroll", "touchstart"].forEach(ev => addEventListener(ev, () => { lastActive = Date.now(); }, { passive: true }));
+  clearInterval(idleTimer);
+  idleTimer = setInterval(() => { if (Date.now() - lastActive > SETTINGS.idleMinutes * 60000) logout("Αποσυνδεθήκατε αυτόματα λόγω αδράνειας."); }, 20000);
+  clearInterval(pollTimer);
+  pollTimer = setInterval(pollNew, SETTINGS.pollSeconds * 1000);
+  loadSiteDefaults();
+  route();
+}
+async function logout(reason) {
+  clearInterval(idleTimer); clearInterval(pollTimer);
+  if (API && !API.demo) await API.signOut();
+  API = configured ? supabaseApi() : null;
+  cache.requests = cache.customers = null; DRAFT = null;
+  closeDrawer(); $("#main").innerHTML = "";
+  $("#appView").hidden = true; $("#loginView").hidden = false;
+  const info = $("#loginInfo");
+  if (reason) { info.textContent = reason; info.hidden = false; }
+}
+document.addEventListener("click", (e) => { if (e.target.closest("[data-logout]")) logout("Αποσυνδεθήκατε."); });
+
+const VIEWS = [
+  { id: "requests", label: "Αιτήματα", icon: "requests" },
+  { id: "stats", label: "Στατιστικά", icon: "stats" },
+  { id: "customers", label: "Πελάτες", icon: "customers" },
+  { id: "content", label: "Περιεχόμενο", icon: "content" },
+  { id: "settings", label: "Ρυθμίσεις", icon: "settings" },
+];
+function renderNav(active) {
+  const unseen = (cache.requests || []).filter(r => !r.seen_at).length;
+  const html = VIEWS.map(v => `<a href="#${v.id}" ${v.id === active ? 'aria-current="page"' : ""}>${svg(v.icon)}<span>${v.label}</span>${v.id === "requests" && unseen ? `<span class="badge">${unseen}</span>` : ""}</a>`).join("");
+  $("#sideNav").innerHTML = html; $("#bottomNav").innerHTML = html;
+}
+function route() {
+  if ($("#appView").hidden) return;
+  if (DRAFT_DIRTY && current === "content" && location.hash.slice(1) !== "content") {
+    // Προστασία μη αποθηκευμένων αλλαγών
+    if (!leaveOk) { history.replaceState(null, "", "#content"); toast("Έχετε μη αποθηκευμένες αλλαγές. Αποθηκεύστε ή απορρίψτε τες πρώτα."); return; }
+  }
+  leaveOk = false;
+  const v = VIEWS.some(x => x.id === location.hash.slice(1)) ? location.hash.slice(1) : "requests";
+  current = v; renderNav(v); closeDrawer(); scrollTo(0, 0);
+  ({ requests: viewRequests, stats: viewStats, customers: viewCustomers, content: viewContent, settings: viewSettings })[v]();
+}
+let current = "requests", leaveOk = false;
+addEventListener("hashchange", route);
+const head = (title, sub, extra = "") => `${API?.demo ? '<div class="demo-bar">Δοκιμαστική προβολή: δείγμα δεδομένων, καμία αλλαγή δεν αποθηκεύεται.</div>' : ""}
+  <div class="page-head"><div><h1>${title}</h1>${sub ? `<p>${sub}</p>` : ""}</div>${extra}</div>`;
+const loading = () => `<div class="empty">Φόρτωση…</div>`;
+const failed = (x) => `<div class="msg err">Δεν ήταν δυνατή η φόρτωση: ${esc(x?.message || x)}</div>`;
+
+async function pollNew() {
+  if (!API || !cache.requests) return;
+  try {
+    const before = new Set(cache.requests.map(r => r.id));
+    cache.requests = await API.requests();
+    const fresh = cache.requests.filter(r => !before.has(r.id));
+    if (fresh.length) { toast(fresh.length === 1 ? `Νέο αίτημα από ${fresh[0].full_name}` : `${fresh.length} νέα αιτήματα`); if (current === "requests") drawRequests(); }
+    renderNav(current);
+  } catch {}
+}
+
+/* ── Ετικέτες υπηρεσιών/προορισμών από το περιεχόμενο του site ── */
+let SITE_DEFAULTS = null, SITE_URL = null;
+function loadSiteDefaults() {
+  return new Promise((resolve) => {
+    if (SITE_DEFAULTS) return resolve(SITE_DEFAULTS);
+    let i = 0;
+    const tryNext = () => {
+      if (i >= SETTINGS.siteCandidates.length) return resolve(null);
+      const url = SETTINGS.siteCandidates[i++];
+      const f = document.createElement("iframe"); f.hidden = true; f.src = url + "?preview";
+      const done = (ok) => { f.remove(); if (ok) { SITE_URL = url; resolve(SITE_DEFAULTS); } else tryNext(); };
+      const t = setTimeout(() => done(false), 6000);
+      f.onload = () => { clearTimeout(t); try { const d = f.contentWindow.AK_DEFAULT_CONFIG; if (d) { SITE_DEFAULTS = clone(d); return done(true); } } catch {} done(false); };
+      document.body.appendChild(f);
+    };
+    tryNext();
+  });
+}
+let EFFECTIVE = null;     // περιεχόμενο όπως φαίνεται τώρα στο site
+const svcLabel = (id) => (EFFECTIVE || SITE_DEFAULTS)?.services?.find(s => s.id === id)?.el?.title || id;
+const regLabel = (id) => (!id || id === "-") ? "–" : ((EFFECTIVE || SITE_DEFAULTS)?.regions?.find(r => r.id === id)?.el || id);
+
+/* ══════════════════════════════════════════════════════════════════
+   1. ΑΙΤΗΜΑΤΑ
+   ══════════════════════════════════════════════════════════════════ */
+const RQ = { q: "", status: "all", from: "", to: "", unseen: false, sort: "created_desc", customer: null };
+async function viewRequests() {
+  $("#main").innerHTML = head("Αιτήματα", "Όλα τα αιτήματα από τη φόρμα του site.") + `
+    <div class="toolbar">
+      <input class="input search" id="rqQ" type="search" placeholder="Αναζήτηση: όνομα, τηλέφωνο, email, κωδικός" value="${esc(RQ.q)}">
+      <select class="input" id="rqSort" style="width:auto">
+        <option value="created_desc">Νεότερα πρώτα</option><option value="created_asc">Παλαιότερα πρώτα</option>
+        <option value="travel_asc">Ημ/νία ταξιδιού</option><option value="amount_desc">Μεγαλύτερο ποσό</option><option value="name_asc">Όνομα Α–Ω</option>
+      </select>
+      <div class="dates"><input class="input" id="rqFrom" type="date" value="${RQ.from}" aria-label="Από"><span class="muted">έως</span><input class="input" id="rqTo" type="date" value="${RQ.to}" aria-label="Έως"></div>
+    </div>
+    <div class="toolbar" id="rqChips"></div>
+    <div class="card"><div id="rqBody">${loading()}</div></div>`;
+  $("#rqSort").value = RQ.sort;
+  $("#rqQ").addEventListener("input", e => { RQ.q = e.target.value; drawRequests(); });
+  $("#rqSort").addEventListener("change", e => { RQ.sort = e.target.value; drawRequests(); });
+  $("#rqFrom").addEventListener("change", e => { RQ.from = e.target.value; drawRequests(); });
+  $("#rqTo").addEventListener("change", e => { RQ.to = e.target.value; drawRequests(); });
+  try { if (!cache.requests) cache.requests = await API.requests(); renderNav("requests"); drawRequests(); }
+  catch (x) { $("#rqBody").innerHTML = failed(x); }
+}
+function filteredRequests() {
+  const q = RQ.q.trim().toLowerCase(), qd = q.replace(/\D/g, "");
+  let list = (cache.requests || []).filter(r =>
+    (RQ.status === "all" || r.status === RQ.status) && (!RQ.unseen || !r.seen_at) &&
+    (!RQ.customer || r.customer_id === RQ.customer.id) &&
+    (!RQ.from || isoDay(r.created_at) >= RQ.from) && (!RQ.to || isoDay(r.created_at) <= RQ.to) &&
+    (!q || [r.full_name, r.email, r.ref, r.notes].some(v => (v || "").toLowerCase().includes(q)) || (qd.length >= 3 && (r.phone || "").replace(/\D/g, "").includes(qd))));
+  const by = {
+    created_desc: (a, b) => b.created_at.localeCompare(a.created_at), created_asc: (a, b) => a.created_at.localeCompare(b.created_at),
+    travel_asc: (a, b) => (a.travel_date || "9999").localeCompare(b.travel_date || "9999"),
+    amount_desc: (a, b) => (b.amount || 0) - (a.amount || 0), name_asc: (a, b) => a.full_name.localeCompare(b.full_name, "el"),
+  };
+  return list.sort(by[RQ.sort]);
+}
+function drawRequests() {
+  if (!$("#rqBody")) return;
+  const all = cache.requests || [];
+  const count = (s) => s === "all" ? all.length : all.filter(r => r.status === s).length;
+  const unseen = all.filter(r => !r.seen_at).length;
+  $("#rqChips").innerHTML = ["all", "new", "confirmed", "completed", "cancelled"].map(s =>
+    `<button class="chip" type="button" data-status="${s}" aria-pressed="${RQ.status === s}">${s === "all" ? "Όλα" : STATUS[s].label}<span class="count">${count(s)}</span></button>`).join("") +
+    `<button class="chip" type="button" data-unseen aria-pressed="${RQ.unseen}"><span class="dot"></span>Αδιάβαστα<span class="count">${unseen}</span></button>` +
+    (RQ.customer ? `<button class="chip" type="button" data-clear-customer aria-pressed="true">Πελάτης: ${esc(RQ.customer.name)} ✕</button>` : "");
+  const list = filteredRequests();
+  if (!list.length) { $("#rqBody").innerHTML = `<div class="empty">${all.length ? "Κανένα αίτημα με αυτά τα φίλτρα." : "Δεν υπάρχουν αιτήματα ακόμη. Θα εμφανίζονται εδώ μόλις τα στέλνουν οι επισκέπτες."}</div>`; return; }
+  const svcs = (r) => r.services.map(svcLabel).join(", ");
+  $("#rqBody").innerHTML = `
+    <div class="table-wrap rq-table"><table>
+      <thead><tr><th></th><th>Κωδικός</th><th>Πελάτης</th><th>Υπηρεσίες</th><th>Προορισμός</th><th>Ταξίδι</th><th>Ελήφθη</th><th>Ποσό</th><th>Κατάσταση</th></tr></thead>
+      <tbody>${list.map(r => `<tr data-rq="${esc(r.id)}" class="${r.seen_at ? "" : "unseen"}">
+        <td>${r.seen_at ? "" : '<span class="dot" title="Δεν το έχετε δει"></span>'}</td>
+        <td class="num" style="white-space:nowrap">${esc(r.ref)}</td>
+        <td>${esc(r.full_name)}<span class="sub">${esc(r.phone)}</span></td>
+        <td>${esc(svcs(r))}</td><td>${esc(regLabel(r.region))}</td>
+        <td class="num">${fmtDate(r.travel_date)}${r.guests ? `<span class="sub">${r.guests} άτομα</span>` : ""}</td>
+        <td class="num" title="${esc(fmtDateTime(r.created_at))}">${ago(r.created_at)}</td>
+        <td class="num">${r.amount != null ? fmtMoney(r.amount) : "–"}</td><td>${pill(r.status)}</td></tr>`).join("")}</tbody>
+    </table></div>
+    <div class="rq-list">${list.map(r => `<button class="rq" type="button" data-rq="${esc(r.id)}">
+      <span class="rq-top"><b>${r.seen_at ? "" : '<span class="dot"></span>'}${esc(r.full_name)}</b>${pill(r.status)}</span>
+      <span class="sub">${esc(svcs(r))} · ${esc(regLabel(r.region))}</span>
+      <span class="sub num">${esc(r.ref)} · ${ago(r.created_at)}${r.amount != null ? " · " + fmtMoney(r.amount) : ""}</span></button>`).join("")}</div>`;
+}
+document.addEventListener("click", (e) => {
+  const st = e.target.closest("[data-status]"); if (st) { RQ.status = st.dataset.status; drawRequests(); return; }
+  if (e.target.closest("[data-unseen]")) { RQ.unseen = !RQ.unseen; drawRequests(); return; }
+  if (e.target.closest("[data-clear-customer]")) { RQ.customer = null; drawRequests(); return; }
+  const rq = e.target.closest("[data-rq]"); if (rq) { openRequest(rq.dataset.rq); return; }
+  const cp = e.target.closest("[data-copy]"); if (cp) { copyText(cp.dataset.copy); return; }
+  if (e.target.closest("[data-close]") || e.target === $("#scrim")) closeDrawer();
+});
+
+function openDrawer(title, body, foot, wide) {
+  $("#drawerBody").onclick = null;
+  $("#drawerTitle").innerHTML = title; $("#drawerBody").innerHTML = body;
+  $("#drawerFoot").innerHTML = foot || ""; $("#drawerFoot").hidden = !foot;
+  $("#drawer").classList.toggle("wide", !!wide);
+  $("#drawer").classList.add("open"); $("#scrim").classList.add("open");
+  $("#drawerBody").scrollTop = 0;
+}
+function closeDrawer() { $("#drawer").classList.remove("open"); $("#scrim").classList.remove("open"); }
+addEventListener("keydown", (e) => { if (e.key === "Escape") closeDrawer(); });
+
+async function openRequest(id) {
+  const r = (cache.requests || []).find(x => x.id === id); if (!r) return;
+  const sel = { status: r.status };
+  const draw = () => openDrawer(`<span class="num">${esc(r.ref)}</span>${pill(r.status)}`, `
+    <div><p class="section-t">Πελάτης</p><dl class="dl">
+      <dt>Ονοματεπώνυμο</dt><dd>${esc(r.full_name)}</dd>
+      <dt>Τηλέφωνο</dt><dd><span class="num">${esc(r.phone)}</span><button class="copy" type="button" data-copy="${esc(r.phone)}">Αντιγραφή</button> <a href="https://wa.me/${esc((r.phone || "").replace(/\D/g, ""))}" target="_blank" rel="noopener">WhatsApp</a></dd>
+      <dt>Email</dt><dd>${r.email ? `${esc(r.email)}<button class="copy" type="button" data-copy="${esc(r.email)}">Αντιγραφή</button>` : "–"}</dd>
+      <dt>Ιστορικό</dt><dd>${r.customer_id ? `<a href="#customers" data-customer-open="${esc(r.customer_id)}">Όλα τα αιτήματα του πελάτη</a>` : "–"}</dd>
+    </dl></div>
+    <div><p class="section-t">Αίτημα</p><dl class="dl">
+      <dt>Υπηρεσίες</dt><dd>${esc(r.services.map(svcLabel).join(", "))}</dd>
+      <dt>Προορισμός</dt><dd>${esc(regLabel(r.region))}</dd>
+      <dt>Ημ/νία ταξιδιού</dt><dd class="num">${fmtDate(r.travel_date)}</dd>
+      <dt>Άτομα</dt><dd class="num">${r.guests ?? "–"}</dd>
+      <dt>Λεπτομέρειες</dt><dd>${esc(r.notes || "–")}</dd>
+      <dt>Ελήφθη</dt><dd class="num">${fmtDateTime(r.created_at)}</dd>
+      <dt>Κανάλι / γλώσσα</dt><dd>${esc(r.channel === "email" ? "Email" : r.channel === "whatsapp" ? "WhatsApp" : "–")} · ${esc((r.lang || "–").toUpperCase())}</dd>
+    </dl></div>
+    <div><p class="section-t">Κατάσταση</p>
+      <div class="seg" id="segStatus">${Object.keys(STATUS).map(s => `<button type="button" class="${s}" data-set-status="${s}" aria-pressed="${sel.status === s}">${STATUS[s].label}</button>`).join("")}</div></div>
+    <div class="fieldgrid">
+      <label class="field"><span class="label">Ποσό (€)</span><input class="input num" id="rqAmount" type="number" min="0" step="1" inputmode="decimal" value="${r.amount ?? ""}" placeholder="π.χ. 1500"></label>
+      <label class="field full"><span class="label">Σημειώσεις (μόνο για εσάς)</span><textarea class="input" id="rqNotes">${esc(r.admin_notes || "")}</textarea></label>
+    </div>
+    <div><p class="section-t">Ιστορικό κατάστασης</p><ul class="timeline" id="rqEvents"><li class="muted">Φόρτωση…</li></ul></div>`,
+    `<button class="btn" type="button" data-close>Κλείσιμο</button><button class="btn btn-primary" type="button" id="rqSave">Αποθήκευση</button>`);
+  draw();
+  $("#drawerBody").onclick = (e) => {
+    const b = e.target.closest("[data-set-status]"); if (!b) return;
+    sel.status = b.dataset.setStatus; $$("#segStatus button").forEach(x => x.setAttribute("aria-pressed", x === b));
+  };
+  $("#rqSave").addEventListener("click", async () => {
+    const amt = $("#rqAmount").value.trim();
+    if (amt && !(Number(amt) >= 0)) { toast("Το ποσό πρέπει να είναι θετικός αριθμός."); return; }
+    const btn = $("#rqSave"); btn.disabled = true;
+    try {
+      const upd = await API.updateRequest(r.id, { status: sel.status, amount: amt === "" ? null : Number(amt), admin_notes: $("#rqNotes").value.trim() || null });
+      Object.assign(r, upd); toast("Αποθηκεύτηκε"); drawRequests(); closeDrawer(); cache.customers = null;
+    } catch (x) { toast("Δεν αποθηκεύτηκε: " + (x.message || x)); btn.disabled = false; }
+  });
+  const ev = (await API.requestEvents(r.id).catch(() => [])) || [];
+  $("#rqEvents").innerHTML = `<li>${pill("new")}<span class="muted num">${fmtDateTime(r.created_at)}</span></li>` +
+    ev.map(x => `<li>${pill(x.to_status)}<span class="muted num">${fmtDateTime(x.at)}</span></li>`).join("");
+  if (!r.seen_at) {
+    try { const upd = await API.updateRequest(r.id, { seen_at: new Date().toISOString() }); r.seen_at = upd.seen_at; renderNav(current); drawRequests(); } catch {}
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   2. ΣΤΑΤΙΣΤΙΚΑ
+   ══════════════════════════════════════════════════════════════════ */
+const ST = { period: "30", from: "", to: "" };
+function periodRange() {
+  const today = isoDay(new Date());
+  if (ST.period === "today") return [today, today];
+  if (ST.period === "7") return [addDays(today, -6), today];
+  if (ST.period === "30") return [addDays(today, -29), today];
+  if (ST.period === "custom" && ST.from && ST.to && ST.from <= ST.to) return [ST.from, ST.to];
+  return [addDays(today, -29), today];
+}
+async function viewStats() {
+  $("#main").innerHTML = head("Στατιστικά", "Επισκεψιμότητα (χωρίς cookies) και αιτήματα.") + `
+    <div class="toolbar">
+      <div class="chips" id="stChips">${[["today", "Σήμερα"], ["7", "7 ημέρες"], ["30", "30 ημέρες"], ["custom", "Προσαρμογή"]].map(([k, l]) =>
+        `<button class="chip" type="button" data-period="${k}" aria-pressed="${ST.period === k}">${l}</button>`).join("")}</div>
+      <div class="dates" id="stDates" ${ST.period === "custom" ? "" : "hidden"}><input class="input" id="stFrom" type="date" value="${ST.from}" aria-label="Από"><span class="muted">έως</span><input class="input" id="stTo" type="date" value="${ST.to}" aria-label="Έως"></div>
+    </div>
+    <div id="stBody">${loading()}</div>`;
+  $("#stChips").addEventListener("click", e => {
+    const b = e.target.closest("[data-period]"); if (!b) return;
+    ST.period = b.dataset.period;
+    if (ST.period === "custom" && !ST.from) { const [f, t] = [addDays(isoDay(new Date()), -89), isoDay(new Date())]; ST.from = f; ST.to = t; }
+    viewStats();
+  });
+  $("#stFrom").addEventListener("change", e => { ST.from = e.target.value; drawStats(); });
+  $("#stTo").addEventListener("change", e => { ST.to = e.target.value; drawStats(); });
+  drawStats();
+}
+async function drawStats() {
+  const [f, t] = periodRange();
+  const len = Math.round((new Date(t) - new Date(f)) / 864e5) + 1;
+  const pf = addDays(f, -len), pt = addDays(f, -1);
+  try {
+    const [tr, bz, ptr, pbz] = await Promise.all([API.traffic(f, t), API.business(f, t), API.traffic(pf, pt), API.business(pf, pt)]);
+    const delta = (a, b) => { if (!b) return a ? '<span class="delta up">νέο</span>' : '<span class="delta">–</span>'; const p = Math.round((a - b) / b * 100);
+      return `<span class="delta ${p > 0 ? "up" : p < 0 ? "down" : ""}">${p > 0 ? "+" : ""}${p}% έναντι προηγ. περιόδου</span>`; };
+    const kpi = (label, v, pv, fmt = fmtNum, hint = "") => `<div class="card kpi" ${hint ? `title="${esc(hint)}"` : ""}><small>${label}</small><b>${fmt(v)}</b>${delta(Number(v), Number(pv))}</div>`;
+    const days = tr.daily.map(x => x.d);
+    $("#stBody").innerHTML = `
+      <div class="kpis">
+        ${kpi("Επισκέψεις", tr.visits, ptr.visits, fmtNum, "Νέα επίσκεψη μετρά όταν περάσουν 30 λεπτά χωρίς δραστηριότητα.")}
+        ${kpi("Μοναδικοί επισκέπτες", tr.visitors, ptr.visitors, fmtNum, "Μετρώνται ανά ημέρα χωρίς cookies. Σε πολυήμερη περίοδο είναι το άθροισμα των ημερών.")}
+        ${kpi("Προβολές σελίδων", tr.pageviews, ptr.pageviews)}
+        ${kpi("Αιτήματα", bz.requests, pbz.requests)}
+        ${kpi("Έσοδα", bz.revenue, pbz.revenue, fmtMoney, "Άθροισμα ποσών σε Επιβεβαιωμένα και Ολοκληρωμένα αιτήματα.")}
+        ${kpi("Νέοι πελάτες", bz.new_customers, pbz.new_customers)}
+      </div>
+      <div class="card card-pad chart" style="margin-bottom:.9rem"><h2>Επισκεψιμότητα ανά ημέρα</h2>
+        <div class="legend"><span><i style="background:var(--accent)"></i>Προβολές σελίδων</span><span><i style="background:var(--chart-2)"></i>Μοναδικοί επισκέπτες</span></div>
+        ${lineChart(days, [{ v: tr.daily.map(x => x.pageviews), c: "var(--accent)" }, { v: tr.daily.map(x => x.visitors), c: "var(--chart-2)" }])}</div>
+      <div class="grid-3">
+        <div class="card card-pad chart"><h2>Αιτήματα</h2>${barChart(days, bz.daily.map(x => x.requests), fmtNum)}</div>
+        <div class="card card-pad chart"><h2>Έσοδα</h2>${barChart(days, bz.daily.map(x => Number(x.revenue)), fmtMoney)}</div>
+        <div class="card card-pad chart"><h2>Νέοι πελάτες</h2>${barChart(days, bz.daily.map(x => x.new_customers), fmtNum)}</div>
+      </div>
+      <div class="grid-3">
+        <div class="card card-pad"><h2>Δημοφιλέστερες σελίδες</h2>${bars(tr.pages, k => PATH_LABEL[k] || regLabel(k.replace("/#", "")) || k)}</div>
+        <div class="card card-pad"><h2>Πηγές επισκεψιμότητας</h2>${bars(tr.sources, k => k === "direct" ? "Απευθείας / άγνωστη" : k)}</div>
+        <div class="card card-pad"><h2>Συσκευές</h2>${bars(tr.devices, k => ({ mobile: "Κινητό", desktop: "Υπολογιστής", tablet: "Tablet" }[k] || "Άλλο"))}</div>
+      </div>
+      <div class="grid-3">
+        <div class="card card-pad"><h2>Αιτήματα ανά υπηρεσία</h2>${bars(bz.by_service, svcLabel)}</div>
+        <div class="card card-pad"><h2>Αιτήματα ανά προορισμό</h2>${bars(bz.by_region, regLabel)}</div>
+        <div class="card card-pad"><h2>Αιτήματα ανά κατάσταση</h2>${bars(bz.by_status, k => STATUS[k]?.label || k)}</div>
+      </div>`;
+  } catch (x) { $("#stBody").innerHTML = failed(x); }
+}
+function bars(items, label) {
+  if (!items?.length) return `<div class="muted small">Δεν υπάρχουν δεδομένα για την περίοδο.</div>`;
+  const max = Math.max(...items.map(x => x.n), 1), tot = items.reduce((a, x) => a + x.n, 0);
+  return `<div class="bars">${items.slice(0, 8).map(x => `<div class="bar-row"><span>${esc(label(x.k))}</span><b>${fmtNum(x.n)} <span class="muted small">${Math.round(x.n / tot * 100)}%</span></b>
+    <div class="track"><i style="width:${(x.n / max * 100).toFixed(1)}%"></i></div></div>`).join("")}</div>`;
+}
+const niceMax = (m) => { if (m <= 0) return 1; const p = Math.pow(10, Math.floor(Math.log10(m))); return [1, 2, 2.5, 5, 10].map(k => k * p).find(v => v >= m); };
+const shortDay = (d) => { const [, m, dd] = d.split("-"); return `${dd}/${m}`; };
+function axes(days, max, fmt, W, H, P) {
+  const ticks = [0, .5, 1].map(k => max * k);
+  const xs = days.length > 1 ? [0, Math.floor((days.length - 1) / 2), days.length - 1] : [0];
+  const x = (i) => P.l + (days.length > 1 ? i / (days.length - 1) : .5) * (W - P.l - P.r);
+  return ticks.map(v => { const y = H - P.b - v / max * (H - P.t - P.b);
+      return `<line class="grid" x1="${P.l}" x2="${W - P.r}" y1="${y}" y2="${y}"/><text class="ax" x="${P.l - 6}" y="${y + 3}" text-anchor="end">${esc(fmt(v))}</text>`; }).join("") +
+    xs.map(i => `<text class="ax" x="${x(i)}" y="${H - 4}" text-anchor="${days.length > 1 ? (i === 0 ? "start" : i === days.length - 1 ? "end" : "middle") : "middle"}">${shortDay(days[i])}</text>`).join("");
+}
+function lineChart(days, series) {
+  const W = 760, H = 220, P = { l: 44, r: 8, t: 10, b: 22 };
+  const max = niceMax(Math.max(...series.flatMap(s => s.v), 0));
+  const x = (i) => P.l + (days.length > 1 ? i / (days.length - 1) : .5) * (W - P.l - P.r);
+  const y = (v) => H - P.b - v / max * (H - P.t - P.b);
+  const path = (v) => v.map((n, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(n).toFixed(1)}`).join("");
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Γράφημα επισκεψιμότητας">${axes(days, max, fmtNum, W, H, P)}
+    ${series.map((s, k) => `${k === 0 ? `<path d="${path(s.v)}L${x(s.v.length - 1)},${H - P.b}L${x(0)},${H - P.b}Z" fill="${s.c}" opacity=".08"/>` : ""}
+      <path d="${path(s.v)}" fill="none" stroke="${s.c}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+      ${s.v.map((n, i) => `<circle cx="${x(i)}" cy="${y(n)}" r="${i === s.v.length - 1 || s.v.length < 2 ? 3.5 : 0}" fill="${s.c}"><title>${shortDay(days[i])}: ${fmtNum(n)}</title></circle>`).join("")}`).join("")}
+    ${days.map((d, i) => `<rect x="${x(i) - (W - P.l - P.r) / Math.max(days.length, 1) / 2}" y="${P.t}" width="${(W - P.l - P.r) / Math.max(days.length, 1)}" height="${H - P.t - P.b}" fill="transparent"><title>${shortDay(d)}: ${series.map(s => fmtNum(s.v[i])).join(" / ")}</title></rect>`).join("")}</svg>`;
+}
+function barChart(days, values, fmt) {
+  const W = 380, H = 170, P = { l: 52, r: 6, t: 8, b: 20 };
+  const max = niceMax(Math.max(...values, 0));
+  const step = (W - P.l - P.r) / Math.max(days.length, 1), bw = Math.max(1.5, Math.min(22, step * .7));
+  const short = (v) => fmt === fmtMoney ? (v >= 1000 ? Math.round(v / 1000) + "k €" : Math.round(v) + " €") : fmtNum(Math.round(v));
+  return `<svg viewBox="0 0 ${W} ${H}" role="img">${axes(days, max, short, W, H, { ...P, l: P.l + step / 2, r: P.r + step / 2 })}
+    ${values.map((v, i) => { const h = v / max * (H - P.t - P.b);
+      return `<rect x="${P.l + i * step + (step - bw) / 2}" y="${H - P.b - h}" width="${bw}" height="${Math.max(h, v ? 1 : 0)}" rx="${Math.min(3, bw / 2)}" fill="var(--accent)"><title>${shortDay(days[i])}: ${esc(fmt(v))}</title></rect>`; }).join("")}</svg>`;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   3. ΠΕΛΑΤΕΣ
+   ══════════════════════════════════════════════════════════════════ */
+const CU = { q: "", sort: "last_request_at", dir: -1 };
+async function viewCustomers() {
+  $("#main").innerHTML = head("Πελάτες", "Δημιουργούνται αυτόματα από το πρώτο αίτημα κάθε πελάτη (ανά τηλέφωνο).") + `
+    <div class="toolbar"><input class="input search" id="cuQ" type="search" placeholder="Αναζήτηση: όνομα, email, τηλέφωνο" value="${esc(CU.q)}"></div>
+    <div class="card"><div id="cuBody">${loading()}</div></div>`;
+  $("#cuQ").addEventListener("input", e => { CU.q = e.target.value; drawCustomers(); });
+  try { if (!cache.customers) cache.customers = await API.customers(); if (!cache.requests) cache.requests = await API.requests(); drawCustomers(); }
+  catch (x) { $("#cuBody").innerHTML = failed(x); }
+}
+function drawCustomers() {
+  const q = CU.q.trim().toLowerCase(), qd = q.replace(/\D/g, "");
+  const list = (cache.customers || []).filter(c => !q || [c.full_name, c.email].some(v => (v || "").toLowerCase().includes(q)) || (qd.length >= 3 && (c.phone || "").replace(/\D/g, "").includes(qd)))
+    .sort((a, b) => { const A = a[CU.sort] ?? "", B = b[CU.sort] ?? ""; return (typeof A === "number" ? A - B : String(A).localeCompare(String(B), "el")) * CU.dir; });
+  if (!list.length) { $("#cuBody").innerHTML = `<div class="empty">${(cache.customers || []).length ? "Κανένας πελάτης δεν ταιριάζει." : "Δεν υπάρχουν πελάτες ακόμη."}</div>`; return; }
+  const th = (k, l) => `<th><button type="button" data-sort="${k}">${l}${CU.sort === k ? (CU.dir > 0 ? " ↑" : " ↓") : ""}</button></th>`;
+  $("#cuBody").innerHTML = `<div class="table-wrap"><table>
+    <thead><tr>${th("full_name", "Πελάτης")}${th("first_seen_at", "Πρώτο αίτημα")}${th("last_request_at", "Τελευταίο αίτημα")}${th("last_region", "Πού")}<th>Τι ζήτησε</th>${th("request_count", "Αιτήματα")}</tr></thead>
+    <tbody>${list.map(c => `<tr data-customer-open="${esc(c.id)}">
+      <td>${esc(c.full_name || "–")}<span class="sub">${esc(c.email || "χωρίς email")} · ${esc(c.phone || "")}</span></td>
+      <td class="num">${fmtDate(c.first_seen_at)}</td>
+      <td class="num">${fmtDate(c.last_request_at)}${c.last_status ? `<span class="sub">${esc(STATUS[c.last_status]?.label || "")}</span>` : ""}</td>
+      <td>${esc(regLabel(c.last_region))}</td>
+      <td>${esc((c.last_services || []).map(svcLabel).join(", ") || "–")}<span class="sub num">${c.last_travel_date ? "Ταξίδι " + fmtDate(c.last_travel_date) : ""}${c.last_guests ? ` · ${c.last_guests} άτομα` : ""}${c.last_ref ? ` · ${esc(c.last_ref)}` : ""}</span></td>
+      <td class="num">${c.request_count}</td></tr>`).join("")}</tbody></table></div>`;
+}
+document.addEventListener("click", (e) => {
+  const s = e.target.closest("[data-sort]"); if (s) { const k = s.dataset.sort; CU.dir = CU.sort === k ? -CU.dir : (k === "full_name" || k === "last_region" ? 1 : -1); CU.sort = k; drawCustomers(); return; }
+  const c = e.target.closest("[data-customer-open]"); if (c) { e.preventDefault(); openCustomer(c.dataset.customerOpen); }
+});
+async function openCustomer(id) {
+  try { if (!cache.customers) cache.customers = await API.customers(); if (!cache.requests) cache.requests = await API.requests(); } catch (x) { toast(x.message); return; }
+  const c = cache.customers.find(x => x.id === id);
+  const rs = cache.requests.filter(r => r.customer_id === id);
+  if (!c) return;
+  const revenue = rs.filter(r => ["confirmed", "completed"].includes(r.status)).reduce((a, r) => a + Number(r.amount || 0), 0);
+  openDrawer(esc(c.full_name || "Πελάτης"), `
+    <dl class="dl">
+      <dt>Τηλέφωνο</dt><dd class="num">${esc(c.phone || "–")} ${c.phone ? `<button class="copy" type="button" data-copy="${esc(c.phone)}">Αντιγραφή</button>` : ""}</dd>
+      <dt>Email</dt><dd>${esc(c.email || "–")} ${c.email ? `<button class="copy" type="button" data-copy="${esc(c.email)}">Αντιγραφή</button>` : ""}</dd>
+      <dt>Πρώτο αίτημα</dt><dd class="num">${fmtDateTime(c.first_seen_at)}</dd>
+      <dt>Τελευταίο αίτημα</dt><dd class="num">${fmtDateTime(c.last_request_at)}</dd>
+      <dt>Σύνολο αιτημάτων</dt><dd class="num">${rs.length}</dd>
+      <dt>Έσοδα από πελάτη</dt><dd class="num">${fmtMoney(revenue)}</dd>
+    </dl>
+    <div><p class="section-t">Πλήρες ιστορικό αιτημάτων</p>
+      <div class="card">${rs.map(r => `<button class="rq" type="button" data-rq="${esc(r.id)}" style="display:grid">
+        <span class="rq-top"><b class="num">${fmtDate(r.created_at)} · ${esc(r.ref)}</b>${pill(r.status)}</span>
+        <span class="sub">${esc(r.services.map(svcLabel).join(", "))} · ${esc(regLabel(r.region))}${r.travel_date ? " · ταξίδι " + fmtDate(r.travel_date) : ""}${r.guests ? ` · ${r.guests} άτομα` : ""}</span>
+        ${r.notes ? `<span class="sub">${esc(r.notes)}</span>` : ""}
+        ${r.amount != null ? `<span class="sub num">${fmtMoney(r.amount)}</span>` : ""}</button>`).join("") || '<div class="empty">Κανένα αίτημα.</div>'}</div></div>`,
+    `<button class="btn" type="button" data-close>Κλείσιμο</button><a class="btn btn-primary" href="#requests" id="cuToRequests">Προβολή στα Αιτήματα</a>`);
+  $("#cuToRequests").addEventListener("click", () => { RQ.customer = { id, name: c.full_name }; RQ.status = "all"; if (current === "requests") { closeDrawer(); drawRequests(); } });
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   4. ΠΕΡΙΕΧΟΜΕΝΟ (CMS)
+   ══════════════════════════════════════════════════════════════════ */
+let DRAFT = null, DRAFT_DIRTY = false, PUBLISHED = null, CM_TAB = "texts", CM_LANG = "el", LIB = [];
+const TEXT_LABELS = {
+  heroEyebrow: "Αρχική · μικρός τίτλος", heroTitle: "Αρχική · κεντρικός τίτλος", heroText: "Αρχική · κείμενο", ctaRequest: "Κουμπί αιτήματος", ctaWhatsapp: "Κουμπί WhatsApp",
+  homeServices: "Αρχική · τίτλος υπηρεσιών", seeAll: "Σύνδεσμος «Όλες»", howTitle: "Πώς δουλεύουμε · τίτλος", how1t: "Βήμα 1 · τίτλος", how1: "Βήμα 1 · κείμενο",
+  how2t: "Βήμα 2 · τίτλος", how2: "Βήμα 2 · κείμενο", how3t: "Βήμα 3 · τίτλος", how3: "Βήμα 3 · κείμενο", aboutTitle: "Γιατί εμάς · τίτλος", aboutText: "Γιατί εμάς · κείμενο",
+  why1: "Γιατί εμάς · σημείο 1", why2: "Γιατί εμάς · σημείο 2", why3: "Γιατί εμάς · σημείο 3", regionsTitle: "Προορισμοί · τίτλος", regionsHint: "Προορισμοί · υπότιτλος",
+  servicesTitle: "Υπηρεσίες · τίτλος σελίδας", servicesIntro: "Υπηρεσίες · εισαγωγή", requestTitle: "Αίτημα · τίτλος σελίδας", requestIntro: "Αίτημα · εισαγωγή",
+  contactTitle: "Επικοινωνία · τίτλος", contactIntro: "Επικοινωνία · εισαγωγή", hours: "Ωράριο", footer: "Υποσέλιδο", privacyNote: "Σημείωση απορρήτου φόρμας",
+  navHome: "Μενού · Αρχική", navServices: "Μενού · Υπηρεσίες", navRequest: "Μενού · Αίτημα", navContact: "Μενού · Επικοινωνία",
+};
+const ICONS_LIST = ["car", "yacht", "dining", "villa", "compass", "chef", "sparkle"];
+function effectiveContent(data) {
+  const base = clone(SITE_DEFAULTS); const d = data || {};
+  const pickS = (o) => Object.fromEntries(Object.entries(o || {}).filter(([, v]) => typeof v === "string"));
+  const out = { brand: typeof d.brand === "string" && d.brand ? d.brand : base.brand, contact: { ...base.contact, ...pickS(d.contact) }, text: {} };
+  Object.keys(base.text).forEach(l => out.text[l] = { ...base.text[l], ...pickS(d.text?.[l]) });
+  out.services = Array.isArray(d.services) && d.services.length ? d.services : base.services;
+  out.regions = Array.isArray(d.regions) && d.regions.length ? d.regions : base.regions;
+  out.photoCredits = Array.isArray(d.photoCredits) ? d.photoCredits : base.photoCredits;
+  return clone(out);
+}
+async function viewContent() {
+  $("#main").innerHTML = head("Περιεχόμενο", "Κείμενα, υπηρεσίες, προορισμοί και φωτογραφίες του site.") + `<div id="cmBody">${loading()}</div>`;
+  await loadSiteDefaults();
+  if (!SITE_DEFAULTS) { $("#cmBody").innerHTML = `<div class="msg err">Δεν βρέθηκε το site για ανάγνωση του αρχικού περιεχομένου. Το dashboard πρέπει να βρίσκεται στον φάκελο /admin δίπλα στο index.html του site.</div>`; return; }
+  try {
+    if (!DRAFT) { PUBLISHED = await API.content(); EFFECTIVE = effectiveContent(PUBLISHED?.data); DRAFT = clone(EFFECTIVE); DRAFT_DIRTY = false; }
+    drawContent();
+  } catch (x) { $("#cmBody").innerHTML = failed(x); }
+}
+const TABS = [["texts", "Κείμενα"], ["services", "Υπηρεσίες"], ["regions", "Προορισμοί"], ["contact", "Επικοινωνία"], ["images", "Φωτογραφίες"], ["history", "Ιστορικό εκδόσεων"]];
+function drawContent() {
+  $("#cmBody").innerHTML = `
+    <div class="tabs" role="tablist">${TABS.map(([k, l]) => `<button type="button" role="tab" data-cm-tab="${k}" aria-selected="${CM_TAB === k}">${l}</button>`).join("")}</div>
+    ${["texts", "services", "regions"].includes(CM_TAB) ? `<div class="toolbar"><div class="chips">${[["el", "Ελληνικά"], ["en", "English"]].map(([k, l]) => `<button class="chip" type="button" data-cm-lang="${k}" aria-pressed="${CM_LANG === k}">${l}</button>`).join("")}</div>
+      ${CM_TAB === "texts" ? '<input class="input search" id="cmFilter" type="search" placeholder="Αναζήτηση πεδίου">' : ""}</div>` : ""}
+    <div id="cmTab"></div>
+    <div class="savebar" id="saveBar" ${DRAFT_DIRTY ? "" : "hidden"}>
+      <b>Μη αποθηκευμένες αλλαγές</b>
+      <div class="acts"><button class="btn btn-sm" type="button" data-cm-discard>Απόρριψη</button><button class="btn btn-sm" type="button" data-cm-preview>Προεπισκόπηση</button><button class="btn btn-sm btn-primary" type="button" data-cm-save>Αποθήκευση</button></div>
+    </div>`;
+  ({ texts: tabTexts, services: tabServices, regions: tabRegions, contact: tabContact, images: tabImages, history: tabHistory })[CM_TAB]();
+  $("#cmFilter")?.addEventListener("input", (e) => { const q = e.target.value.toLowerCase(); $$("#cmTab .field").forEach(f => f.hidden = q && !f.textContent.toLowerCase().includes(q) && !f.querySelector("input,textarea").value.toLowerCase().includes(q)); });
+}
+const fieldHTML = (path, label, value, long) => `<label class="field ${long ? "full" : ""}"><span class="label">${esc(label)}</span>${long || String(value || "").length > 70
+  ? `<textarea class="input" data-path="${esc(path)}" rows="3">${esc(value)}</textarea>` : `<input class="input" data-path="${esc(path)}" value="${esc(value)}">`}</label>`;
+function tabTexts() {
+  const t = DRAFT.text[CM_LANG];
+  const keys = Object.keys(t).filter(k => TEXT_LABELS[k]).concat(Object.keys(t).filter(k => !TEXT_LABELS[k]));
+  $("#cmTab").innerHTML = `<div class="card block"><div class="fieldgrid">${keys.map(k => fieldHTML(`text.${CM_LANG}.${k}`, TEXT_LABELS[k] || k, t[k], String(t[k]).length > 70)).join("")}</div></div>`;
+}
+function tabServices() {
+  const L = CM_LANG;
+  $("#cmTab").innerHTML = `<div class="fields">${DRAFT.services.map((s, i) => `<div class="card block">
+      <div class="block-head"><h3>${esc(s.el?.title || s.id)}</h3><div class="mini-btns">
+        <button class="btn btn-sm" type="button" data-move="services:${i}:-1" ${i ? "" : "disabled"} aria-label="Πάνω">↑</button>
+        <button class="btn btn-sm" type="button" data-move="services:${i}:1" ${i < DRAFT.services.length - 1 ? "" : "disabled"} aria-label="Κάτω">↓</button>
+        <button class="btn btn-sm btn-danger" type="button" data-remove="services:${i}">Διαγραφή</button></div></div>
+      <div class="fieldgrid">
+        ${fieldHTML(`services.${i}.${L}.title`, "Τίτλος", s[L]?.title)}
+        <label class="field"><span class="label">Εικονίδιο</span><select class="input" data-path="services.${i}.icon">${ICONS_LIST.map(n => `<option ${s.icon === n ? "selected" : ""}>${n}</option>`).join("")}</select></label>
+        ${fieldHTML(`services.${i}.${L}.short`, "Σύντομη περιγραφή", s[L]?.short, true)}
+        ${fieldHTML(`services.${i}.${L}.body`, "Πλήρης περιγραφή", s[L]?.body, true)}
+        <label class="field full"><span class="label">Σημεία (ένα ανά γραμμή)</span><textarea class="input" data-path="services.${i}.${L}.points" data-lines rows="3">${esc((s[L]?.points || []).join("\n"))}</textarea></label>
+      </div></div>`).join("")}
+    <button class="btn" type="button" data-add-service>+ Νέα υπηρεσία</button></div>`;
+}
+const imgSlot = (path, src, label) => `<div class="slot"><div class="thumb" style="background-image:url('${esc(previewSrc(src))}')"></div>
+  <div class="field"><span class="label">${esc(label)}</span><span class="muted small" style="overflow-wrap:anywhere">${esc(src ? src.split("/").pop() : "Χωρίς φωτογραφία")}</span>
+  <div class="mini-btns"><button class="btn btn-sm" type="button" data-pick-image="${esc(path)}">Αλλαγή φωτογραφίας</button></div></div></div>`;
+const previewSrc = (src) => !src ? "" : /^(https:|blob:)/.test(src) ? src : (SITE_URL ? new URL(src, new URL(SITE_URL, location.href)).href : src);
+function tabRegions() {
+  const L = CM_LANG;
+  $("#cmTab").innerHTML = `<div class="fields">${DRAFT.regions.map((r, i) => `<div class="card block">
+      <div class="block-head"><h3>${esc(r.el || r.id)}</h3></div>
+      ${imgSlot(`regions.${i}.image`, r.image, "Φωτογραφία προορισμού")}
+      <div class="fieldgrid">
+        ${fieldHTML(`regions.${i}.${L}`, "Όνομα", r[L])}
+        ${fieldHTML(`regions.${i}.coords`, "Συντεταγμένες", r.coords)}
+        ${fieldHTML(`regions.${i}.intro.${L}`, "Περιγραφή", r.intro?.[L], true)}
+        ${(r.facts?.[L] || []).map((f, j) => fieldHTML(`regions.${i}.facts.${L}.${j}.0`, `Πληροφορία ${j + 1} · τίτλος`, f[0]) + fieldHTML(`regions.${i}.facts.${L}.${j}.1`, `Πληροφορία ${j + 1} · τιμή`, f[1])).join("")}
+      </div>
+      <p class="section-t" style="margin:.4rem 0 0">Εμπειρίες</p>
+      ${(r.experiences || []).map((x, j) => `<div class="card block" style="background:var(--panel-2)">
+        <div class="block-head"><h3>${esc(x.el?.title || x.id)}</h3><button class="btn btn-sm btn-danger" type="button" data-remove="regions.${i}.experiences:${j}">Διαγραφή</button></div>
+        ${imgSlot(`regions.${i}.experiences.${j}.image`, x.image, "Φωτογραφία εμπειρίας")}
+        <div class="fieldgrid">${fieldHTML(`regions.${i}.experiences.${j}.${L}.title`, "Τίτλος", x[L]?.title)}${fieldHTML(`regions.${i}.experiences.${j}.${L}.text`, "Περιγραφή", x[L]?.text, true)}</div>
+      </div>`).join("")}
+      <button class="btn btn-sm" type="button" data-add-exp="${i}">+ Νέα εμπειρία</button>
+    </div>`).join("")}</div>`;
+}
+function tabContact() {
+  const c = DRAFT.contact;
+  $("#cmTab").innerHTML = `<div class="card block"><div class="fieldgrid">
+    ${fieldHTML("brand", "Όνομα επιχείρησης", DRAFT.brand)}
+    ${fieldHTML("contact.phone", "Σταθερό τηλέφωνο", c.phone)}
+    ${fieldHTML("contact.mobile", "Κινητό (εμφανίζεται)", c.mobile)}
+    ${fieldHTML("contact.whatsapp", "WhatsApp (μόνο ψηφία με κωδικό χώρας, π.χ. 306900000000)", c.whatsapp)}
+    ${fieldHTML("contact.email", "Email", c.email)}
+    <label class="field full"><span class="label">Πηγές φωτογραφιών (μία ανά γραμμή)</span><textarea class="input" data-path="photoCredits" data-lines rows="4">${esc((DRAFT.photoCredits || []).join("\n"))}</textarea></label>
+  </div></div>`;
+}
+function usages(url) {
+  const out = [];
+  DRAFT.regions.forEach(r => { if (r.image === url) out.push(r.el); (r.experiences || []).forEach(x => { if (x.image === url) out.push(x.el?.title); }); });
+  return out;
+}
+async function tabImages() {
+  $("#cmTab").innerHTML = `<div class="card block">
+      <div class="block-head"><h3>Βιβλιοθήκη φωτογραφιών</h3><label class="btn btn-primary btn-sm">Ανέβασμα<input type="file" id="upInput" accept="image/jpeg,image/png,image/webp" multiple hidden></label></div>
+      <p class="muted small" style="margin:0">JPEG, PNG ή WebP έως ${SETTINGS.maxUploadMB} MB. Μικραίνουν αυτόματα σε ${SETTINGS.imageMaxPx}px και μετατρέπονται σε WebP. Για να μπει μια φωτογραφία στο site, ανοίξτε την καρτέλα «Προορισμοί» και πατήστε «Αλλαγή φωτογραφίας».</p>
+      <div id="upMsg"></div><div class="lib" id="libGrid">${loading()}</div></div>`;
+  $("#upInput").addEventListener("change", (e) => uploadFiles(e.target.files, () => tabImages()));
+  try { LIB = await API.images(); } catch (x) { $("#libGrid").innerHTML = failed(x); return; }
+  const builtIn = [...new Set(DRAFT.regions.flatMap(r => [r.image, ...(r.experiences || []).map(x => x.image)]).filter(s => s && !/^(https:|blob:)/.test(s)))];
+  $("#libGrid").innerHTML = LIB.map(f => {
+    const used = usages(f.url);
+    return `<div class="lib-item"><div class="thumb" style="background-image:url('${esc(f.url)}')"></div><div class="meta"><b>${esc(f.name.split("/").pop())}</b>
+      <span class="num">${f.size ? (f.size / 1024).toFixed(0) + " KB · " : ""}${fmtDate(f.created)}</span>
+      <span>${used.length ? "Σε χρήση: " + esc(used.join(", ")) : "Δεν χρησιμοποιείται"}</span>
+      <span class="mini-btns"><button class="btn btn-sm btn-danger" type="button" data-del-image="${esc(f.name)}" ${used.length ? "disabled title=\"Αλλάξτε πρώτα τη φωτογραφία όπου χρησιμοποιείται\"" : ""}>Διαγραφή</button></span></div></div>`;
+  }).join("") + builtIn.map(src => `<div class="lib-item"><div class="thumb" style="background-image:url('${esc(previewSrc(src))}')"></div><div class="meta"><b>${esc(src.split("/").pop())}</b><span>Αρχική φωτογραφία του site</span>
+      <span>${usages(src).length ? "Σε χρήση: " + esc(usages(src).join(", ")) : "Δεν χρησιμοποιείται"}</span></div></div>`).join("") || `<div class="empty">Καμία φωτογραφία.</div>`;
+}
+async function optimizeImage(file) {
+  if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) throw new Error(`«${file.name}»: επιτρέπονται μόνο JPEG, PNG, WebP.`);
+  if (file.size > SETTINGS.maxUploadMB * 1048576) throw new Error(`«${file.name}»: μεγαλύτερο από ${SETTINGS.maxUploadMB} MB.`);
+  const bmp = await createImageBitmap(file).catch(() => { throw new Error(`«${file.name}»: δεν είναι έγκυρη εικόνα.`); });
+  const k = Math.min(1, SETTINGS.imageMaxPx / Math.max(bmp.width, bmp.height));
+  const c = document.createElement("canvas"); c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
+  c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height);
+  let blob = await new Promise(r => c.toBlob(r, "image/webp", SETTINGS.imageQuality));
+  if (!blob || blob.type !== "image/webp") blob = await new Promise(r => c.toBlob(r, "image/jpeg", SETTINGS.imageQuality));
+  if (blob.size > 5 * 1048576) throw new Error(`«${file.name}»: παραμένει μεγαλύτερο από 5 MB μετά τη συμπίεση.`);
+  return blob;
+}
+async function uploadFiles(files, after) {
+  const box = $("#upMsg") || $("#pickMsg"); const done = [];
+  for (const f of files) {
+    try {
+      if (box) box.innerHTML = `<div class="msg info">Βελτιστοποίηση και ανέβασμα «${esc(f.name)}»…</div>`;
+      const blob = await optimizeImage(f);
+      const slug = f.name.replace(/\.[^.]+$/, "").toLowerCase().normalize("NFD").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) || "photo";
+      const url = await API.upload(blob, `uploads/${Date.now()}-${slug}.${blob.type === "image/webp" ? "webp" : "jpg"}`);
+      done.push(url);
+      if (box) box.innerHTML = `<div class="msg ok">Ανέβηκε: ${esc(f.name)} (${(f.size / 1024).toFixed(0)} KB → ${(blob.size / 1024).toFixed(0)} KB)</div>`;
+    } catch (x) { if (box) box.innerHTML = `<div class="msg err">${esc(x.message || x)}</div>`; }
+  }
+  after?.(done);
+  return done;
+}
+async function pickImage(path) {
+  try { LIB = await API.images(); } catch (x) { toast(x.message); return; }
+  const builtIn = [...new Set(DRAFT.regions.flatMap(r => [r.image, ...(r.experiences || []).map(x => x.image)]).filter(s => s && !/^(https:|blob:)/.test(s)))];
+  const all = [...LIB.map(f => ({ src: f.url, name: f.name.split("/").pop() })), ...builtIn.map(s => ({ src: s, name: s.split("/").pop() }))];
+  openDrawer("Επιλογή φωτογραφίας", `
+    <label class="btn btn-primary">Ανέβασμα νέας φωτογραφίας<input type="file" id="pickUpload" accept="image/jpeg,image/png,image/webp" hidden></label>
+    <div id="pickMsg"></div>
+    <div class="lib">${all.map(f => `<button class="lib-item pick" type="button" data-choose="${esc(f.src)}"><div class="thumb" style="background-image:url('${esc(previewSrc(f.src))}')"></div><div class="meta"><b>${esc(f.name)}</b></div></button>`).join("")}</div>`, "", true);
+  const choose = (src) => { setPath(path, src); closeDrawer(); drawContent(); toast("Η φωτογραφία άλλαξε. Πατήστε Αποθήκευση για να δημοσιευτεί."); };
+  $("#drawerBody").onclick = (e) => { const b = e.target.closest("[data-choose]"); if (b) choose(b.dataset.choose); };
+  $("#pickUpload").addEventListener("change", (e) => uploadFiles(e.target.files, (urls) => { if (urls[0]) choose(urls[0]); }));
+}
+async function tabHistory() {
+  $("#cmTab").innerHTML = `<div class="card"><div id="verList">${loading()}</div></div>`;
+  try {
+    const vs = await API.versions();
+    const cur = PUBLISHED?.version_id;
+    $("#verList").innerHTML = vs.map(v => `<div class="ver"><div><b>Έκδοση #${v.id}${v.id === cur ? ' <span class="pill completed">Τρέχουσα</span>' : ""}</b>
+        <span class="sub num">${fmtDateTime(v.created_at)}${v.note ? " · " + esc(v.note) : ""}</span></div>
+        <div class="mini-btns"><button class="btn btn-sm" type="button" data-ver-preview="${v.id}">Προεπισκόπηση</button>${v.id === cur ? "" : `<button class="btn btn-sm" type="button" data-ver-restore="${v.id}">Επαναφορά</button>`}</div></div>`).join("") +
+      `<div class="ver"><div><b>Αρχικό περιεχόμενο</b><span class="sub">Όπως είναι γραμμένο στον κώδικα του site</span></div>
+        <div class="mini-btns"><button class="btn btn-sm" type="button" data-ver-preview="0">Προεπισκόπηση</button>${cur ? '<button class="btn btn-sm" type="button" data-ver-restore="0">Επαναφορά</button>' : ""}</div></div>`;
+  } catch (x) { $("#verList").innerHTML = failed(x); }
+}
+
+// Επεξεργασία του draft
+function getPath(p) { return p.split(".").reduce((o, k) => o?.[k], DRAFT); }
+function setPath(p, v) {
+  const ks = p.split("."); let o = DRAFT;
+  ks.slice(0, -1).forEach((k, i) => { if (o[k] == null) o[k] = /^\d+$/.test(ks[i + 1]) ? [] : {}; o = o[k]; });
+  o[ks[ks.length - 1]] = v; markDirty();
+}
+function markDirty() { DRAFT_DIRTY = true; const b = $("#saveBar"); if (b) b.hidden = false; }
+document.addEventListener("input", (e) => {
+  const el = e.target.closest("[data-path]"); if (!el || !DRAFT) return;
+  setPath(el.dataset.path, el.hasAttribute("data-lines") ? el.value.split("\n").map(s => s.trim()).filter(Boolean) : el.value);
+});
+document.addEventListener("change", (e) => { const el = e.target.closest("select[data-path]"); if (el && DRAFT) setPath(el.dataset.path, el.value); });
+document.addEventListener("click", async (e) => {
+  const t = e.target;
+  const tab = t.closest("[data-cm-tab]"); if (tab) { CM_TAB = tab.dataset.cmTab; drawContent(); return; }
+  const lg = t.closest("[data-cm-lang]"); if (lg) { CM_LANG = lg.dataset.cmLang; drawContent(); return; }
+  const mv = t.closest("[data-move]"); if (mv) { const [k, i, d] = mv.dataset.move.split(":"); const a = getPath(k), j = +i + +d; [a[i], a[j]] = [a[j], a[i]]; markDirty(); drawContent(); return; }
+  const rm = t.closest("[data-remove]");
+  if (rm) {
+    if (rm.dataset.confirm !== "1") { rm.dataset.confirm = "1"; rm.textContent = "Σίγουρα;"; setTimeout(() => { if (rm.isConnected) { rm.dataset.confirm = ""; rm.textContent = "Διαγραφή"; } }, 3000); return; }
+    const [k, i] = rm.dataset.remove.split(":"); getPath(k).splice(+i, 1); markDirty(); drawContent(); return;
+  }
+  if (t.closest("[data-add-service]")) {
+    const n = DRAFT.services.length + 1;
+    DRAFT.services.push({ id: "service-" + Date.now().toString(36), icon: "sparkle", el: { title: "Νέα υπηρεσία " + n, short: "", body: "", points: [] }, en: { title: "New service " + n, short: "", body: "", points: [] } });
+    markDirty(); drawContent(); return;
+  }
+  const ax = t.closest("[data-add-exp]");
+  if (ax) { const r = DRAFT.regions[+ax.dataset.addExp]; (r.experiences ||= []).push({ id: "exp-" + Date.now().toString(36), image: "", el: { title: "Νέα εμπειρία", text: "" }, en: { title: "New experience", text: "" } }); markDirty(); drawContent(); return; }
+  const pi = t.closest("[data-pick-image]"); if (pi) { pickImage(pi.dataset.pickImage); return; }
+  const di = t.closest("[data-del-image]");
+  if (di) {
+    if (di.dataset.confirm !== "1") { di.dataset.confirm = "1"; di.textContent = "Σίγουρα;"; setTimeout(() => { if (di.isConnected) { di.dataset.confirm = ""; di.textContent = "Διαγραφή"; } }, 3000); return; }
+    try { await API.removeImage(di.dataset.delImage); toast("Η φωτογραφία διαγράφηκε"); tabImages(); } catch (x) { toast("Δεν διαγράφηκε: " + x.message); }
+    return;
+  }
+  if (t.closest("[data-cm-discard]")) {
+    const b = t.closest("[data-cm-discard]");
+    if (b.dataset.confirm !== "1") { b.dataset.confirm = "1"; b.textContent = "Σίγουρα;"; return; }
+    DRAFT = clone(EFFECTIVE); DRAFT_DIRTY = false; drawContent(); toast("Οι αλλαγές απορρίφθηκαν"); return;
+  }
+  if (t.closest("[data-cm-preview]")) { openPreview(DRAFT, "Προεπισκόπηση αλλαγών"); return; }
+  if (t.closest("[data-cm-save]")) { openSave(); return; }
+  const vp = t.closest("[data-ver-preview]");
+  if (vp) { const id = +vp.dataset.verPreview; try { openPreview(id ? effectiveContent(await API.version(id)) : effectiveContent({}), id ? `Έκδοση #${id}` : "Αρχικό περιεχόμενο"); } catch (x) { toast(x.message); } return; }
+  const vr = t.closest("[data-ver-restore]");
+  if (vr) {
+    if (vr.dataset.confirm !== "1") { vr.dataset.confirm = "1"; vr.textContent = "Επιβεβαίωση επαναφοράς"; return; }
+    const id = +vr.dataset.verRestore;
+    try { const data = id ? await API.version(id) : {}; await doPublish(data, id ? `Επαναφορά έκδοσης #${id}` : "Επαναφορά αρχικού περιεχομένου"); } catch (x) { toast("Η επαναφορά απέτυχε: " + x.message); }
+  }
+});
+function openPreview(content, title) {
+  if (!SITE_URL) { toast("Δεν βρέθηκε το site για προεπισκόπηση."); return; }
+  openDrawer(esc(title), `<p class="muted small" style="margin:0">Έτσι θα φαίνεται το site. Τίποτα δεν έχει αποθηκευτεί ακόμη.</p><iframe class="preview-frame" id="pvFrame" title="Προεπισκόπηση" src="${esc(SITE_URL)}?preview"></iframe>`,
+    DRAFT_DIRTY && content === DRAFT ? `<button class="btn" type="button" data-close>Συνέχεια επεξεργασίας</button><button class="btn btn-primary" type="button" data-cm-save>Αποθήκευση</button>` : `<button class="btn" type="button" data-close>Κλείσιμο</button>`, true);
+  const f = $("#pvFrame");
+  f.addEventListener("load", () => { try { f.contentWindow.AK_applyContent(clone(content), CM_LANG); } catch {} }, { once: true });
+}
+function openSave() {
+  openDrawer("Αποθήκευση αλλαγών", `<p style="margin:0">Οι αλλαγές θα εμφανιστούν αμέσως στο site. Η τωρινή έκδοση φυλάγεται στο «Ιστορικό εκδόσεων» για επαναφορά.</p>
+    <label class="field"><span class="label">Σημείωση (προαιρετική)</span><input class="input" id="saveNote" maxlength="200" placeholder="π.χ. Νέα φωτογραφία Ζακύνθου"></label>`,
+    `<button class="btn" type="button" data-close>Άκυρο</button><button class="btn" type="button" data-cm-preview>Προεπισκόπηση</button><button class="btn btn-primary" type="button" id="saveGo">Δημοσίευση</button>`);
+  $("#saveGo").addEventListener("click", async () => { $("#saveGo").disabled = true; try { await doPublish(DRAFT, $("#saveNote").value.trim()); } catch (x) { toast("Δεν αποθηκεύτηκε: " + x.message); $("#saveGo").disabled = false; } });
+}
+async function doPublish(data, note) {
+  await API.publish(clone(data), note);
+  PUBLISHED = await API.content(); EFFECTIVE = effectiveContent(PUBLISHED?.data); DRAFT = clone(EFFECTIVE); DRAFT_DIRTY = false;
+  closeDrawer(); toast("Δημοσιεύτηκε στο site"); drawContent();
+}
+addEventListener("beforeunload", (e) => { if (DRAFT_DIRTY) { e.preventDefault(); e.returnValue = ""; } });
+
+/* ══════════════════════════════════════════════════════════════════
+   5. ΡΥΘΜΙΣΕΙΣ
+   ══════════════════════════════════════════════════════════════════ */
+function viewSettings() {
+  $("#main").innerHTML = head("Ρυθμίσεις", "Λογαριασμός και ασφάλεια.") + `
+    <div class="grid-2">
+      <div class="card card-pad"><h2>Αλλαγή κωδικού</h2>
+        <form id="pwForm" class="fields" novalidate>
+          <label class="field"><span class="label">Νέος κωδικός (τουλάχιστον 12 χαρακτήρες)</span><input class="input" id="pw1" type="password" autocomplete="new-password"></label>
+          <label class="field"><span class="label">Επανάληψη</span><input class="input" id="pw2" type="password" autocomplete="new-password"></label>
+          <div id="pwMsg"></div>
+          <button class="btn btn-primary" type="submit">Αλλαγή κωδικού</button>
+        </form></div>
+      <div class="card card-pad"><h2>Ασφάλεια</h2>
+        <dl class="dl"><dt>Λογαριασμός</dt><dd>${esc(ME)}</dd>
+          <dt>Αυτόματη αποσύνδεση</dt><dd>Μετά από ${SETTINGS.idleMinutes} λεπτά αδράνειας</dd>
+          <dt>Αποτυχημένες συνδέσεις</dt><dd>Κλείδωμα 15 λεπτών μετά από 5 αποτυχίες</dd>
+          <dt>Σύνδεση</dt><dd>Μένει μόνο σε αυτή την καρτέλα· κλείνοντάς την αποσυνδέεστε</dd></dl></div>
+    </div>`;
+  $("#pwForm").addEventListener("submit", async (e) => {
+    e.preventDefault(); const a = $("#pw1").value, b = $("#pw2").value, m = $("#pwMsg");
+    if (a.length < 12) { m.innerHTML = '<div class="msg err">Ο κωδικός πρέπει να έχει τουλάχιστον 12 χαρακτήρες.</div>'; return; }
+    if (a !== b) { m.innerHTML = '<div class="msg err">Οι δύο κωδικοί δεν ταιριάζουν.</div>'; return; }
+    try { await API.changePassword(a); m.innerHTML = '<div class="msg ok">Ο κωδικός άλλαξε.</div>'; $("#pw1").value = $("#pw2").value = ""; }
+    catch (x) { m.innerHTML = `<div class="msg err">${esc(x.message)}</div>`; }
+  });
+}
+
+boot();
+})();
+</script>
+</body>
+</html>

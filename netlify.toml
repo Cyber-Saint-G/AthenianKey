@@ -1,0 +1,30 @@
+# Ρυθμίσεις φιλοξενίας για Netlify (στατικό site, χωρίς build)
+[build]
+  publish = "."
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+
+# Το dashboard δεν εμφανίζεται σε μηχανές αναζήτησης, δεν μπαίνει σε iframe τρίτων και δεν αποθηκεύεται σε cache
+[[headers]]
+  for = "/admin/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    X-Frame-Options = "DENY"
+    Cache-Control = "no-store"
+
+# Τα αρχεία βάσης και οι οδηγίες δεν χρειάζεται να είναι δημόσια
+[[redirects]]
+  from = "/supabase/*"
+  to = "/404"
+  status = 404
+  force = true
+[[redirects]]
+  from = "/docs/*"
+  to = "/404"
+  status = 404
+  force = true
