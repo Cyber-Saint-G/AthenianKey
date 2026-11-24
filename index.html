@@ -1,0 +1,934 @@
+<title>AthenianKeys</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="AthenianKeys — Private concierge in Athens, Zakynthos & Crete.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=GFS+Didot&family=Manrope:wght@300;400;500;600&display=swap">
+
+<!--
+  ╔══════════════════════════════════════════════════════════════════╗
+  ║  ΡΥΘΜΙΣΕΙΣ / SETTINGS                                            ║
+  ║  1) ΧΡΩΜΑΤΑ  → το πρώτο <style> αμέσως από κάτω (:root)          ║
+  ║  2) BRAND, ΕΠΙΚΟΙΝΩΝΙΑ, ΚΕΙΜΕΝΑ, ΥΠΗΡΕΣΙΕΣ → το <script> CONFIG  ║
+  ║  Δεν χρειάζεται να αλλάξετε τίποτα άλλο στο αρχείο.              ║
+  ╚══════════════════════════════════════════════════════════════════╝
+-->
+
+<style>
+/* ─── 1. ΧΡΩΜΑΤΑ / COLORS ─────────────────────────────────────────
+   Layout: one mobile column, scaled up on desktop; glass bottom nav.
+   Φωτεινό θέμα (light) εδώ, σκούρο (dark) στα δύο μπλοκ από κάτω.   */
+:root {
+  --bg:          #F6F8FB;   /* φόντο σελίδας */
+  --ink:         #0C1A2E;   /* κύριο κείμενο */
+  --muted:       #5A6A82;   /* δευτερεύον κείμενο */
+  --accent:      #1D4A8C;   /* μπλε Αιγαίου – κουμπιά, έμφαση */
+  --accent-ink:  #FFFFFF;   /* κείμενο πάνω στο μπλε */
+  --line:        rgba(12, 26, 46, .09);
+  --glass:       rgba(255, 255, 255, .56);
+  --glass-strong:rgba(255, 255, 255, .78);
+  --glass-edge:  rgba(255, 255, 255, .85);
+  --glass-shadow:rgba(18, 40, 78, .13);
+  --shine:       rgba(255, 255, 255, .9);
+  --blob-1:      #A9C6F2;   /* απαλές «θάλασσες» στο φόντο */
+  --blob-2:      #D6E4F8;
+  --blob-3:      #C3D7F3;
+  --scrim:       rgba(12, 26, 46, .22);
+  --danger:      #B4232F;
+
+  --font-display: "GFS Didot", "Didot", "Bodoni 72", Georgia, serif;
+  --font-body:    "Manrope", "Helvetica Neue", Arial, system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#070E19; --ink:#E8EEF7; --muted:#8B9AB1; --accent:#8FB5EE; --accent-ink:#07101D;
+    --line:rgba(232,238,247,.09); --glass:rgba(22,34,56,.52); --glass-strong:rgba(26,40,64,.82);
+    --glass-edge:rgba(255,255,255,.14); --glass-shadow:rgba(0,0,0,.45); --shine:rgba(255,255,255,.22);
+    --blob-1:#1B3A6E; --blob-2:#0F2442; --blob-3:#173260; --scrim:rgba(0,0,0,.45); --danger:#F08A93;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg:#070E19; --ink:#E8EEF7; --muted:#8B9AB1; --accent:#8FB5EE; --accent-ink:#07101D;
+  --line:rgba(232,238,247,.09); --glass:rgba(22,34,56,.52); --glass-strong:rgba(26,40,64,.82);
+  --glass-edge:rgba(255,255,255,.14); --glass-shadow:rgba(0,0,0,.45); --shine:rgba(255,255,255,.22);
+  --blob-1:#1B3A6E; --blob-2:#0F2442; --blob-3:#173260; --scrim:rgba(0,0,0,.45); --danger:#F08A93;
+  color-scheme: dark;
+}
+</style>
+
+<script>
+/* ─── 2. ΠΕΡΙΕΧΟΜΕΝΟ / CONTENT ──────────────────────────────────── */
+const CONFIG = {
+  brand: "AthenianKeys",
+  defaultLang: "el",                       // "el" ή "en"
+
+  // Στοιχεία επικοινωνίας (προσωρινά – αλλάξτε τα)
+  contact: {
+    phone:    "+30 210 000 0000",          // σταθερό, για κλήση
+    mobile:   "+30 690 000 0000",          // κινητό / WhatsApp
+    whatsapp: "306900000000",              // μόνο ψηφία, με κωδικό χώρας
+    email:    "hello@atheniankeys.gr",
+  },
+
+  regions: [
+    { id: "athens",    el: "Αθήνα",    en: "Athens",    coords: "37.98° N · 23.73° E" },
+    { id: "zakynthos", el: "Ζάκυνθος", en: "Zakynthos", coords: "37.78° N · 20.90° E" },
+    { id: "crete",     el: "Κρήτη",    en: "Crete",     coords: "35.34° N · 25.13° E" },
+  ],
+
+  // Υπηρεσίες – προσθέστε/αφαιρέστε ελεύθερα. icon: car, yacht, dining, villa, compass, chef, sparkle
+  services: [
+    { id: "transfers", icon: "car",
+      el: { title: "VIP Μεταφορές", short: "Οδηγός και πολυτελές όχημα, όποτε το χρειαστείτε.",
+            body: "Παραλαβή από αεροδρόμιο, λιμάνι ή ξενοδοχείο με Mercedes V-Class, S-Class ή minivan για ομάδες. Ο οδηγός σας περιμένει με πινακίδα και παρακολουθεί την πτήση σας.",
+            points: ["Παραλαβή με πινακίδα ονόματος", "Δίγλωσσοι επαγγελματίες οδηγοί", "Διαθεσιμότητα 24/7"] },
+      en: { title: "VIP Transfers", short: "A driver and a luxury vehicle, whenever you need one.",
+            body: "Airport, port or hotel pick-ups in a Mercedes V-Class, S-Class or a minivan for groups. Your driver waits with a name sign and tracks your flight.",
+            points: ["Meet & greet with name sign", "Bilingual professional drivers", "Available 24/7"] } },
+
+    { id: "yachts", icon: "yacht",
+      el: { title: "Σκάφη & Yachts", short: "Ημερήσιες κρουαζιέρες και ναυλώσεις με πλήρωμα.",
+            body: "Από ταχύπλοα για μια μέρα στους κόλπους της Ζακύνθου μέχρι motor yachts για εβδομαδιαία ναύλωση στο Αιγαίο. Επιλέγουμε το σκάφος, το πλήρωμα και τη διαδρομή μαζί σας.",
+            points: ["Ταχύπλοα, ιστιοφόρα, motor yachts", "Έμπειρος καπετάνιος και πλήρωμα", "Catering και ποτά επί του σκάφους"] },
+      en: { title: "Boats & Yachts", short: "Day cruises and crewed charters.",
+            body: "From speedboats for a day around Zakynthos' coves to motor yachts for a week in the Aegean. We choose the boat, the crew and the route together with you.",
+            points: ["Speedboats, sailboats, motor yachts", "Experienced captain and crew", "Catering and drinks on board"] } },
+
+    { id: "dining", icon: "dining",
+      el: { title: "Κρατήσεις Εστιατορίων", short: "Τραπέζια εκεί που είναι δύσκολο να βρείτε.",
+            body: "Κλείνουμε τραπέζι στα πιο περιζήτητα εστιατόρια της Αθήνας και των νησιών, συχνά και για την ίδια μέρα. Σας προτείνουμε μέρη ανάλογα με το γούστο και την περίσταση.",
+            points: ["Προσωπικές προτάσεις", "Κρατήσεις την ίδια μέρα", "Ειδικές περιστάσεις και ιδιωτικοί χώροι"] },
+      en: { title: "Restaurant Reservations", short: "Tables where tables are hard to find.",
+            body: "We book tables at the most sought-after restaurants in Athens and the islands, often on the same day, and suggest places that suit your taste and the occasion.",
+            points: ["Personal recommendations", "Same-day bookings", "Special occasions and private rooms"] } },
+
+    { id: "villas", icon: "villa",
+      el: { title: "Βίλες", short: "Επιλεγμένες ιδιωτικές βίλες με θέα και πισίνα.",
+            body: "Βίλες που έχουμε επισκεφθεί οι ίδιοι, σε Αθήνα, Ζάκυνθο και Κρήτη. Με καθαριότητα, πρωινό και υπηρεσίες house manager κατά τη διαμονή σας.",
+            points: ["Ελεγμένα ακίνητα", "Housekeeping και πρωινό", "Προσωπικός house manager"] },
+      en: { title: "Villas", short: "Hand-picked private villas with views and pools.",
+            body: "Villas we have visited ourselves in Athens, Zakynthos and Crete, with housekeeping, breakfast and a house manager during your stay.",
+            points: ["Personally inspected properties", "Housekeeping and breakfast", "Dedicated house manager"] } },
+
+    { id: "experiences", icon: "compass",
+      el: { title: "Εμπειρίες & Ξεναγήσεις", short: "Ιδιωτικές ξεναγήσεις, οινογνωσίες, πτήσεις.",
+            body: "Ακρόπολη πριν ανοίξει στο κοινό, Κνωσός με αρχαιολόγο, οινογνωσία σε κρητικά οινοποιεία ή πτήση με ελικόπτερο πάνω από το Ναυάγιο. Σχεδιάζουμε κάθε εμπειρία στα μέτρα σας.",
+            points: ["Πιστοποιημένοι ξεναγοί", "Οινογνωσίες και γαστρονομία", "Πτήσεις ελικοπτέρου"] },
+      en: { title: "Experiences & Tours", short: "Private tours, wine tastings, helicopter flights.",
+            body: "The Acropolis before it opens to the public, Knossos with an archaeologist, wine tasting at Cretan wineries or a helicopter flight over Navagio. Every experience is planned around you.",
+            points: ["Licensed guides", "Wine and food experiences", "Helicopter flights"] } },
+
+    { id: "chef", icon: "chef",
+      el: { title: "Private Chef", short: "Μενού γευσιγνωσίας στη βίλα ή στο σκάφος σας.",
+            body: "Ο σεφ σχεδιάζει μαζί σας το μενού με τοπικά υλικά της εποχής και μαγειρεύει στον χώρο σας, από ένα ελληνικό πρωινό μέχρι δείπνο πολλών πιάτων.",
+            points: ["Μενού με εποχικά υλικά", "Σέρβις και καθάρισμα", "Συνδυασμός με ελληνικά κρασιά"] },
+      en: { title: "Private Chef", short: "Tasting menus at your villa or on board.",
+            body: "Your chef designs the menu with you using local, seasonal produce and cooks on site, from a Greek breakfast to a multi-course dinner.",
+            points: ["Seasonal local menus", "Service and clean-up", "Greek wine pairing"] } },
+
+    { id: "events", icon: "sparkle",
+      el: { title: "Event Planning", short: "Γάμοι, προτάσεις γάμου, εταιρικές εκδηλώσεις.",
+            body: "Από μια πρόταση γάμου στο ηλιοβασίλεμα μέχρι έναν γάμο 150 ατόμων ή ένα εταιρικό ταξίδι. Αναλαμβάνουμε τον χώρο, τους συνεργάτες και κάθε λεπτομέρεια.",
+            points: ["Επιλογή χώρου", "Διακόσμηση, μουσική, φωτογράφιση", "Συντονισμός την ημέρα του event"] },
+      en: { title: "Event Planning", short: "Weddings, proposals, corporate events.",
+            body: "From a sunset proposal to a 150-guest wedding or a company retreat. We handle the venue, the suppliers and every detail.",
+            points: ["Venue selection", "Décor, music, photography", "On-the-day coordination"] } },
+  ],
+
+  // Κείμενα σελίδας
+  text: {
+    el: {
+      langLabel: "EN", langAria: "Switch to English",
+      navHome: "Αρχική", navServices: "Υπηρεσίες", navRequest: "Αίτημα", navContact: "Επικοινωνία",
+      heroEyebrow: "Private concierge · Αθήνα · Ζάκυνθος · Κρήτη",
+      heroTitle: "Η Ελλάδα, όπως ακριβώς την ονειρεύεστε.",
+      heroText: "Μεταφορές, σκάφη, βίλες και τραπέζια που δεν βρίσκονται εύκολα. Στείλτε μας ένα μήνυμα και αναλαμβάνουμε τα υπόλοιπα.",
+      ctaRequest: "Κάντε αίτημα", ctaWhatsapp: "WhatsApp",
+      homeServices: "Υπηρεσίες", seeAll: "Όλες",
+      howTitle: "Πώς δουλεύουμε",
+      how1t: "Στείλτε αίτημα", how1: "Πείτε μας τι χρειάζεστε, πότε και πού.",
+      how2t: "Λάβετε προτάσεις", how2: "Σας απαντάμε μέσα σε μία ώρα με επιλογές και τιμές.",
+      how3t: "Απολαύστε", how3: "Εμείς φροντίζουμε κάθε λεπτομέρεια, εσείς το ταξίδι.",
+      aboutTitle: "Γιατί AthenianKeys",
+      aboutText: "Είμαστε μια μικρή ομάδα που ζει και δουλεύει εκεί που ταξιδεύετε. Γνωρίζουμε προσωπικά κάθε συνεργάτη μας.",
+      why1: "Ένας προσωπικός συνεργάτης για όλο το ταξίδι",
+      why2: "Διαθέσιμοι 24 ώρες, 7 ημέρες",
+      why3: "Ελεγμένοι συνεργάτες, διαφανείς τιμές",
+      regionsTitle: "Περιοχές",
+      servicesTitle: "Υπηρεσίες", servicesIntro: "Πατήστε μια υπηρεσία για λεπτομέρειες.",
+      sheetCta: "Αίτημα για αυτή την υπηρεσία", close: "Κλείσιμο",
+      requestTitle: "Αίτημα", requestIntro: "Συμπληρώστε τα βασικά. Το μήνυμα ανοίγει έτοιμο στο WhatsApp ή στο email σας.",
+      fService: "Υπηρεσία", fRegion: "Περιοχή", fDate: "Ημερομηνία", fGuests: "Άτομα",
+      fName: "Ονοματεπώνυμο", fPhone: "Τηλέφωνο", fEmail: "Email (προαιρετικό)", fNotes: "Λεπτομέρειες",
+      fNamePh: "π.χ. Μαρία Παπαδοπούλου", fPhonePh: "+30 …", fEmailPh: "name@email.com",
+      fNotesPh: "Ώρα, αριθμός πτήσης, προτιμήσεις…",
+      sendWhatsapp: "Αποστολή με WhatsApp", sendEmail: "Αποστολή με email",
+      errService: "Επιλέξτε υπηρεσία.", errName: "Γράψτε το όνομά σας.", errPhone: "Γράψτε ένα τηλέφωνο επικοινωνίας.",
+      sentTitle: "Το μήνυμά σας είναι έτοιμο",
+      sentText: "Ολοκληρώστε την αποστολή στην εφαρμογή που άνοιξε. Αν δεν άνοιξε, αντιγράψτε το μήνυμα και στείλτε το σε:",
+      copyMessage: "Αντιγραφή μηνύματος", copied: "Αντιγράφηκε",
+      msgHeader: "Νέο αίτημα – AthenianKeys", msgEmailSubject: "Αίτημα κράτησης",
+      contactTitle: "Επικοινωνία", contactIntro: "Είμαστε εδώ όλο το 24ωρο. Διαλέξτε τον τρόπο που σας βολεύει.",
+      cCall: "Κλήση", cWhatsapp: "WhatsApp", cEmail: "Email", copy: "Αντιγραφή",
+      hoursTitle: "Ωράριο", hours: "24/7, όλο τον χρόνο",
+      footer: "Private concierge στην Ελλάδα",
+    },
+    en: {
+      langLabel: "ΕΛ", langAria: "Αλλαγή σε Ελληνικά",
+      navHome: "Home", navServices: "Services", navRequest: "Request", navContact: "Contact",
+      heroEyebrow: "Private concierge · Athens · Zakynthos · Crete",
+      heroTitle: "Greece, exactly as you imagine it.",
+      heroText: "Transfers, yachts, villas and tables that are hard to get. Send us a message and we take care of the rest.",
+      ctaRequest: "Make a request", ctaWhatsapp: "WhatsApp",
+      homeServices: "Services", seeAll: "All",
+      howTitle: "How it works",
+      how1t: "Send a request", how1: "Tell us what you need, when and where.",
+      how2t: "Get options", how2: "We reply within an hour with options and prices.",
+      how3t: "Enjoy", how3: "We handle every detail. You enjoy the trip.",
+      aboutTitle: "Why AthenianKeys",
+      aboutText: "We are a small team that lives and works where you travel. We know every partner we work with personally.",
+      why1: "One personal concierge for your whole trip",
+      why2: "Available 24 hours, 7 days",
+      why3: "Trusted partners, transparent prices",
+      regionsTitle: "Regions",
+      servicesTitle: "Services", servicesIntro: "Tap a service for details.",
+      sheetCta: "Request this service", close: "Close",
+      requestTitle: "Request", requestIntro: "Fill in the basics. Your message opens ready to send in WhatsApp or email.",
+      fService: "Service", fRegion: "Region", fDate: "Date", fGuests: "Guests",
+      fName: "Full name", fPhone: "Phone", fEmail: "Email (optional)", fNotes: "Details",
+      fNamePh: "e.g. Anna Smith", fPhonePh: "+44 …", fEmailPh: "name@email.com",
+      fNotesPh: "Time, flight number, preferences…",
+      sendWhatsapp: "Send via WhatsApp", sendEmail: "Send via email",
+      errService: "Choose a service.", errName: "Enter your name.", errPhone: "Enter a contact phone number.",
+      sentTitle: "Your message is ready",
+      sentText: "Finish sending it in the app that opened. If nothing opened, copy the message and send it to:",
+      copyMessage: "Copy message", copied: "Copied",
+      msgHeader: "New request – AthenianKeys", msgEmailSubject: "Booking request",
+      contactTitle: "Contact", contactIntro: "We are here around the clock. Choose whatever suits you.",
+      cCall: "Call", cWhatsapp: "WhatsApp", cEmail: "Email", copy: "Copy",
+      hoursTitle: "Hours", hours: "24/7, all year round",
+      footer: "Private concierge in Greece",
+    },
+  },
+};
+</script>
+
+<style>
+/* ─── ΒΑΣΗ / BASE ───────────────────────────────────────────────── */
+html {
+  /* Ίδιο layout παντού: όλα σε rem, που μεγαλώνει ομαλά σε μεγάλες οθόνες */
+  font-size: clamp(15px, min(4.15vw, 2.3vh), 22px);
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  min-height: 100%;
+}
+*, *::before, *::after { box-sizing: border-box; }
+button, input, textarea, select { font: inherit; color: inherit; }
+button { cursor: pointer; background: none; border: 0; padding: 0; }
+a { color: inherit; text-decoration: none; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: .5rem; }
+::selection { background: var(--blob-1); }
+
+/* Ambient «θάλασσα» στο φόντο, για να φαίνεται το blur του γυαλιού */
+.ambient { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.ambient i {
+  position: absolute; border-radius: 50%; filter: blur(60px); opacity: .75;
+  animation: drift 26s ease-in-out infinite alternate;
+}
+.ambient i:nth-child(1) { width: 26rem; height: 26rem; background: var(--blob-1); top: -9rem; right: -10rem; }
+.ambient i:nth-child(2) { width: 22rem; height: 22rem; background: var(--blob-2); top: 40%; left: -12rem; animation-duration: 32s; }
+.ambient i:nth-child(3) { width: 20rem; height: 20rem; background: var(--blob-3); bottom: -10rem; right: -6rem; animation-duration: 38s; }
+@keyframes drift { to { transform: translate3d(2.5rem, 3rem, 0) scale(1.08); } }
+
+/* Η στήλη της εφαρμογής */
+.app {
+  position: relative; z-index: 1;
+  width: 100%; max-width: 30rem; margin: 0 auto;
+  padding-left: max(1.25rem, 16px, env(safe-area-inset-left, 0px));
+  padding-right: max(1.25rem, 16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 calc(7rem + env(safe-area-inset-bottom, 0px));
+}
+
+/* ─── LIQUID GLASS ──────────────────────────────────────────────── */
+.glass {
+  position: relative;
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(22px) saturate(170%);
+  backdrop-filter: blur(22px) saturate(170%);
+  border: 1px solid var(--glass-edge);
+  box-shadow:
+    inset 0 1px 0 var(--shine),
+    inset 0 -1px 1px rgba(255,255,255,.05),
+    0 .6rem 2rem -0.6rem var(--glass-shadow);
+  isolation: isolate;
+}
+.glass::before {           /* απαλή ανταύγεια */
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: -1;
+  background:
+    radial-gradient(120% 60% at 15% 0%, var(--shine), transparent 55%),
+    linear-gradient(180deg, transparent 60%, rgba(255,255,255,.04));
+  opacity: .55;
+}
+
+/* ─── HEADER ────────────────────────────────────────────────────── */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-block: 1.1rem .4rem;
+}
+.wordmark {
+  font-family: var(--font-display); font-size: 1.35rem; letter-spacing: .01em;
+  display: flex; align-items: center; gap: .55rem;
+}
+.wordmark svg { width: 1.15rem; height: 1.15rem; color: var(--accent); }
+.lang {
+  height: 2.2rem; min-width: 3.1rem; padding: 0 .9rem; border-radius: 999px;
+  font-size: .78rem; font-weight: 600; letter-spacing: .08em;
+  transition: transform .25s ease;
+}
+.lang:active { transform: scale(.94); }
+
+/* ─── VIEWS ─────────────────────────────────────────────────────── */
+.view { display: none; }
+.view.is-active { display: block; animation: viewIn .55s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes viewIn { from { opacity: .001; transform: translateY(.6rem); } to { opacity: 1; transform: none; } }
+
+.section { margin-top: 2.6rem; }
+.section-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 1rem; }
+.h2 { font-family: var(--font-display); font-weight: 400; font-size: 1.55rem; line-height: 1.15; margin: 0; text-wrap: balance; }
+.eyebrow { font-size: .7rem; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+.lead { color: var(--muted); margin: .5rem 0 0; font-size: .95rem; }
+.link { font-size: .82rem; font-weight: 600; color: var(--accent); display: inline-flex; align-items: center; gap: .25rem; }
+.link svg { width: .9rem; height: .9rem; }
+
+/* Μαίανδρος – διακριτικό ελληνικό μοτίβο */
+.meander {
+  height: .6rem; margin: 2.6rem 0 0; opacity: .35; background: var(--accent);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='10'%3E%3Cpath d='M0 9.4H16M12 9.4V.6H4V6.2H8.6V3.6' fill='none' stroke='black' stroke-width='1.1'/%3E%3C/svg%3E") repeat-x left center / auto 100%;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='10'%3E%3Cpath d='M0 9.4H16M12 9.4V.6H4V6.2H8.6V3.6' fill='none' stroke='black' stroke-width='1.1'/%3E%3C/svg%3E") repeat-x left center / auto 100%;
+}
+
+/* ─── HERO ──────────────────────────────────────────────────────── */
+.hero { padding-top: 2.4rem; }
+.hero h1 {
+  font-family: var(--font-display); font-weight: 400;
+  font-size: 2.65rem; line-height: 1.05; letter-spacing: -.01em;
+  margin: .9rem 0 0; text-wrap: balance;
+}
+.hero p { color: var(--muted); margin: 1.1rem 0 0; max-width: 24rem; }
+.actions { display: flex; gap: .6rem; margin-top: 1.7rem; flex-wrap: wrap; }
+
+.btn {
+  height: 3.1rem; padding: 0 1.35rem; border-radius: 999px;
+  display: inline-flex; align-items: center; justify-content: center; gap: .55rem;
+  font-weight: 600; font-size: .92rem; letter-spacing: .01em;
+  transition: transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .25s ease, opacity .2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn svg { width: 1.15rem; height: 1.15rem; }
+.btn:active { transform: scale(.96); }
+.btn-primary { background: var(--accent); color: var(--accent-ink); box-shadow: 0 .6rem 1.6rem -0.5rem var(--glass-shadow); }
+.btn-block { width: 100%; }
+
+/* ─── ΥΠΗΡΕΣΙΕΣ: οριζόντια λίστα (αρχική) ───────────────────────── */
+.rail {
+  display: flex; gap: .7rem; overflow-x: auto; scroll-snap-type: x mandatory;
+  margin-inline: -1.25rem; padding: .3rem 1.25rem 1rem; scrollbar-width: none;
+}
+.rail::-webkit-scrollbar { display: none; }
+.tile {
+  flex: 0 0 8.4rem; scroll-snap-align: start; text-align: left;
+  border-radius: 1.4rem; padding: 1rem .95rem 1.05rem;
+  display: flex; flex-direction: column; gap: 1.6rem; min-height: 8.6rem;
+  transition: transform .3s cubic-bezier(.2,.8,.2,1);
+}
+.tile:active { transform: scale(.97); }
+.tile .ic { width: 1.6rem; height: 1.6rem; color: var(--accent); }
+.tile b { font-weight: 600; font-size: .85rem; line-height: 1.3; margin-top: auto; }
+
+/* ─── ΥΠΗΡΕΣΙΕΣ: πλήρης λίστα ───────────────────────────────────── */
+.list { display: grid; gap: .65rem; margin-top: 1.4rem; }
+.row {
+  display: grid; grid-template-columns: 2.9rem 1fr 1rem; align-items: center; gap: .95rem;
+  padding: .95rem 1.05rem .95rem .95rem; border-radius: 1.35rem; text-align: left; width: 100%;
+  transition: transform .3s cubic-bezier(.2,.8,.2,1);
+  animation: rise .6s cubic-bezier(.2,.8,.2,1) both;
+}
+.row:active { transform: scale(.98); }
+.row .badge {
+  width: 2.9rem; height: 2.9rem; border-radius: 1rem; display: grid; place-items: center;
+  background: var(--glass-strong); color: var(--accent); border: 1px solid var(--line);
+}
+.row .badge svg { width: 1.35rem; height: 1.35rem; }
+.row .txt { min-width: 0; }
+.row b { display: block; font-weight: 600; font-size: .95rem; }
+.row span { display: block; color: var(--muted); font-size: .8rem; line-height: 1.4; margin-top: .15rem; }
+.row .chev { width: 1rem; height: 1rem; color: var(--muted); }
+@keyframes rise { from { opacity: .001; transform: translateY(.5rem); } to { opacity: 1; transform: none; } }
+
+/* ─── ΠΩΣ ΔΟΥΛΕΥΟΥΜΕ ────────────────────────────────────────────── */
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 1.15rem; }
+.steps li { display: grid; grid-template-columns: 2.2rem 1fr; gap: .8rem; }
+.steps .n {
+  font-family: var(--font-display); font-size: 1.3rem; color: var(--accent); line-height: 1.2;
+  border-right: 1px solid var(--line); padding-right: .4rem;
+}
+.steps b { font-weight: 600; font-size: .95rem; display: block; }
+.steps p { margin: .1rem 0 0; color: var(--muted); font-size: .86rem; }
+
+/* ─── ΓΙΑΤΙ ΕΜΑΣ ───────────────────────────────────────────────── */
+.card { border-radius: 1.6rem; padding: 1.4rem 1.3rem; }
+.card p { margin: .6rem 0 0; color: var(--muted); font-size: .9rem; }
+.checks { list-style: none; padding: 0; margin: 1.1rem 0 0; display: grid; gap: .7rem; }
+.checks li { display: grid; grid-template-columns: 1.1rem 1fr; gap: .65rem; font-size: .88rem; align-items: start; }
+.checks svg { width: 1.1rem; height: 1.1rem; color: var(--accent); margin-top: .15rem; }
+
+/* ─── ΠΕΡΙΟΧΕΣ ─────────────────────────────────────────────────── */
+.regions { display: grid; border-top: 1px solid var(--line); }
+.region { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; padding: .95rem 0; border-bottom: 1px solid var(--line); }
+.region b { font-family: var(--font-display); font-weight: 400; font-size: 1.25rem; }
+.region span { font-size: .72rem; color: var(--muted); letter-spacing: .06em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+.foot { margin-top: 2.4rem; text-align: center; color: var(--muted); font-size: .72rem; letter-spacing: .08em; }
+.foot b { font-family: var(--font-display); font-weight: 400; font-size: 1rem; letter-spacing: .02em; color: var(--ink); display: block; margin-bottom: .2rem; }
+
+/* ─── ΦΟΡΜΑ ─────────────────────────────────────────────────────── */
+.form { display: grid; gap: 1.35rem; margin-top: 1.6rem; }
+.field { display: grid; gap: .5rem; min-width: 0; }
+.label { font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.chips { display: flex; flex-wrap: wrap; gap: .45rem; }
+.chip { position: relative; }
+.chip input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.chip span {
+  display: inline-flex; align-items: center; height: 2.35rem; padding: 0 .95rem; border-radius: 999px;
+  font-size: .82rem; font-weight: 500;
+  background: var(--glass); border: 1px solid var(--glass-edge);
+  -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+  transition: background .25s, color .25s, border-color .25s, transform .2s;
+}
+.chip input:checked + span { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+.chip input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+.chip input:active + span { transform: scale(.95); }
+
+.input {
+  width: 100%; height: 3.1rem; padding: 0 1.05rem; border-radius: 1rem;
+  background: var(--glass); border: 1px solid var(--glass-edge);
+  -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+  font-size: 1rem; outline: none; transition: border-color .2s, box-shadow .2s;
+  -webkit-appearance: none; appearance: none;
+}
+textarea.input { height: auto; min-height: 6.5rem; padding: .85rem 1.05rem; resize: vertical; line-height: 1.5; }
+.input::placeholder { color: var(--muted); opacity: .7; }
+.input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--line); }
+.input[aria-invalid="true"] { border-color: var(--danger); }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; }
+.stepper { display: grid; grid-template-columns: 3.1rem 1fr 3.1rem; height: 3.1rem; border-radius: 1rem; overflow: hidden; }
+.stepper button { display: grid; place-items: center; font-size: 1.25rem; color: var(--accent); }
+.stepper output { display: grid; place-items: center; font-weight: 600; font-variant-numeric: tabular-nums; }
+.error { color: var(--danger); font-size: .8rem; min-height: 1.2em; margin: -.4rem 0 0; }
+.send { display: grid; gap: .6rem; margin-top: .3rem; }
+
+/* ─── ΕΠΙΚΟΙΝΩΝΙΑ ──────────────────────────────────────────────── */
+.contacts { display: grid; gap: .65rem; margin-top: 1.6rem; }
+.contact {
+  display: grid; grid-template-columns: 2.9rem 1fr auto; gap: .9rem; align-items: center;
+  border-radius: 1.35rem; padding: .85rem .85rem .85rem .95rem;
+}
+.contact a.main { display: contents; }
+.contact .badge { width: 2.9rem; height: 2.9rem; border-radius: 1rem; display: grid; place-items: center; background: var(--accent); color: var(--accent-ink); }
+.contact .badge svg { width: 1.3rem; height: 1.3rem; }
+.contact .txt { min-width: 0; }
+.contact small { display: block; font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.contact strong { display: block; font-weight: 500; font-size: .95rem; user-select: all; overflow-wrap: anywhere; }
+.icon-btn {
+  width: 2.5rem; height: 2.5rem; border-radius: 999px; display: grid; place-items: center; color: var(--muted);
+  background: var(--glass-strong); border: 1px solid var(--line); transition: transform .2s, color .2s;
+}
+.icon-btn:active { transform: scale(.92); }
+.icon-btn svg { width: 1.05rem; height: 1.05rem; }
+.meta { display: grid; grid-template-columns: 1fr 1fr; gap: .65rem; margin-top: .65rem; }
+.meta .card { padding: 1.1rem 1.1rem; }
+.meta .card p { color: var(--ink); margin-top: .35rem; font-size: .88rem; }
+
+/* ─── BOTTOM NAV (liquid glass) ────────────────────────────────── */
+.nav-wrap {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; pointer-events: none;
+  padding-left: max(1rem, env(safe-area-inset-left, 0px));
+  padding-right: max(1rem, env(safe-area-inset-right, 0px));
+  padding-bottom: calc(.85rem + env(safe-area-inset-bottom, 0px));
+}
+.nav {
+  pointer-events: auto; margin: 0 auto; max-width: 28rem;
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  border-radius: 1.8rem; padding: .4rem;
+}
+.nav .pill {
+  position: absolute; top: .4rem; bottom: .4rem; left: 0; width: 0; border-radius: 1.4rem;
+  background: var(--glass-strong); border: 1px solid var(--glass-edge);
+  box-shadow: inset 0 1px 0 var(--shine), 0 .3rem 1rem -0.3rem var(--glass-shadow);
+  transition: transform .5s cubic-bezier(.3,1.3,.5,1), width .5s cubic-bezier(.3,1.3,.5,1);
+  z-index: 0;
+}
+.nav a {
+  position: relative; z-index: 1; display: grid; justify-items: center; gap: .2rem;
+  padding: .55rem 0 .45rem; color: var(--muted); font-size: .66rem; font-weight: 600; letter-spacing: .02em;
+  transition: color .3s; -webkit-tap-highlight-color: transparent;
+}
+.nav a svg { width: 1.35rem; height: 1.35rem; transition: transform .35s cubic-bezier(.3,1.3,.5,1); }
+.nav a[aria-current="page"] { color: var(--accent); }
+.nav a[aria-current="page"] svg { transform: translateY(-1px) scale(1.06); }
+
+/* ─── SHEET (popup) ────────────────────────────────────────────── */
+.scrim {
+  position: fixed; inset: 0; z-index: 30; background: var(--scrim);
+  opacity: 0; pointer-events: none; transition: opacity .35s ease;
+}
+.scrim.open { opacity: 1; pointer-events: auto; }
+.sheet {
+  position: fixed; z-index: 31; left: 50%; bottom: 0; width: 100%; max-width: 30rem;
+  transform: translate(-50%, 105%);
+  transition: transform .5s cubic-bezier(.2,.9,.25,1), visibility 0s linear .5s;
+  visibility: hidden;
+  border-radius: 2rem 2rem 0 0; border-bottom: 0;
+  background: var(--glass-strong);
+  padding: .7rem max(1.4rem, env(safe-area-inset-right, 0px)) calc(1.6rem + env(safe-area-inset-bottom, 0px)) max(1.4rem, env(safe-area-inset-left, 0px));
+  max-height: 88vh; overflow-y: auto; overscroll-behavior: contain;
+}
+.sheet.open { transform: translate(-50%, 0); visibility: visible; transition-delay: 0s; }
+.grabber { width: 2.6rem; height: .3rem; border-radius: 999px; background: var(--line); margin: 0 auto 1rem; }
+.sheet-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+.sheet-head .badge { width: 3.2rem; height: 3.2rem; border-radius: 1.1rem; display: grid; place-items: center; background: var(--accent); color: var(--accent-ink); }
+.sheet-head .badge svg { width: 1.5rem; height: 1.5rem; }
+.sheet h3 { font-family: var(--font-display); font-weight: 400; font-size: 1.8rem; line-height: 1.1; margin: 1.1rem 0 0; text-wrap: balance; }
+.sheet p { color: var(--muted); font-size: .93rem; margin: .8rem 0 0; }
+.sheet .checks { margin-bottom: 1.6rem; }
+.preview {
+  margin: 1rem 0 1.2rem; padding: 1rem; border-radius: 1rem; background: var(--glass); border: 1px solid var(--line);
+  font-size: .8rem; white-space: pre-wrap; max-height: 12rem; overflow: auto; user-select: all;
+}
+.sent-to { font-weight: 600; color: var(--ink); margin-top: .4rem; user-select: all; }
+
+/* ─── TOAST ─────────────────────────────────────────────────────── */
+.toast {
+  position: fixed; z-index: 40; left: 50%; top: calc(1rem + env(safe-area-inset-top, 0px));
+  transform: translate(-50%, -1rem); opacity: 0; pointer-events: none;
+  padding: .6rem 1.1rem; border-radius: 999px; font-size: .82rem; font-weight: 600;
+  transition: opacity .3s, transform .4s cubic-bezier(.2,.9,.25,1);
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition-duration: .01ms !important; }
+}
+</style>
+
+<!-- ═══ ΣΕΛΙΔΑ / PAGE ═══════════════════════════════════════════ -->
+<div class="ambient" aria-hidden="true"><i></i><i></i><i></i></div>
+
+<div class="app">
+  <header class="topbar">
+    <a class="wordmark" href="#home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="12" r="4.2"/><path d="M12.2 12H21M17.5 12v3M20 12v2.2"/></svg><span data-brand></span></a>
+    <button class="lang glass" id="langBtn" type="button"></button>
+  </header>
+
+  <main>
+    <!-- ΑΡΧΙΚΗ -->
+    <section class="view" data-view="home">
+      <div class="hero">
+        <div class="eyebrow" data-t="heroEyebrow"></div>
+        <h1 data-t="heroTitle"></h1>
+        <p data-t="heroText"></p>
+        <div class="actions">
+          <a class="btn btn-primary" href="#request"><span data-t="ctaRequest"></span><svg data-icon="arrow"></svg></a>
+          <a class="btn glass" data-wa href="#" target="_blank" rel="noopener"><svg data-icon="whatsapp"></svg><span data-t="ctaWhatsapp"></span></a>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-head">
+          <h2 class="h2" data-t="homeServices"></h2>
+          <a class="link" href="#services"><span data-t="seeAll"></span><svg data-icon="arrow"></svg></a>
+        </div>
+        <div class="rail" id="rail"></div>
+      </div>
+
+      <div class="section">
+        <div class="section-head"><h2 class="h2" data-t="howTitle"></h2></div>
+        <ol class="steps">
+          <li><span class="n">1</span><div><b data-t="how1t"></b><p data-t="how1"></p></div></li>
+          <li><span class="n">2</span><div><b data-t="how2t"></b><p data-t="how2"></p></div></li>
+          <li><span class="n">3</span><div><b data-t="how3t"></b><p data-t="how3"></p></div></li>
+        </ol>
+      </div>
+
+      <div class="section">
+        <div class="card glass">
+          <h2 class="h2" data-t="aboutTitle"></h2>
+          <p data-t="aboutText"></p>
+          <ul class="checks">
+            <li><svg data-icon="check"></svg><span data-t="why1"></span></li>
+            <li><svg data-icon="check"></svg><span data-t="why2"></span></li>
+            <li><svg data-icon="check"></svg><span data-t="why3"></span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-head"><h2 class="h2" data-t="regionsTitle"></h2></div>
+        <div class="regions" id="regions"></div>
+      </div>
+
+      <div class="meander" aria-hidden="true"></div>
+      <footer class="foot"><b data-brand></b><span data-t="footer"></span> · © <span id="year"></span></footer>
+    </section>
+
+    <!-- ΥΠΗΡΕΣΙΕΣ -->
+    <section class="view" data-view="services">
+      <div class="hero">
+        <h1 data-t="servicesTitle"></h1>
+        <p data-t="servicesIntro"></p>
+      </div>
+      <div class="list" id="serviceList"></div>
+    </section>
+
+    <!-- ΑΙΤΗΜΑ -->
+    <section class="view" data-view="request">
+      <div class="hero">
+        <h1 data-t="requestTitle"></h1>
+        <p data-t="requestIntro"></p>
+      </div>
+      <form class="form" id="form" novalidate>
+        <div class="field">
+          <span class="label" data-t="fService"></span>
+          <div class="chips" id="serviceChips" role="radiogroup"></div>
+        </div>
+        <div class="field">
+          <span class="label" data-t="fRegion"></span>
+          <div class="chips" id="regionChips" role="radiogroup"></div>
+        </div>
+        <div class="pair">
+          <label class="field"><span class="label" data-t="fDate"></span><input class="input" type="date" id="fDate" name="date"></label>
+          <div class="field">
+            <span class="label" data-t="fGuests"></span>
+            <div class="stepper glass">
+              <button type="button" id="gMinus" aria-label="−">−</button>
+              <output id="fGuests">2</output>
+              <button type="button" id="gPlus" aria-label="+">+</button>
+            </div>
+          </div>
+        </div>
+        <label class="field"><span class="label" data-t="fName"></span><input class="input" id="fName" name="name" autocomplete="name" data-tp="fNamePh"></label>
+        <div class="pair">
+          <label class="field"><span class="label" data-t="fPhone"></span><input class="input" id="fPhone" name="phone" type="tel" autocomplete="tel" data-tp="fPhonePh"></label>
+          <label class="field"><span class="label" data-t="fEmail"></span><input class="input" id="fEmail" name="email" type="email" autocomplete="email" data-tp="fEmailPh"></label>
+        </div>
+        <label class="field"><span class="label" data-t="fNotes"></span><textarea class="input" id="fNotes" name="notes" rows="4" data-tp="fNotesPh"></textarea></label>
+        <p class="error" id="formError" role="alert"></p>
+        <div class="send">
+          <a class="btn btn-primary btn-block" id="sendWa" href="#" target="_blank" rel="noopener"><svg data-icon="whatsapp"></svg><span data-t="sendWhatsapp"></span></a>
+          <a class="btn glass btn-block" id="sendMail" href="#"><svg data-icon="mail"></svg><span data-t="sendEmail"></span></a>
+        </div>
+      </form>
+    </section>
+
+    <!-- ΕΠΙΚΟΙΝΩΝΙΑ -->
+    <section class="view" data-view="contact">
+      <div class="hero">
+        <h1 data-t="contactTitle"></h1>
+        <p data-t="contactIntro"></p>
+      </div>
+      <div class="contacts" id="contacts"></div>
+      <div class="meta">
+        <div class="card glass"><span class="eyebrow" data-t="hoursTitle"></span><p data-t="hours"></p></div>
+        <div class="card glass"><span class="eyebrow" data-t="regionsTitle"></span><p id="regionsInline"></p></div>
+      </div>
+      <div class="meander" aria-hidden="true"></div>
+      <footer class="foot"><b data-brand></b><span data-t="footer"></span></footer>
+    </section>
+  </main>
+</div>
+
+<!-- Bottom navigation -->
+<div class="nav-wrap">
+  <nav class="nav glass" id="nav" aria-label="Menu">
+    <span class="pill" id="pill" aria-hidden="true"></span>
+    <a href="#home"><svg data-icon="home"></svg><span data-t="navHome"></span></a>
+    <a href="#services"><svg data-icon="grid"></svg><span data-t="navServices"></span></a>
+    <a href="#request"><svg data-icon="pen"></svg><span data-t="navRequest"></span></a>
+    <a href="#contact"><svg data-icon="chat"></svg><span data-t="navContact"></span></a>
+  </nav>
+</div>
+
+<!-- Popup -->
+<div class="scrim" id="scrim"></div>
+<div class="sheet glass" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+  <div class="grabber"></div>
+  <div id="sheetBody"></div>
+</div>
+
+<div class="toast glass" id="toast" role="status"></div>
+
+<script>
+/* ═══ ΛΟΓΙΚΗ / APP LOGIC ═════════════════════════════════════════
+   Συνήθως δεν χρειάζεται αλλαγή εδώ. */
+(() => {
+  const ICONS = {
+    home:"M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z",
+    grid:"M4 4h6.5v6.5H4zM13.5 4H20v6.5h-6.5zM4 13.5h6.5V20H4zM13.5 13.5H20V20h-6.5z",
+    pen:"M4 20h4L19.5 8.5a2.1 2.1 0 0 0-3-3L5 17zM14.5 7.5l3 3",
+    chat:"M4 5.5A1.5 1.5 0 0 1 5.5 4h13A1.5 1.5 0 0 1 20 5.5v9a1.5 1.5 0 0 1-1.5 1.5H9l-5 4zM8 9h8M8 12h5",
+    car:"M3.5 16.5v-4l2-5.2A1.5 1.5 0 0 1 6.9 6.3h10.2a1.5 1.5 0 0 1 1.4 1l2 5.2v4zM3.5 12.5h17M6.5 16.5V19M17.5 16.5V19M7 14.5h1.5M15.5 14.5H17",
+    yacht:"M3 16.5h18l-2.2 3.5H5.2zM12 3.5v13M12 4.5l6.5 9.5H12M10.5 7 6 14h4.5",
+    dining:"M7 3v8.5M4.5 3v4.5a2.5 2.5 0 0 0 5 0V3M7 11.5V21M17.5 21V3c-2.2.4-3.5 3.6-3.5 8.5h3.5",
+    villa:"M2.5 21h19M5 21V10.5L12 5l7 5.5V21M9.5 21v-5.5h5V21M2.5 12 12 4.5l9.5 7.5",
+    compass:"M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM15.8 8.2l-2.3 5.3-5.3 2.3 2.3-5.3z",
+    chef:"M7 14.5a4 4 0 1 1 1-7.9 4.6 4.6 0 0 1 8 0 4 4 0 1 1 1 7.9M7 14.5V20h10v-5.5M7 17.5h10",
+    sparkle:"M12 3c.6 4.6 2.4 6.4 7 7-4.6.6-6.4 2.4-7 7-.6-4.6-2.4-6.4-7-7 4.6-.6 6.4-2.4 7-7zM18.5 16c.3 1.9 1 2.6 2.5 3-1.5.4-2.2 1.1-2.5 3-.3-1.9-1-2.6-2.5-3 1.5-.4 2.2-1.1 2.5-3z",
+    phone:"M5.5 4h3l1.8 4.6-2.3 1.5a11 11 0 0 0 5.9 5.9l1.5-2.3L20 15.5v3a1.8 1.8 0 0 1-1.9 1.8A15.5 15.5 0 0 1 3.7 5.9 1.8 1.8 0 0 1 5.5 4z",
+    whatsapp:"M4 20.5l1.3-4A8.3 8.3 0 1 1 8.4 19.3zM9 8.5c0 3.2 3.3 6.5 6.5 6.5l1-1.6-2-1-1 .8a4.6 4.6 0 0 1-2.2-2.2l.8-1-1-2z",
+    mail:"M3.5 6h17v12h-17zM3.5 7l8.5 6 8.5-6",
+    copy:"M9 9h11v11H9zM5 15H4V4h11v1",
+    arrow:"M5 12h14M13.5 6.5 19 12l-5.5 5.5",
+    chev:"M9 5.5 15.5 12 9 18.5",
+    close:"M6 6l12 12M18 6 6 18",
+    check:"M4.5 12.5 9.5 17.5 19.5 6.5",
+  };
+  const svg = (name) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${ICONS[name] || ""}"/></svg>`;
+  const fillIcons = (root = document) => root.querySelectorAll("svg[data-icon]").forEach(el => { el.outerHTML = svg(el.dataset.icon); });
+
+  const $ = (s) => document.querySelector(s);
+  const store = {
+    get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch {} },
+  };
+  const esc = (s) => String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
+
+  let lang = store.get("ak-lang") || CONFIG.defaultLang;
+  if (!CONFIG.text[lang]) lang = "el";
+  const T = (k) => CONFIG.text[lang][k] ?? k;
+  const C = CONFIG.contact;
+  const telHref = (n) => "tel:" + n.replace(/[^\d+]/g, "");
+  const waHref = (msg) => `https://wa.me/${C.whatsapp}` + (msg ? `?text=${encodeURIComponent(msg)}` : "");
+
+  const state = { service: null, region: null, guests: 2 };
+
+  /* ── Render ─────────────────────────────────────────────── */
+  function render() {
+    document.documentElement.lang = lang;
+    document.querySelectorAll("[data-t]").forEach(el => el.textContent = T(el.dataset.t));
+    document.querySelectorAll("[data-tp]").forEach(el => el.placeholder = T(el.dataset.tp));
+    document.querySelectorAll("[data-brand]").forEach(el => el.textContent = CONFIG.brand);
+    document.querySelectorAll("[data-wa]").forEach(el => el.href = waHref());
+    const lb = $("#langBtn"); lb.textContent = T("langLabel"); lb.setAttribute("aria-label", T("langAria"));
+    $("#year").textContent = new Date().getFullYear();
+
+    $("#rail").innerHTML = CONFIG.services.map(s => `
+      <button class="tile glass" type="button" data-open="${s.id}">
+        <span class="ic">${svg(s.icon)}</span><b>${esc(s[lang].title)}</b>
+      </button>`).join("");
+
+    $("#serviceList").innerHTML = CONFIG.services.map((s, i) => `
+      <button class="row glass" type="button" data-open="${s.id}" style="animation-delay:${i * 45}ms">
+        <span class="badge">${svg(s.icon)}</span>
+        <span class="txt"><b>${esc(s[lang].title)}</b><span>${esc(s[lang].short)}</span></span>
+        <span class="chev">${svg("chev")}</span>
+      </button>`).join("");
+
+    $("#regions").innerHTML = CONFIG.regions.map(r => `
+      <div class="region"><b>${esc(r[lang])}</b><span>${r.coords}</span></div>`).join("");
+    $("#regionsInline").textContent = CONFIG.regions.map(r => r[lang]).join(" · ");
+
+    $("#serviceChips").innerHTML = CONFIG.services.map(s => `
+      <label class="chip"><input type="radio" name="service" value="${s.id}" ${state.service === s.id ? "checked" : ""}><span>${esc(s[lang].title)}</span></label>`).join("");
+    $("#regionChips").innerHTML = CONFIG.regions.map(r => `
+      <label class="chip"><input type="radio" name="region" value="${r.id}" ${state.region === r.id ? "checked" : ""}><span>${esc(r[lang])}</span></label>`).join("");
+
+    $("#contacts").innerHTML = [
+      { icon: "phone",    label: T("cCall"),     value: C.phone,  href: telHref(C.phone) },
+      { icon: "whatsapp", label: T("cWhatsapp"), value: C.mobile, href: waHref(), ext: true },
+      { icon: "mail",     label: T("cEmail"),    value: C.email,  href: "mailto:" + C.email },
+    ].map(c => `
+      <div class="contact glass">
+        <a class="main" href="${c.href}" ${c.ext ? 'target="_blank" rel="noopener"' : ""}>
+          <span class="badge">${svg(c.icon)}</span>
+          <span class="txt"><small>${esc(c.label)}</small><strong>${esc(c.value)}</strong></span>
+        </a>
+        <button class="icon-btn" type="button" data-copy="${esc(c.value)}" aria-label="${esc(T("copy"))}">${svg("copy")}</button>
+      </div>`).join("");
+
+    fillIcons();
+    updateSendLinks();
+    placePill();
+  }
+
+  /* ── Routing (#home, #services, #request, #contact) ─────── */
+  const VIEWS = ["home", "services", "request", "contact"];
+  function route() {
+    const v = VIEWS.includes(location.hash.slice(1)) ? location.hash.slice(1) : "home";
+    document.querySelectorAll(".view").forEach(el => el.classList.toggle("is-active", el.dataset.view === v));
+    document.querySelectorAll("#nav a").forEach(a => {
+      if (a.getAttribute("href") === "#" + v) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+    });
+    placePill();
+    window.scrollTo(0, 0);
+  }
+  function placePill() {
+    const a = $('#nav a[aria-current="page"]'); const pill = $("#pill");
+    if (!a) return;
+    pill.style.width = a.offsetWidth + "px";
+    pill.style.transform = `translateX(${a.offsetLeft}px)`;
+  }
+
+  /* ── Popup sheet ────────────────────────────────────────── */
+  let lastFocus = null;
+  function openSheet(html) {
+    lastFocus = document.activeElement;
+    $("#sheetBody").innerHTML = html;
+    fillIcons($("#sheetBody"));
+    $("#sheet").classList.add("open"); $("#scrim").classList.add("open");
+    $("#sheet").scrollTop = 0;
+    setTimeout(() => $("#sheet [data-close]")?.focus({ preventScroll: true }), 50);
+  }
+  function closeSheet() {
+    $("#sheet").classList.remove("open"); $("#scrim").classList.remove("open");
+    $("#sheet").style.transform = "";
+    lastFocus?.focus?.({ preventScroll: true });
+  }
+  function serviceSheet(id) {
+    const s = CONFIG.services.find(x => x.id === id); if (!s) return;
+    const L = s[lang];
+    openSheet(`
+      <div class="sheet-head">
+        <span class="badge">${svg(s.icon)}</span>
+        <button class="icon-btn" type="button" data-close aria-label="${esc(T("close"))}">${svg("close")}</button>
+      </div>
+      <h3 id="sheetTitle">${esc(L.title)}</h3>
+      <p>${esc(L.body)}</p>
+      <ul class="checks">${L.points.map(p => `<li>${svg("check")}<span>${esc(p)}</span></li>`).join("")}</ul>
+      <button class="btn btn-primary btn-block" type="button" data-request="${s.id}"><span>${esc(T("sheetCta"))}</span>${svg("arrow")}</button>`);
+  }
+  function sentSheet(msg) {
+    openSheet(`
+      <div class="sheet-head">
+        <span class="badge">${svg("check")}</span>
+        <button class="icon-btn" type="button" data-close aria-label="${esc(T("close"))}">${svg("close")}</button>
+      </div>
+      <h3 id="sheetTitle">${esc(T("sentTitle"))}</h3>
+      <p>${esc(T("sentText"))}</p>
+      <p class="sent-to">${esc(C.mobile)} · ${esc(C.email)}</p>
+      <div class="preview">${esc(msg)}</div>
+      <button class="btn btn-primary btn-block" type="button" data-copy="${esc(msg)}">${svg("copy")}<span>${esc(T("copyMessage"))}</span></button>`);
+  }
+
+  // Swipe down to close
+  (() => {
+    const sh = $("#sheet"); let y0 = null, dy = 0;
+    sh.addEventListener("touchstart", e => { if (sh.scrollTop <= 0) { y0 = e.touches[0].clientY; dy = 0; sh.style.transition = "none"; } }, { passive: true });
+    sh.addEventListener("touchmove", e => { if (y0 === null) return; dy = Math.max(0, e.touches[0].clientY - y0); sh.style.transform = `translate(-50%, ${dy}px)`; }, { passive: true });
+    sh.addEventListener("touchend", () => { if (y0 === null) return; sh.style.transition = ""; y0 = null; if (dy > 90) closeSheet(); else sh.style.transform = ""; });
+  })();
+
+  /* ── Toast & copy ───────────────────────────────────────── */
+  let toastTimer;
+  function toast(text) {
+    const t = $("#toast"); t.textContent = text; t.classList.add("show");
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), 1800);
+  }
+  function copy(text) {
+    const done = () => toast(T("copied"));
+    const fallback = () => {
+      const ta = document.createElement("textarea"); ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand("copy"); done(); } catch {} ta.remove();
+    };
+    try { navigator.clipboard.writeText(text).then(done, fallback); } catch { fallback(); }
+  }
+
+  /* ── Form ───────────────────────────────────────────────── */
+  const val = (id) => $(id).value.trim();
+  function buildMessage() {
+    const s = CONFIG.services.find(x => x.id === state.service);
+    const r = CONFIG.regions.find(x => x.id === state.region);
+    const lines = [
+      T("msgHeader"), "",
+      `${T("fService")}: ${s ? s[lang].title : "–"}`,
+      `${T("fRegion")}: ${r ? r[lang] : "–"}`,
+      `${T("fDate")}: ${val("#fDate") || "–"}`,
+      `${T("fGuests")}: ${state.guests}`,
+      `${T("fName")}: ${val("#fName") || "–"}`,
+      `${T("fPhone")}: ${val("#fPhone") || "–"}`,
+    ];
+    if (val("#fEmail")) lines.push(`Email: ${val("#fEmail")}`);
+    if (val("#fNotes")) lines.push("", val("#fNotes"));
+    return lines.join("\n");
+  }
+  function updateSendLinks() {
+    const msg = buildMessage();
+    $("#sendWa").href = waHref(msg);
+    $("#sendMail").href = `mailto:${C.email}?subject=${encodeURIComponent(T("msgEmailSubject") + " – " + (val("#fName") || CONFIG.brand))}&body=${encodeURIComponent(msg)}`;
+  }
+  function validate() {
+    const err = $("#formError");
+    ["#fName", "#fPhone"].forEach(id => $(id).removeAttribute("aria-invalid"));
+    let m = "";
+    if (!state.service) m = T("errService");
+    else if (!val("#fName")) { m = T("errName"); $("#fName").setAttribute("aria-invalid", "true"); $("#fName").focus(); }
+    else if (!val("#fPhone")) { m = T("errPhone"); $("#fPhone").setAttribute("aria-invalid", "true"); $("#fPhone").focus(); }
+    err.textContent = m;
+    if (m && !state.service) $("#serviceChips").scrollIntoView({ behavior: "smooth", block: "center" });
+    return !m;
+  }
+  function onSend(e) {
+    updateSendLinks();
+    if (!validate()) { e.preventDefault(); return; }
+    const msg = buildMessage();
+    setTimeout(() => sentSheet(msg), 400);
+  }
+  function setGuests(n) { state.guests = Math.min(99, Math.max(1, n)); $("#fGuests").textContent = state.guests; updateSendLinks(); }
+
+  /* ── Events ─────────────────────────────────────────────── */
+  document.addEventListener("click", (e) => {
+    const o = e.target.closest("[data-open]"); if (o) return serviceSheet(o.dataset.open);
+    const c = e.target.closest("[data-copy]"); if (c) { e.preventDefault(); return copy(c.dataset.copy); }
+    if (e.target.closest("[data-close]")) return closeSheet();
+    const r = e.target.closest("[data-request]");
+    if (r) {
+      state.service = r.dataset.request; closeSheet();
+      const inp = document.querySelector(`#serviceChips input[value="${r.dataset.request}"]`); if (inp) inp.checked = true;
+      $("#formError").textContent = ""; updateSendLinks();
+      location.hash = "request";
+    }
+  });
+  $("#scrim").addEventListener("click", closeSheet);
+  document.addEventListener("keydown", e => { if (e.key === "Escape") closeSheet(); });
+  $("#langBtn").addEventListener("click", () => { lang = lang === "el" ? "en" : "el"; store.set("ak-lang", lang); render(); });
+
+  $("#form").addEventListener("change", (e) => {
+    if (e.target.name === "service") { state.service = e.target.value; $("#formError").textContent = ""; }
+    if (e.target.name === "region") state.region = e.target.value;
+    updateSendLinks();
+  });
+  $("#form").addEventListener("input", updateSendLinks);
+  $("#form").addEventListener("submit", e => e.preventDefault());
+  $("#gMinus").addEventListener("click", () => setGuests(state.guests - 1));
+  $("#gPlus").addEventListener("click", () => setGuests(state.guests + 1));
+  $("#sendWa").addEventListener("click", onSend);
+  $("#sendMail").addEventListener("click", onSend);
+  $("#fDate").min = new Date().toISOString().slice(0, 10);
+
+  window.addEventListener("hashchange", () => { closeSheet(); route(); });
+  window.addEventListener("resize", placePill);
+  document.fonts?.ready.then(placePill);
+
+  render();
+  route();
+})();
+</script>
