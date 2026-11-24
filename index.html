@@ -215,6 +215,7 @@ const CONFIG = {
   text: {
     el: {
       langLabel: "EN", langAria: "Switch to English",
+      splashTitle: "Έτοιμοι για τα κλειδιά σας;", splashHint: "Σύρετε προς τα πάνω", splashAria: "Είσοδος στο site",
       navHome: "Αρχική", navServices: "Υπηρεσίες", navRequest: "Αίτημα", navContact: "Επικοινωνία",
       heroEyebrow: "Private concierge · Αθήνα · Ζάκυνθος · Κρήτη",
       heroTitle: "Η Ελλάδα, όπως ακριβώς την ονειρεύεστε.",
@@ -253,6 +254,7 @@ const CONFIG = {
     },
     en: {
       langLabel: "ΕΛ", langAria: "Αλλαγή σε Ελληνικά",
+      splashTitle: "Ready to get your keys?", splashHint: "Slide up to enter", splashAria: "Enter the site",
       navHome: "Home", navServices: "Services", navRequest: "Request", navContact: "Contact",
       heroEyebrow: "Private concierge · Athens · Zakynthos · Crete",
       heroTitle: "Greece, exactly as you imagine it.",
@@ -589,6 +591,46 @@ textarea.input { height: auto; min-height: 6.5rem; padding: .85rem 1.05rem; resi
 .meta .card { padding: 1.1rem 1.1rem; }
 .meta .card p { color: var(--ink); margin-top: .35rem; font-size: .88rem; }
 
+/* ─── ΣΕΛΙΔΑ ΕΙΣΟΔΟΥ (διακόπτης) ─────────────────────────────── */
+html.ak-splash body { overflow: hidden; }
+html.ak-splash .app, html.ak-splash .nav-wrap { visibility: hidden; }
+.splash {
+  position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; touch-action: none;
+  padding: max(1.5rem, env(safe-area-inset-top, 0px)) max(1rem, env(safe-area-inset-right, 0px))
+           max(1.5rem, env(safe-area-inset-bottom, 0px)) max(1rem, env(safe-area-inset-left, 0px));
+}
+.splash-inner { display: grid; justify-items: center; text-align: center; will-change: transform, opacity, filter; }
+.splash-inner > * { animation: rise 1s cubic-bezier(.2,.8,.2,1) both; }
+.splash-inner > :nth-child(2) { animation-delay: .12s; } .splash-inner > :nth-child(3) { animation-delay: .24s; } .splash-inner > :nth-child(4) { animation-delay: .36s; }
+.splash-logo { font-family: var(--font-display); font-size: 2.35rem; display: flex; align-items: center; gap: .7rem; letter-spacing: .01em; }
+.splash-logo svg { width: 2.1rem; height: 2.1rem; color: var(--accent); }
+.splash-q { font-family: var(--font-display); font-size: 1.4rem; line-height: 1.25; margin: 1.1rem 0 2.2rem; color: var(--muted); text-wrap: balance; }
+.switch {
+  position: relative; width: 5.5rem; height: 13.5rem; border-radius: 999px; padding: 0;
+  touch-action: none; -webkit-tap-highlight-color: transparent; cursor: grab; overflow: hidden;
+}
+.switch:active { cursor: grabbing; }
+.switch-fill {
+  position: absolute; left: .4rem; right: .4rem; bottom: .4rem; height: 4.7rem; border-radius: 999px;
+  background: linear-gradient(to top, var(--accent), var(--blob-1)); opacity: .18;
+}
+.switch-knob {
+  position: absolute; left: .4rem; bottom: .4rem; width: 4.7rem; height: 4.7rem; border-radius: 50%;
+  display: grid; place-items: center; color: var(--accent);
+  background: var(--glass-strong); border: 1px solid var(--glass-edge);
+  box-shadow: inset 0 1px 0 var(--shine), 0 .6rem 1.4rem -.4rem var(--glass-shadow);
+  -webkit-backdrop-filter: blur(18px) saturate(170%); backdrop-filter: blur(18px) saturate(170%);
+}
+.switch-knob svg { width: 2rem; height: 2rem; }
+.switch.springing .switch-knob, .switch.springing .switch-fill { transition: transform .6s cubic-bezier(.34,1.56,.64,1), height .6s cubic-bezier(.34,1.56,.64,1), opacity .6s ease; }
+.switch.springing .switch-knob svg { transition: transform .6s cubic-bezier(.34,1.56,.64,1); }
+.switch.on .switch-knob { background: var(--accent); color: var(--accent-ink); border-color: transparent; transition: background .35s ease, color .35s ease, transform .6s cubic-bezier(.34,1.56,.64,1); }
+.switch-cue { position: absolute; left: 50%; top: 1.3rem; transform: translateX(-50%); display: grid; color: var(--accent); pointer-events: none; transition: opacity .3s; }
+.switch-cue svg { width: 1.2rem; height: 1.2rem; margin-top: -.55rem; animation: cue 1.8s ease-in-out infinite; }
+.switch-cue svg:nth-child(2) { animation-delay: .2s; } .switch-cue svg:nth-child(3) { animation-delay: .4s; }
+@keyframes cue { 0%, 100% { opacity: .12; transform: translateY(.2rem); } 50% { opacity: .7; transform: translateY(-.1rem); } }
+.splash-hint { margin: 1.1rem 0 0; font-size: .68rem; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+
 /* ─── BOTTOM NAV (liquid glass) ────────────────────────────────── */
 .nav-wrap {
   /* Αιωρείται με κενό από το κάτω άκρο της οθόνης */
@@ -680,6 +722,20 @@ textarea.input { height: auto; min-height: 6.5rem; padding: .85rem 1.05rem; resi
 
 <!-- ═══ ΣΕΛΙΔΑ / PAGE ═══════════════════════════════════════════ -->
 <div class="ambient" aria-hidden="true"><i></i><i></i><i></i></div>
+
+<!-- ΣΕΛΙΔΑ ΕΙΣΟΔΟΥ: εμφανίζεται πριν την αρχική -->
+<div class="splash" id="splash" hidden>
+  <div class="splash-inner" id="splashInner">
+    <div class="splash-logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="8" cy="12" r="4.2"/><path d="M12.2 12H21M17.5 12v3M20 12v2.2"/></svg><span data-brand></span></div>
+    <p class="splash-q" data-t="splashTitle"></p>
+    <button class="switch glass" id="switch" type="button" role="switch" aria-checked="false">
+      <span class="switch-cue" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg></span>
+      <span class="switch-fill" id="switchFill"></span>
+      <span class="switch-knob" id="switchKnob"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="12" r="4.2"/><path d="M12.2 12H21M17.5 12v3M20 12v2.2"/></svg></span>
+    </button>
+    <p class="splash-hint" data-t="splashHint"></p>
+  </div>
+</div>
 
 <div class="app">
   <header class="topbar">
@@ -1233,8 +1289,89 @@ textarea.input { height: auto; min-height: 6.5rem; padding: .85rem 1.05rem; resi
   window.addEventListener("hashchange", () => { closeSheet(); route(); });
 
   $("#privacyNote").hidden = !backendOn;
+
+  /* ── Σελίδα εισόδου: διακόπτης, ήχος, μετάβαση ──────────── */
+  let actx = null;
+  function unlockAudio() {
+    try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === "suspended") actx.resume(); } catch {}
+  }
+  function chime() {                         // καμπανάκι αναγγελιών αεροδρομίου (3 νότες, συντίθεται live)
+    if (!actx) return;
+    const t0 = actx.currentTime + .05, sr = actx.sampleRate;
+    const out = actx.createGain(); out.gain.value = .3; out.connect(actx.destination);
+    const rev = actx.createConvolver(), len = Math.floor(sr * 2.8), ir = actx.createBuffer(2, len, sr);
+    for (let c = 0; c < 2; c++) { const d = ir.getChannelData(c); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3); }
+    rev.buffer = ir; const wet = actx.createGain(); wet.gain.value = .28; out.connect(rev); rev.connect(wet); wet.connect(actx.destination);
+    [[392.0, 0], [493.88, .42], [587.33, .84]].forEach(([f, dt], n) => {
+      const t = t0 + dt, dur = n === 2 ? 3.2 : 2.2;
+      [[1, 1], [2, .32], [3, .1], [4.2, .05]].forEach(([m, a]) => {
+        const o = actx.createOscillator(), g = actx.createGain();
+        o.type = "sine"; o.frequency.value = f * m;
+        g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.42 * a, t + .012); g.gain.exponentialRampToValueAtTime(.0001, t + dur / m ** .4);
+        o.connect(g); g.connect(out); o.start(t); o.stop(t + dur + .1);
+      });
+    });
+  }
+  function initSplash() {
+    if (PREVIEW) return;
+    const splash = $("#splash"), sw = $("#switch"), knob = $("#switchKnob"), fill = $("#switchFill"), icon = knob.querySelector("svg"), cue = sw.querySelector(".switch-cue");
+    document.documentElement.classList.add("ak-splash"); splash.hidden = false;
+    sw.setAttribute("aria-label", T("splashAria"));
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let travel = 0, start = null, base = 0, off = 0, moved = 0, done = false;
+    const measure = () => { travel = sw.clientHeight - knob.offsetHeight - 2 * parseFloat(getComputedStyle(knob).bottom); };
+    const paint = () => {
+      const p = travel ? off / travel : 0;
+      knob.style.transform = `translateY(${-off}px)`;
+      fill.style.height = `${knob.offsetHeight + off}px`; fill.style.opacity = .18 + .82 * p;
+      icon.style.transform = `rotate(${-90 * p}deg)`; cue.style.opacity = 1 - p * 1.6;
+    };
+    const finish = () => {
+      if (done) return; done = true;
+      sw.classList.add("springing", "on"); sw.setAttribute("aria-checked", "true");
+      off = travel; paint(); chime(); navigator.vibrate?.(18);
+      setTimeout(enter, reduce ? 150 : 650);
+    };
+    const enter = () => {
+      const r = knob.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2;
+      const R = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y)) + 40;
+      const app = document.querySelector(".app"), nav = document.querySelector(".nav-wrap");
+      const ease = "cubic-bezier(.7,0,.2,1)";
+      document.documentElement.classList.remove("ak-splash");
+      if (reduce || !splash.animate) { splash.remove(); return; }
+      [app, nav].forEach(el => el.animate(
+        [{ clipPath: `circle(0px at ${x}px ${y - (el === app ? 0 : el.getBoundingClientRect().top)}px)`, transform: "scale(1.04)" },
+         { clipPath: `circle(${R}px at ${x}px ${y - (el === app ? 0 : el.getBoundingClientRect().top)}px)`, transform: "none" }],
+        { duration: 1050, easing: ease }));
+      $("#splashInner").animate([{ opacity: 1, transform: "none", filter: "blur(0)" }, { opacity: 0, transform: "scale(1.12)", filter: "blur(12px)" }],
+        { duration: 700, easing: "cubic-bezier(.4,0,.2,1)", fill: "forwards" });
+      setTimeout(() => splash.remove(), 1060);
+    };
+    sw.addEventListener("pointerdown", (e) => {
+      if (done) return; unlockAudio(); measure();
+      sw.classList.remove("springing"); sw.setPointerCapture(e.pointerId);
+      start = e.clientY; base = off; moved = 0;
+    });
+    sw.addEventListener("pointermove", (e) => {
+      if (start === null || done) return;
+      moved = Math.max(moved, Math.abs(start - e.clientY));
+      off = Math.min(travel, Math.max(0, base + (start - e.clientY))); paint();
+      if (off >= travel) { start = null; finish(); }
+    });
+    const release = () => {
+      if (start === null || done) return; start = null;
+      if (moved < 6 || off > travel * .55) finish();            // πάτημα ή αρκετό σύρσιμο: ενεργοποίηση
+      else { sw.classList.add("springing"); off = 0; paint(); }  // αλλιώς επιστρέφει κάτω με ελατήριο
+    };
+    sw.addEventListener("pointerup", release);
+    sw.addEventListener("pointercancel", release);
+    sw.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); unlockAudio(); measure(); finish(); } });
+    sw.addEventListener("click", (e) => e.preventDefault());
+    requestAnimationFrame(() => { measure(); paint(); });
+  }
   render();
   route();
   loadContent();
+  initSplash();
 })();
 </script>
