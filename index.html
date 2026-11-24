@@ -3,7 +3,7 @@
 <meta name="description" content="AthenianKeys — Private concierge in Athens, Zakynthos & Crete.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Italiana&family=Hanken+Grotesk:wght@300;400;500;600&family=GFS+Didot&family=Manrope:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Hanken+Grotesk:wght@300..700&family=GFS+Didot&family=Manrope:wght@400;500;600&display=swap">
 
 <!--
   ╔══════════════════════════════════════════════════════════════════╗
@@ -36,8 +36,8 @@
   --scrim:       rgba(12, 26, 46, .22);
   --danger:      #B4232F;
 
-  /* Italiana / Hanken Grotesk για Αγγλικά· GFS Didot / Manrope καλύπτουν τα ελληνικά γράμματα */
-  --font-display: "Italiana", "GFS Didot", "Didot", "Bodoni 72", Georgia, serif;
+  /* Marcellus / Hanken Grotesk για Αγγλικά· GFS Didot / Manrope καλύπτουν τα ελληνικά γράμματα */
+  --font-display: "Marcellus", "GFS Didot", "Didot", "Bodoni 72", Georgia, serif;
   --font-body:    "Hanken Grotesk", "Manrope", "Helvetica Neue", Arial, system-ui, sans-serif;
 }
 @media (prefers-color-scheme: dark) {
@@ -160,12 +160,12 @@ const CONFIG = {
       servicesTitle: "Υπηρεσίες", servicesIntro: "Πατήστε μια υπηρεσία για λεπτομέρειες.",
       sheetCta: "Αίτημα για αυτή την υπηρεσία", close: "Κλείσιμο",
       requestTitle: "Αίτημα", requestIntro: "Συμπληρώστε τα βασικά. Το μήνυμα ανοίγει έτοιμο στο WhatsApp ή στο email σας.",
-      fService: "Υπηρεσία", fRegion: "Περιοχή", fDate: "Ημερομηνία", fGuests: "Άτομα",
+      fService: "Υπηρεσίες", fServiceHint: "· επιλέξτε μία ή περισσότερες", fRegion: "Περιοχή", fDate: "Ημερομηνία", fGuests: "Άτομα",
       fName: "Ονοματεπώνυμο", fPhone: "Τηλέφωνο", fEmail: "Email (προαιρετικό)", fNotes: "Λεπτομέρειες",
       fNamePh: "π.χ. Μαρία Παπαδοπούλου", fPhonePh: "+30 …", fEmailPh: "name@email.com",
       fNotesPh: "Ώρα, αριθμός πτήσης, προτιμήσεις…",
       sendWhatsapp: "Αποστολή με WhatsApp", sendEmail: "Αποστολή με email",
-      errService: "Επιλέξτε υπηρεσία.", errName: "Γράψτε το όνομά σας.", errPhone: "Γράψτε ένα τηλέφωνο επικοινωνίας.",
+      errService: "Επιλέξτε τουλάχιστον μία υπηρεσία.", errName: "Γράψτε το όνομά σας.", errPhone: "Γράψτε ένα τηλέφωνο επικοινωνίας.",
       sentTitle: "Το μήνυμά σας είναι έτοιμο",
       sentText: "Ολοκληρώστε την αποστολή στην εφαρμογή που άνοιξε. Αν δεν άνοιξε, αντιγράψτε το μήνυμα και στείλτε το σε:",
       copyMessage: "Αντιγραφή μηνύματος", copied: "Αντιγράφηκε",
@@ -196,12 +196,12 @@ const CONFIG = {
       servicesTitle: "Services", servicesIntro: "Tap a service for details.",
       sheetCta: "Request this service", close: "Close",
       requestTitle: "Request", requestIntro: "Fill in the basics. Your message opens ready to send in WhatsApp or email.",
-      fService: "Service", fRegion: "Region", fDate: "Date", fGuests: "Guests",
+      fService: "Services", fServiceHint: "· choose one or more", fRegion: "Region", fDate: "Date", fGuests: "Guests",
       fName: "Full name", fPhone: "Phone", fEmail: "Email (optional)", fNotes: "Details",
       fNamePh: "e.g. Anna Smith", fPhonePh: "+44 …", fEmailPh: "name@email.com",
       fNotesPh: "Time, flight number, preferences…",
       sendWhatsapp: "Send via WhatsApp", sendEmail: "Send via email",
-      errService: "Choose a service.", errName: "Enter your name.", errPhone: "Enter a contact phone number.",
+      errService: "Choose at least one service.", errName: "Enter your name.", errPhone: "Enter a contact phone number.",
       sentTitle: "Your message is ready",
       sentText: "Finish sending it in the app that opened. If nothing opened, copy the message and send it to:",
       copyMessage: "Copy message", copied: "Copied",
@@ -227,6 +227,7 @@ body {
   color: var(--ink);
   font-family: var(--font-body);
   font-size: 1rem;
+  font-weight: 450;
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
@@ -321,7 +322,7 @@ a { color: inherit; text-decoration: none; }
 .hero { padding-top: 2.4rem; }
 .hero h1 {
   font-family: var(--font-display); font-weight: 400;
-  font-size: 2.65rem; line-height: 1.05; letter-spacing: -.01em;
+  font-size: 2.35rem; line-height: 1.12; letter-spacing: 0;
   margin: .9rem 0 0; text-wrap: balance;
 }
 .hero p { color: var(--muted); margin: 1.1rem 0 0; max-width: 24rem; }
@@ -405,6 +406,7 @@ a { color: inherit; text-decoration: none; }
 .form { display: grid; gap: 1.35rem; margin-top: 1.6rem; }
 .field { display: grid; gap: .5rem; min-width: 0; }
 .label { font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.label .hint { text-transform: none; letter-spacing: 0; font-weight: 450; }
 .chips { display: flex; flex-wrap: wrap; gap: .45rem; }
 .chip { position: relative; }
 .chip input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
@@ -608,8 +610,8 @@ textarea.input { height: auto; min-height: 6.5rem; padding: .85rem 1.05rem; resi
       </div>
       <form class="form" id="form" novalidate>
         <div class="field">
-          <span class="label" data-t="fService"></span>
-          <div class="chips" id="serviceChips" role="radiogroup"></div>
+          <span class="label"><span data-t="fService"></span> <span class="hint" data-t="fServiceHint"></span></span>
+          <div class="chips" id="serviceChips" role="group"></div>
         </div>
         <div class="field">
           <span class="label" data-t="fRegion"></span>
@@ -719,7 +721,7 @@ textarea.input { height: auto; min-height: 6.5rem; padding: .85rem 1.05rem; resi
   const telHref = (n) => "tel:" + n.replace(/[^\d+]/g, "");
   const waHref = (msg) => `https://wa.me/${C.whatsapp}` + (msg ? `?text=${encodeURIComponent(msg)}` : "");
 
-  const state = { service: null, region: null, guests: 2 };
+  const state = { services: [], region: null, guests: 2 };
 
   /* ── Render ─────────────────────────────────────────────── */
   function render() {
@@ -748,7 +750,7 @@ textarea.input { height: auto; min-height: 6.5rem; padding: .85rem 1.05rem; resi
     $("#regionsInline").textContent = CONFIG.regions.map(r => r[lang]).join(" · ");
 
     $("#serviceChips").innerHTML = CONFIG.services.map(s => `
-      <label class="chip"><input type="radio" name="service" value="${s.id}" ${state.service === s.id ? "checked" : ""}><span>${esc(s[lang].title)}</span></label>`).join("");
+      <label class="chip"><input type="checkbox" name="service" value="${s.id}" ${state.services.includes(s.id) ? "checked" : ""}><span>${esc(s[lang].title)}</span></label>`).join("");
     $("#regionChips").innerHTML = CONFIG.regions.map(r => `
       <label class="chip"><input type="radio" name="region" value="${r.id}" ${state.region === r.id ? "checked" : ""}><span>${esc(r[lang])}</span></label>`).join("");
 
@@ -856,11 +858,11 @@ textarea.input { height: auto; min-height: 6.5rem; padding: .85rem 1.05rem; resi
   /* ── Form ───────────────────────────────────────────────── */
   const val = (id) => $(id).value.trim();
   function buildMessage() {
-    const s = CONFIG.services.find(x => x.id === state.service);
+    const ss = CONFIG.services.filter(x => state.services.includes(x.id));
     const r = CONFIG.regions.find(x => x.id === state.region);
     const lines = [
       T("msgHeader"), "",
-      `${T("fService")}: ${s ? s[lang].title : "–"}`,
+      `${T("fService")}: ${ss.length ? ss.map(x => x[lang].title).join(", ") : "–"}`,
       `${T("fRegion")}: ${r ? r[lang] : "–"}`,
       `${T("fDate")}: ${val("#fDate") || "–"}`,
       `${T("fGuests")}: ${state.guests}`,
@@ -880,11 +882,11 @@ textarea.input { height: auto; min-height: 6.5rem; padding: .85rem 1.05rem; resi
     const err = $("#formError");
     ["#fName", "#fPhone"].forEach(id => $(id).removeAttribute("aria-invalid"));
     let m = "";
-    if (!state.service) m = T("errService");
+    if (!state.services.length) m = T("errService");
     else if (!val("#fName")) { m = T("errName"); $("#fName").setAttribute("aria-invalid", "true"); $("#fName").focus(); }
     else if (!val("#fPhone")) { m = T("errPhone"); $("#fPhone").setAttribute("aria-invalid", "true"); $("#fPhone").focus(); }
     err.textContent = m;
-    if (m && !state.service) $("#serviceChips").scrollIntoView({ behavior: "smooth", block: "center" });
+    if (m && !state.services.length) $("#serviceChips").scrollIntoView({ behavior: "smooth", block: "center" });
     return !m;
   }
   function onSend(e) {
@@ -902,7 +904,7 @@ textarea.input { height: auto; min-height: 6.5rem; padding: .85rem 1.05rem; resi
     if (e.target.closest("[data-close]")) return closeSheet();
     const r = e.target.closest("[data-request]");
     if (r) {
-      state.service = r.dataset.request; closeSheet();
+      if (!state.services.includes(r.dataset.request)) state.services.push(r.dataset.request); closeSheet();
       const inp = document.querySelector(`#serviceChips input[value="${r.dataset.request}"]`); if (inp) inp.checked = true;
       $("#formError").textContent = ""; updateSendLinks();
       location.hash = "request";
@@ -913,7 +915,7 @@ textarea.input { height: auto; min-height: 6.5rem; padding: .85rem 1.05rem; resi
   $("#langBtn").addEventListener("click", () => { lang = lang === "el" ? "en" : "el"; store.set("ak-lang-v2", lang); render(); });
 
   $("#form").addEventListener("change", (e) => {
-    if (e.target.name === "service") { state.service = e.target.value; $("#formError").textContent = ""; }
+    if (e.target.name === "service") { state.services = [...document.querySelectorAll("#serviceChips input:checked")].map(i => i.value); $("#formError").textContent = ""; }
     if (e.target.name === "region") state.region = e.target.value;
     updateSendLinks();
   });
