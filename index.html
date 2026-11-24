@@ -1319,17 +1319,36 @@ html.ak-splash .app, html.ak-splash .nav-wrap { visibility: hidden; }
     v.setUint16(22, 1, true); v.setUint32(24, sr, true); v.setUint32(28, sr * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
     str(36, "data"); v.setUint32(40, n * 2, true);
     for (let i = 0; i < n; i++) v.setInt16(44 + i * 2, Math.round(out[i] / peak * .85 * 32767), true);
-    let bin = ""; for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
-    return "data:audio/wav;base64," + btoa(bin);
+    return bytes;
   }
-  let chimeAudio = null, chimePlayed = false;
+  let chimeBytes = null, chimeAudio = null, chimePlayed = false;
   function prepareChime() {
-    try { chimeAudio = new Audio(chimeWav()); chimeAudio.preload = "auto"; chimeAudio.load(); } catch {}
+    try {
+      chimeBytes = chimeWav();
+      // Προτιμάται blob: (λιγότεροι περιορισμοί), με data: ως εναλλακτική
+      let src;
+      try { src = URL.createObjectURL(new Blob([chimeBytes], { type: "audio/wav" })); }
+      catch { let bin = ""; for (let i = 0; i < chimeBytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, chimeBytes.subarray(i, i + 0x8000)); src = "data:audio/wav;base64," + btoa(bin); }
+      chimeAudio = new Audio(src); chimeAudio.preload = "auto"; chimeAudio.setAttribute("playsinline", ""); chimeAudio.load();
+    } catch {}
   }
   function chime() {                         // καλείται μέσα στο άγγιγμα/κλικ του επισκέπτη
     if (chimePlayed) return; chimePlayed = true;
     try { if (navigator.audioSession) navigator.audioSession.type = "playback"; } catch {}
-    try { if (!chimeAudio) prepareChime(); chimeAudio.currentTime = 0; chimeAudio.play()?.catch(() => {}); } catch {}
+    if (!chimeBytes) prepareChime();
+    // Το AudioContext ξεκλειδώνεται τώρα, μέσα στο άγγιγμα, ώστε να είναι έτοιμο ως εφεδρεία
+    let ctx = null;
+    try { ctx = new (window.AudioContext || window.webkitAudioContext)(); ctx.resume?.(); } catch {}
+    let ok = false;
+    try { chimeAudio.currentTime = 0; const p = chimeAudio.play(); if (p) p.then(() => { ok = true; }, () => {}); else ok = !chimeAudio.paused; } catch {}
+    setTimeout(() => {                       // αν το <audio> δεν ξεκίνησε, παίζει μέσω Web Audio
+      if (ok && !chimeAudio.paused) { ctx?.close?.(); return; }
+      if (!ctx || !chimeBytes) return;
+      try {
+        const done = (buf) => { const s = ctx.createBufferSource(); s.buffer = buf; s.connect(ctx.destination); s.start(); };
+        const r = ctx.decodeAudioData(chimeBytes.buffer.slice(0), done, () => {}); r?.catch?.(() => {});
+      } catch {}
+    }, 350);
   }
   function initSplash() {
     if (PREVIEW) return;
