@@ -1405,8 +1405,9 @@ html.ak-splash .app, html.ak-splash .nav-wrap { visibility: hidden; }
         { duration: 700, easing: "cubic-bezier(.4,0,.2,1)", fill: "forwards" });
       setTimeout(() => splash.remove(), 1060);
     };
+    sw.addEventListener("touchstart", () => { if (!done) unlockSound(true); }, { passive: true });
     sw.addEventListener("pointerdown", (e) => {
-      if (done) return; measure();
+      if (done) return; unlockSound(true); measure();
       sw.classList.remove("springing"); sw.setPointerCapture(e.pointerId);
       start = e.clientY; base = off; moved = 0;
     });
