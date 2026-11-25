@@ -237,7 +237,7 @@ const CONFIG = {
       servicesTitle: "Υπηρεσίες", servicesIntro: "Πατήστε μια υπηρεσία για λεπτομέρειες.",
       sheetCta: "Αίτημα για αυτή την υπηρεσία", close: "Κλείσιμο",
       requestTitle: "Αίτημα", requestIntro: "Συμπληρώστε τα βασικά. Το μήνυμα ανοίγει έτοιμο στο WhatsApp ή στο email σας.",
-      fService: "Υπηρεσίες", fServiceHint: "· επιλέξτε μία ή περισσότερες", fRegion: "Περιοχή", fDate: "Ημερομηνία", fGuests: "Άτομα",
+      fService: "Υπηρεσίες", fServiceHint: "· επιλέξτε μία ή περισσότερες", fRegion: "Προορισμός", fDate: "Ημερομηνία", fGuests: "Άτομα",
       fName: "Ονοματεπώνυμο", fPhone: "Τηλέφωνο", fEmail: "Email (προαιρετικό)", fNotes: "Λεπτομέρειες",
       fNamePh: "π.χ. Μαρία Παπαδοπούλου", fPhonePh: "+30 …", fEmailPh: "name@email.com",
       fNotesPh: "Ώρα, αριθμός πτήσης, προτιμήσεις…",
@@ -276,7 +276,7 @@ const CONFIG = {
       servicesTitle: "Services", servicesIntro: "Tap a service for details.",
       sheetCta: "Request this service", close: "Close",
       requestTitle: "Request", requestIntro: "Fill in the basics. Your message opens ready to send in WhatsApp or email.",
-      fService: "Services", fServiceHint: "· choose one or more", fRegion: "Region", fDate: "Date", fGuests: "Guests",
+      fService: "Services", fServiceHint: "· choose one or more", fRegion: "Destination", fDate: "Date", fGuests: "Guests",
       fName: "Full name", fPhone: "Phone", fEmail: "Email (optional)", fNotes: "Details",
       fNamePh: "e.g. Anna Smith", fPhonePh: "+44 …", fEmailPh: "name@email.com",
       fNotesPh: "Time, flight number, preferences…",
@@ -565,6 +565,26 @@ html.on-photo .topbar .wordmark svg { color: #fff; }
 .label { font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
 .label .hint { text-transform: none; letter-spacing: 0; font-weight: 450; }
 .chips { display: flex; flex-wrap: wrap; gap: .45rem; }
+/* Επιλογή προορισμού στη φόρμα: μικρές κάθετες κάρτες με φωτογραφία (όπως στην αρχική) */
+.picks { display: flex; gap: .55rem; overflow-x: auto; scroll-snap-type: x mandatory; margin-inline: -1.25rem; padding: .3rem 1.25rem .5rem; scrollbar-width: none; }
+.picks::-webkit-scrollbar { display: none; }
+.pick { position: relative; flex: 0 0 6.6rem; padding: .26rem; border-radius: 1.3rem; cursor: pointer; scroll-snap-align: start;
+  transition: transform .35s cubic-bezier(.34,1.56,.64,1), box-shadow .3s ease; -webkit-tap-highlight-color: transparent; }
+.pick input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
+.pick .photo { aspect-ratio: 3 / 4.2; border-radius: 1.05rem; }
+.pick .photo img { object-position: var(--focal, 50% 50%); transition: transform .6s cubic-bezier(.2,.8,.2,1), filter .4s ease; }
+.pick .caption { left: .25rem; right: .25rem; bottom: .25rem; padding: .35rem .45rem .4rem; border-radius: .8rem; }
+.pick .caption b { font-size: .92rem; }
+.pick .tick { position: absolute; top: .55rem; right: .55rem; width: 1.5rem; height: 1.5rem; border-radius: 50%; display: grid; place-items: center;
+  background: var(--accent); color: var(--accent-ink); box-shadow: 0 .3rem .8rem -.2rem var(--glass-shadow);
+  opacity: 0; transform: scale(.4); transition: opacity .25s ease, transform .4s cubic-bezier(.34,1.56,.64,1); }
+.pick .tick svg { width: .85rem; height: .85rem; stroke-width: 2.4; }
+.pick:active { transform: scale(.96); }
+.pick:has(input:checked) { box-shadow: 0 0 0 2px var(--accent), 0 .6rem 1.4rem -.6rem var(--glass-shadow); }
+.pick:has(input:checked) .tick { opacity: 1; transform: none; }
+.pick:has(input:checked) .photo img { transform: scale(1.06); }
+.picks:has(input:checked) .pick:not(:has(input:checked)) .photo img { filter: saturate(.6) brightness(.92); }
+.pick:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 3px; }
 .chip { position: relative; }
 .chip input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
 .chip span {
@@ -849,7 +869,7 @@ html.ak-splash .app, html.ak-splash .nav-wrap { visibility: hidden; }
         </div>
         <div class="field">
           <span class="label" data-t="fRegion"></span>
-          <div class="chips" id="regionChips" role="radiogroup"></div>
+          <div class="picks" id="regionChips" role="radiogroup"></div>
         </div>
         <div class="pair">
           <label class="field"><span class="label" data-t="fDate"></span><input class="input" type="date" id="fDate" name="date"></label>
@@ -1207,7 +1227,11 @@ html.ak-splash .app, html.ak-splash .nav-wrap { visibility: hidden; }
     $("#serviceChips").innerHTML = CONFIG.services.map(s => `
       <label class="chip"><input type="checkbox" name="service" value="${s.id}" ${state.services.includes(s.id) ? "checked" : ""}><span>${esc(s[lang].title)}</span></label>`).join("");
     $("#regionChips").innerHTML = CONFIG.regions.map(r => `
-      <label class="chip"><input type="radio" name="region" value="${r.id}" ${state.region === r.id ? "checked" : ""}><span>${esc(r[lang])}</span></label>`).join("");
+      <label class="pick glass">
+        <input type="radio" name="region" value="${r.id}" ${state.region === r.id ? "checked" : ""}>
+        <span class="photo" style="--focal:${focal(r)}">${img(r.image, r[lang])}<span class="caption"><b>${esc(r[lang])}</b></span></span>
+        <span class="tick" aria-hidden="true">${svg("check")}</span>
+      </label>`).join("");
 
     $("#contacts").innerHTML = [
       { icon: "phone",    label: T("cCall"),     value: C.phone,  href: telHref(C.phone) },
