@@ -1033,6 +1033,55 @@ html.ak-splash .app, html.ak-splash .nav-wrap { visibility: hidden; }
     anim.onfinish = done; anim.oncancel = () => { toImg.style.opacity = ""; c.remove(); };
   }
 
+  /* Άνοιγμα προορισμού: η κάρτα «σηκώνεται» από το σημείο όπου βρίσκεται και μεγαλώνει
+     σε όλη την οθόνη, ενώ η αρχική από πίσω απομακρύνεται (βάθος), όπως το άνοιγμα εφαρμογής στο iPhone. */
+  let opening = false;
+  function openRegion(card) {
+    const id = card.dataset.region, r = CONFIG.regions.find(x => x.id === id);
+    const photo = card.querySelector(".photo"), im = photo?.querySelector("img");
+    if (opening) return;
+    if (!r || !im || !im.animate || matchMedia("(prefers-reduced-motion: reduce)").matches) { location.hash = id; return; }
+    opening = true;
+    const hi = r.background || r.image; if (hi) { const pre = new Image(); pre.src = hi; }      // προφόρτωση υψηλής ανάλυσης
+    const a = photo.getBoundingClientRect();                                                    // η θέση της κάρτας ΤΩΡΑ
+    const ra = getComputedStyle(photo).borderTopLeftRadius, pa = getComputedStyle(im).objectPosition;
+    const pb = /^[\d.]+% [\d.]+%$/.test(r.backgroundPosition || "") ? r.backgroundPosition : "50% 50%";
+    const H = Math.max(innerHeight * 1.18, innerHeight);
+    const c = im.cloneNode(); c.removeAttribute("onerror"); c.className = "flip-clone"; c.removeAttribute("style");
+    document.body.appendChild(c);
+    card.style.visibility = "hidden";                                                           // η ίδια η κάρτα σηκώνεται
+    const box = (x, y, w, h, rad, pos) => ({ left: x + "px", top: y + "px", width: w + "px", height: h + "px", borderRadius: rad, objectPosition: pos });
+    const grow = c.animate([box(a.left, a.top, a.width, a.height, ra, pa), box(0, 0, innerWidth, H, "0px", pb)],
+      { duration: FLIP.open, easing: FLIP.easing, fill: "forwards" });
+    // βάθος: η αρχική μεγεθύνεται ελαφρά προς την κάρτα, θολώνει και σκουραίνει
+    const app = document.querySelector(".app"), nav = document.querySelector(".nav-wrap");
+    app.style.transformOrigin = `${a.left + a.width / 2}px ${a.top + a.height / 2 + scrollY}px`;
+    const depth = [{ transform: "none", filter: "none", opacity: 1 }, { transform: "scale(1.08)", filter: "blur(8px)", opacity: .35 }];
+    const opts = { duration: FLIP.open, easing: FLIP.easing, fill: "forwards" };
+    const da = app.animate(depth, opts), dn = nav.animate([{ opacity: 1 }, { opacity: 0 }], { ...opts, duration: FLIP.open * .6 });
+    const finish = () => {
+      pendingFlip = { clone: c, cleanup: () => { da.cancel(); dn.cancel(); app.style.transformOrigin = ""; card.style.visibility = ""; opening = false; } };
+      location.hash = id;
+    };
+    grow.onfinish = finish;
+    grow.oncancel = () => { c.remove(); da.cancel(); dn.cancel(); card.style.visibility = ""; opening = false; };
+  }
+  function revealRegion(clone, bg) {
+    const f = pendingFlipCleanup; pendingFlipCleanup = null; f?.();
+    const sharp = bg.querySelector("img.sharp");
+    bg.classList.add("settling");
+    const fadeOut = () => {
+      const fa = clone.animate([{ opacity: 1 }, { opacity: 0 }], { duration: FLIP.fade + 250, easing: "ease-out", fill: "forwards" });
+      fa.onfinish = fa.oncancel = () => clone.remove();
+      setTimeout(() => bg.classList.remove("settling"), 120);                 // το θόλωμα απλώνεται καθώς σβήνει ο κλώνος
+    };
+    if (!sharp) return fadeOut();
+    let done = false; const go = () => { if (!done) { done = true; fadeOut(); } };
+    (sharp.decode ? sharp.decode() : Promise.resolve()).then(go, go);         // περιμένουμε να φορτώσει η καθαρή φωτογραφία
+    setTimeout(go, 1500);
+  }
+  let pendingFlipCleanup = null;
+
   /* ── Περιεχόμενο από το CMS (εφαρμόζεται πάνω στο CONFIG) ── */
   const strings = (o) => Object.fromEntries(Object.entries(o || {}).filter(([, v]) => typeof v === "string"));
   function applyContent(d) {
@@ -1147,17 +1196,14 @@ html.ak-splash .app, html.ak-splash .nav-wrap { visibility: hidden; }
     bg.hidden = !isRegion;
     document.documentElement.classList.toggle("on-photo", isRegion && !!bg.dataset.src);
     const f = pendingFlip; pendingFlip = null;
+    if (f?.cleanup) pendingFlipCleanup = f.cleanup;
     if (f && f.back && v === "home") {
       const card = document.querySelector(`#regions [data-region="${f.back}"]`);
       card?.scrollIntoView({ block: "center", inline: "center" });
       flip(f.from, card?.querySelector(".photo"), f.rect, FLIP.back);
     } else {
       if (silent !== true) window.scrollTo(0, 0);
-      if (f && isRegion) {                                  // zoom από την κάρτα στο φόντο, μετά «απλώνει» το θόλωμα
-        bg.classList.add("settling");
-        flip(f.from, bg);
-        setTimeout(() => bg.classList.remove("settling"), FLIP.open * .7);   // το θόλωμα απλώνεται καθώς «κάθεται» η φωτογραφία
-      }
+      if (f && f.clone && isRegion) revealRegion(f.clone, bg);   // η κάρτα έχει ήδη ανοίξει: αποκάλυψη της σελίδας
     }
     if (silent !== true) track("/#" + (isRegion ? h : v));
   }
@@ -1286,7 +1332,7 @@ html.ak-splash .app, html.ak-splash .nav-wrap { visibility: hidden; }
     const c = e.target.closest("[data-copy]"); if (c) { e.preventDefault(); return copy(c.dataset.copy); }
     if (e.target.closest("[data-close]")) return closeSheet();
     const rg = e.target.closest("[data-region]");
-    if (rg) { pendingFlip = { from: rg.querySelector(".photo") }; location.hash = rg.dataset.region; return; }
+    if (rg) { openRegion(rg); return; }
     if (e.target.closest("[data-back]")) { const bg = $("#regionPhoto"); pendingFlip = { from: bg, rect: bg.querySelector("img")?.getBoundingClientRect(), back: currentRegion }; location.hash = "home"; return; }
     const ex = e.target.closest("[data-exp]"); if (ex) return expSheet(ex.dataset.exp);
     const pl = e.target.closest("[data-plan]"); if (pl) { setRegion(pl.dataset.plan); return; }
