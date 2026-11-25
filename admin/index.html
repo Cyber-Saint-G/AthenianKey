@@ -1115,7 +1115,10 @@ async function pickImage(path) {
     <label class="btn btn-primary">Ανέβασμα νέας φωτογραφίας<input type="file" id="pickUpload" accept="image/jpeg,image/png,image/webp" hidden></label>
     <div id="pickMsg"></div>
     <div class="lib">${all.map(f => `<button class="lib-item pick" type="button" data-choose="${esc(f.src)}"><div class="thumb" style="background-image:url('${esc(previewSrc(f.src))}')"></div><div class="meta"><b>${esc(f.name)}</b></div></button>`).join("")}</div>`, "", true);
-  const choose = (src) => { setPath(path, src); closeDrawer(); drawContent(); toast("Η φωτογραφία άλλαξε. Πατήστε Αποθήκευση για να δημοσιευτεί."); };
+  const choose = (src) => {
+    setPath(path, src);
+    if (/^regions\.\d+\.image$/.test(path)) setPath(path.replace(/image$/, "background"), src);   // η ίδια φωτογραφία γίνεται και φόντο της σελίδας
+    closeDrawer(); drawContent(); toast("Η φωτογραφία άλλαξε. Πατήστε Αποθήκευση για να δημοσιευτεί."); };
   $("#drawerBody").onclick = (e) => { const b = e.target.closest("[data-choose]"); if (b) choose(b.dataset.choose); };
   $("#pickUpload").addEventListener("change", (e) => uploadFiles(e.target.files, (urls) => { if (urls[0]) choose(urls[0]); }));
 }

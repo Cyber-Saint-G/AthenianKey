@@ -78,7 +78,7 @@ const CONFIG = {
 
   // Προορισμοί: φωτογραφία, πληροφορίες και εμπειρίες. Οι φωτογραφίες είναι στον φάκελο images/
   regions: [
-    { id: "athens", el: "Αθήνα", en: "Athens", coords: "37.98° N · 23.73° E", image: "images/athens.jpg",
+    { id: "athens", el: "Αθήνα", en: "Athens", coords: "37.98° N · 23.73° E", image: "images/athens.jpg", background: "images/bg-athens.jpg",
       intro: {
         el: "Η πόλη της Ακρόπολης, των ταρατσών με θέα και της Αθηναϊκής Ριβιέρας. Ιδανική για ένα city break με ιστορία, γαστρονομία και θάλασσα σε απόσταση μισής ώρας.",
         en: "The city of the Acropolis, rooftop views and the Athens Riviera. Ideal for a city break with history, great food and the sea half an hour away." },
@@ -100,7 +100,7 @@ const CONFIG = {
           en: { title: "Lycabettus at dusk", text: "The best view over Athens, with cocktails as the city lights come on." } },
       ] },
 
-    { id: "zakynthos", el: "Ζάκυνθος", en: "Zakynthos", coords: "37.78° N · 20.90° E", image: "images/zakynthos.jpg",
+    { id: "zakynthos", el: "Ζάκυνθος", en: "Zakynthos", coords: "37.78° N · 20.90° E", image: "images/zakynthos.jpg", background: "images/bg-zakynthos.jpg",
       intro: {
         el: "Το νησί του Ναυαγίου, των Γαλάζιων Σπηλιών και των θαλάσσιων χελωνών. Τα καλύτερα σημεία του φαίνονται από τη θάλασσα, με ιδιωτικό σκάφος.",
         en: "The island of Navagio, the Blue Caves and the sea turtles. Its best spots are seen from the water, on a private boat." },
@@ -122,7 +122,7 @@ const CONFIG = {
           en: { title: "Gerakas & sea turtles", text: "The protected beach where Caretta caretta turtles nest, with a guide who follows the marine park rules." } },
       ] },
 
-    { id: "crete", el: "Κρήτη", en: "Crete", coords: "35.34° N · 25.13° E", image: "images/crete.jpg",
+    { id: "crete", el: "Κρήτη", en: "Crete", coords: "35.34° N · 25.13° E", image: "images/crete.jpg", background: "images/bg-crete.jpg", backgroundPosition: "57% 50%",
       intro: {
         el: "Το μεγαλύτερο ελληνικό νησί: μινωικά ανάκτορα, φαράγγια, λιμνοθάλασσες και μια από τις καλύτερες κουζίνες της Μεσογείου.",
         en: "Greece's largest island: Minoan palaces, gorges, lagoons and one of the best kitchens in the Mediterranean." },
@@ -505,22 +505,41 @@ a { color: inherit; text-decoration: none; }
 .exp .caption { left: .3rem; right: .3rem; bottom: .3rem; padding: .45rem .55rem; border-radius: .95rem; }
 .exp .caption b { font-family: var(--font-body); font-weight: 600; font-size: .72rem; line-height: 1.25; }
 
-/* Σελίδα προορισμού */
+/* Σελίδα προορισμού: η φωτογραφία γίνεται φόντο, καθαρή πάνω και όλο και πιο θολή προς τα κάτω */
 .view[data-view="region"].is-active { animation: none; }
+.region-bg {
+  position: absolute; top: 0; left: 0; right: 0; height: 118vh; height: 118svh; z-index: 0;
+  overflow: hidden; pointer-events: none; background: var(--bg);
+}
+.region-bg img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+/* Τρία επίπεδα θολώματος, το καθένα ορατό από λίγο χαμηλότερα: ομαλή διαβάθμιση */
+.region-bg .b1 { filter: blur(5px);  transform: scale(1.04); -webkit-mask-image: linear-gradient(to bottom, transparent 34%, #000 54%); mask-image: linear-gradient(to bottom, transparent 34%, #000 54%); }
+.region-bg .b2 { filter: blur(14px); transform: scale(1.08); -webkit-mask-image: linear-gradient(to bottom, transparent 48%, #000 70%); mask-image: linear-gradient(to bottom, transparent 48%, #000 70%); }
+.region-bg .b3 { filter: blur(30px) saturate(1.1); transform: scale(1.14); -webkit-mask-image: linear-gradient(to bottom, transparent 62%, #000 84%); mask-image: linear-gradient(to bottom, transparent 62%, #000 84%); }
+.region-bg .shade {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, rgba(5, 14, 28, .36) 0%, rgba(5, 14, 28, 0) 22%),
+              linear-gradient(to bottom, transparent 60%, var(--bg) 97%);
+}
+.region-bg .b1, .region-bg .b2, .region-bg .b3, .region-bg .shade { transition: opacity .8s ease; }
+.region-bg.settling .b1, .region-bg.settling .b2, .region-bg.settling .b3, .region-bg.settling .shade { opacity: 0; transition: none; }
+html.ak-splash .region-bg { visibility: hidden; }
+html.on-photo .topbar .wordmark { color: #fff; text-shadow: 0 1px 12px rgba(0, 0, 0, .35); transition: color .4s; }
+html.on-photo .topbar .wordmark svg { color: #fff; }
 .region-top { display: flex; align-items: center; justify-content: space-between; padding-top: .6rem; }
+.region-top .eyebrow { color: rgba(255, 255, 255, .92); text-shadow: 0 1px 8px rgba(0, 0, 0, .35); }
 .back { height: 2.4rem; padding: 0 .95rem 0 .7rem; border-radius: 999px; display: inline-flex; align-items: center; gap: .35rem; font-size: .82rem; font-weight: 600; }
 .back svg { width: 1rem; height: 1rem; transform: scaleX(-1); }
-.region-hero { margin-top: .9rem; padding: .4rem; border-radius: 2.2rem; }
-.region-hero .photo { aspect-ratio: 4 / 4.6; border-radius: 1.85rem; }
-.region-hero .caption { left: .7rem; right: .7rem; bottom: .7rem; padding: .9rem 1.1rem 1rem; border-radius: 1.4rem; }
-.region-hero .caption b { font-size: 2.3rem; }
-.region-hero .caption span { font-size: .7rem; }
-.region-body > * { animation: rise .7s cubic-bezier(.2,.8,.2,1) both; }
-.region-body > *:nth-child(2) { animation-delay: .08s; } .region-body > *:nth-child(3) { animation-delay: .16s; }
-.region-body > *:nth-child(4) { animation-delay: .24s; } .region-body > *:nth-child(5) { animation-delay: .32s; }
-.region-intro { margin: 1.4rem 0 0; color: var(--muted); font-size: .95rem; }
-.facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; margin-top: 1.3rem; }
-.fact { border-radius: 1.2rem; padding: .75rem .75rem .8rem; min-width: 0; }
+.region-title { padding: 33vh 0 1.4rem; padding-top: 33svh; color: #fff; text-shadow: 0 2px 20px rgba(0, 0, 0, .38); animation: rise .9s .1s cubic-bezier(.2,.8,.2,1) both; }
+.region-title h1 { font-family: var(--font-display); font-weight: 400; font-size: 3.2rem; line-height: 1; margin: 0; text-wrap: balance; }
+.region-title span { display: block; font-size: .72rem; letter-spacing: .14em; margin-top: .6rem; opacity: .92; font-variant-numeric: tabular-nums; }
+.region-panel { border-radius: 2rem; padding: 1.4rem 1.2rem 1.3rem; overflow: hidden; animation: rise .9s .2s cubic-bezier(.2,.8,.2,1) both; }
+.region-panel .section { margin-top: 1.9rem; }
+.region-panel .rail { margin-inline: -1.2rem; padding-inline: 1.2rem; }
+.region-panel .btn-block { margin-top: 1.4rem; }
+.region-intro { margin: 0; color: var(--ink); font-size: .95rem; opacity: .86; }
+.facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; margin-top: 1.2rem; }
+.fact { border-radius: 1.1rem; padding: .75rem .75rem .8rem; min-width: 0; background: var(--glass-strong); border: 1px solid var(--glass-edge); box-shadow: inset 0 1px 0 var(--shine); }
 .fact small { display: block; font-size: .6rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
 .fact b { display: block; font-size: .8rem; font-weight: 600; margin-top: .2rem; line-height: 1.3; }
 .sheet-photo { aspect-ratio: 16 / 10; border-radius: 1.4rem; margin-bottom: 1.1rem; }
@@ -723,6 +742,9 @@ html.ak-splash .app, html.ak-splash .nav-wrap { visibility: hidden; }
 
 <!-- ═══ ΣΕΛΙΔΑ / PAGE ═══════════════════════════════════════════ -->
 <div class="ambient" aria-hidden="true"><i></i><i></i><i></i></div>
+
+<!-- Φόντο σελίδας προορισμού (η φωτογραφία του προορισμού) -->
+<div class="region-bg" id="regionPhoto" aria-hidden="true" hidden></div>
 
 <!-- ΣΕΛΙΔΑ ΕΙΣΟΔΟΥ: εμφανίζεται πριν την αρχική -->
 <div class="splash" id="splash" hidden>
@@ -946,18 +968,22 @@ html.ak-splash .app, html.ak-splash .nav-wrap { visibility: hidden; }
   /* ── Σελίδα προορισμού ──────────────────────────────────── */
   function renderRegion(id) {
     const r = CONFIG.regions.find(x => x.id === id); if (!r) return;
+    const bgSrc = r.background || r.image;                // φόντο σε υψηλή ανάλυση, αλλιώς η φωτογραφία της κάρτας
+    const bg = $("#regionPhoto"), src = bgSrc && /^(https:\/\/|images\/|blob:)/.test(bgSrc) ? bgSrc : "";
+    if (bg.dataset.src !== src) {                       // φόντο: καθαρή φωτογραφία + 3 επίπεδα θολώματος
+      bg.dataset.src = src;
+      const pos = /^[\d.]+% [\d.]+%$/.test(r.backgroundPosition || "") ? ` style="object-position:${r.backgroundPosition}"` : "";   // ποιο σημείο μένει στο κέντρο
+      bg.innerHTML = (src ? ["sharp", "b1", "b2", "b3"].map(c => `<img class="${c}" src="${esc(src)}" alt="" decoding="async"${pos}>`).join("") : "") + `<span class="shade"></span>`;
+    }
     $("#regionView").innerHTML = `
       <div class="region-top">
         <button class="back glass" type="button" data-back>${svg("arrow")}<span>${esc(T("back"))}</span></button>
         <span class="eyebrow">${esc(T("regionsTitle"))}</span>
       </div>
-      <div class="region-hero glass">
-        <span class="photo" id="regionPhoto">${img(r.image, r[lang])}
-          <span class="caption"><b>${esc(r[lang])}</b><span>${r.coords}</span></span></span>
-      </div>
-      <div class="region-body">
+      <div class="region-title"><h1>${esc(r[lang])}</h1><span>${r.coords}</span></div>
+      <div class="region-panel glass region-body">
         <p class="region-intro">${esc(r.intro[lang])}</p>
-        <div class="facts">${r.facts[lang].map(([k, v]) => `<div class="fact glass"><small>${esc(k)}</small><b>${esc(v)}</b></div>`).join("")}</div>
+        <div class="facts">${r.facts[lang].map(([k, v]) => `<div class="fact"><small>${esc(k)}</small><b>${esc(v)}</b></div>`).join("")}</div>
         <div class="section">
           <div class="section-head"><h2 class="h2">${esc(T("expTitle"))}</h2></div>
           <div class="rail">${r.experiences.map(x => `
@@ -984,10 +1010,10 @@ html.ak-splash .app, html.ak-splash .nav-wrap { visibility: hidden; }
   }
 
   /* Zoom: η φωτογραφία «μεγαλώνει» από την κάρτα και κεντράρεται στη νέα σελίδα */
-  function flip(fromBox, toBox) {
+  function flip(fromBox, toBox, fromRect) {
     const fromImg = fromBox?.querySelector("img"), toImg = toBox?.querySelector("img");
     if (!fromImg || !toImg || matchMedia("(prefers-reduced-motion: reduce)").matches || !toImg.animate) return;
-    const a = fromBox.getBoundingClientRect(), b = toBox.getBoundingClientRect();
+    const a = fromRect || fromBox.getBoundingClientRect(), b = toBox.getBoundingClientRect();
     const ra = getComputedStyle(fromBox).borderTopLeftRadius, rb = getComputedStyle(toBox).borderTopLeftRadius;
     const c = fromImg.cloneNode(); c.removeAttribute("onerror"); c.className = "flip-clone"; c.removeAttribute("style");
     document.body.appendChild(c);
@@ -1108,14 +1134,21 @@ html.ak-splash .app, html.ak-splash .nav-wrap { visibility: hidden; }
       if (on && !a.hasAttribute("aria-current")) { a.classList.remove("pop"); void a.offsetWidth; a.classList.add("pop"); }
       if (on) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
     });
+    const bg = $("#regionPhoto");
+    bg.hidden = !isRegion;
+    document.documentElement.classList.toggle("on-photo", isRegion && !!bg.dataset.src);
     const f = pendingFlip; pendingFlip = null;
     if (f && f.back && v === "home") {
       const card = document.querySelector(`#regions [data-region="${f.back}"]`);
       card?.scrollIntoView({ block: "center", inline: "center" });
-      flip(f.from, card?.querySelector(".photo"));
+      flip(f.from, card?.querySelector(".photo"), f.rect);
     } else {
       if (silent !== true) window.scrollTo(0, 0);
-      if (f && isRegion) flip(f.from, $("#regionPhoto"));
+      if (f && isRegion) {                                  // zoom από την κάρτα στο φόντο, μετά «απλώνει» το θόλωμα
+        bg.classList.add("settling");
+        flip(f.from, bg);
+        setTimeout(() => bg.classList.remove("settling"), 620);
+      }
     }
     if (silent !== true) track("/#" + (isRegion ? h : v));
   }
@@ -1245,7 +1278,7 @@ html.ak-splash .app, html.ak-splash .nav-wrap { visibility: hidden; }
     if (e.target.closest("[data-close]")) return closeSheet();
     const rg = e.target.closest("[data-region]");
     if (rg) { pendingFlip = { from: rg.querySelector(".photo") }; location.hash = rg.dataset.region; return; }
-    if (e.target.closest("[data-back]")) { pendingFlip = { from: $("#regionPhoto"), back: currentRegion }; location.hash = "home"; return; }
+    if (e.target.closest("[data-back]")) { const bg = $("#regionPhoto"); pendingFlip = { from: bg, rect: bg.querySelector("img")?.getBoundingClientRect(), back: currentRegion }; location.hash = "home"; return; }
     const ex = e.target.closest("[data-exp]"); if (ex) return expSheet(ex.dataset.exp);
     const pl = e.target.closest("[data-plan]"); if (pl) { setRegion(pl.dataset.plan); return; }
     const er = e.target.closest("[data-exp-request]");
