@@ -814,14 +814,13 @@ html.ak-splash .app, html.ak-splash .nav-wrap { visibility: hidden; }
 .tswitch.is-glass .tswitch-thumb svg { opacity: 0 !important; }
 .tswitch.dragging .tswitch-thumb { transition: background-color .28s ease, box-shadow .28s ease, border-color .28s ease; }
 .tswitch:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-.splash-tools {
-  position: absolute; top: calc(env(safe-area-inset-top, 0px) + 1.1rem); left: 50%; transform: translateX(-50%);
-  width: min(30rem, 100%); display: flex; justify-content: flex-end; z-index: 2;
-  padding-left: max(1.25rem, env(safe-area-inset-left, 0px)); padding-right: max(1.25rem, env(safe-area-inset-right, 0px));
+/* Ομαλή αλλαγή θέματος: crossfade όλης της σελίδας (View Transitions) */
+html.theme-vt::view-transition-old(root), html.theme-vt::view-transition-new(root) {
+  animation-duration: .85s; animation-timing-function: cubic-bezier(.4, 0, .2, 1);
 }
-/* Ομαλή αλλαγή χρωμάτων μόνο τη στιγμή της εναλλαγής θέματος */
+/* Εναλλακτικά (browsers χωρίς View Transitions): σταδιακή αλλαγή χρωμάτων */
 html.theme-anim, html.theme-anim body, html.theme-anim *, html.theme-anim *::before, html.theme-anim *::after {
-  transition: background-color .6s ease, color .6s ease, border-color .6s ease, fill .6s ease, stroke .6s ease !important;
+  transition: background-color .8s ease, color .8s ease, border-color .8s ease, fill .8s ease, stroke .8s ease !important;
 }
 html.theme-anim .tswitch-thumb { transition: transform .55s cubic-bezier(.3, 1.45, .45, 1), background-color .28s ease, box-shadow .28s ease, border-color .28s ease !important; }
 
@@ -860,11 +859,6 @@ html.theme-anim .tswitch-thumb { transition: transform .55s cubic-bezier(.3, 1.4
 
 <!-- ΣΕΛΙΔΑ ΕΙΣΟΔΟΥ: εμφανίζεται πριν την αρχική -->
 <div class="splash" id="splash" hidden>
-  <div class="splash-tools">
-    <button class="tswitch" type="button" role="switch" aria-checked="false" data-theme-switch>
-      <span class="tswitch-thumb"><svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4"/></svg><svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg></span>
-    </button>
-  </div>
   <div class="splash-inner" id="splashInner">
     <div class="splash-logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="8" cy="12" r="4.2"/><path d="M12.2 12H21M17.5 12v3M20 12v2.2"/></svg><span data-brand></span></div>
     <p class="splash-q" data-t="splashTitle"></p>
@@ -1531,10 +1525,23 @@ html.theme-anim .tswitch-thumb { transition: transform .55s cubic-bezier(.3, 1.4
   function syncSwitches() {
     document.querySelectorAll("[data-theme-switch]").forEach(b => { b.setAttribute("aria-checked", String(isDark())); b.setAttribute("aria-label", T("themeAria")); });
   }
+  // Η λαβή γλιστράει πρώτα και μετά όλη η σελίδα αλλάζει θέμα με ένα ενιαίο crossfade
+  // (View Transitions API: εικόνα «πριν» → «μετά», εξ ολοκλήρου στην κάρτα γραφικών).
   function setTheme(dark) {
-    rootEl.classList.add("theme-anim"); clearTimeout(setTheme.t);
-    rootEl.dataset.theme = dark ? "dark" : "light"; store.set("ak-theme", rootEl.dataset.theme);
-    syncSwitches(); setTheme.t = setTimeout(() => rootEl.classList.remove("theme-anim"), 700);
+    const apply = () => { rootEl.dataset.theme = dark ? "dark" : "light"; store.set("ak-theme", rootEl.dataset.theme); };
+    document.querySelectorAll("[data-theme-switch]").forEach(b => b.setAttribute("aria-checked", String(dark)));
+    clearTimeout(setTheme.t);
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) { apply(); syncSwitches(); return; }
+    setTheme.t = setTimeout(() => {
+      if (document.startViewTransition) {
+        rootEl.classList.add("theme-vt");
+        const vt = document.startViewTransition(() => { apply(); syncSwitches(); });
+        vt.finished.finally(() => rootEl.classList.remove("theme-vt"));
+      } else {                                                      // παλαιότεροι browsers: σταδιακή αλλαγή χρωμάτων
+        rootEl.classList.add("theme-anim"); apply(); syncSwitches();
+        setTimeout(() => rootEl.classList.remove("theme-anim"), 900);
+      }
+    }, 600);                                                        // μόλις η λαβή «καθίσει» ξανά ως λευκή
   }
   { const saved = store.get("ak-theme"); if (saved === "dark" || saved === "light") rootEl.dataset.theme = saved; }
   mqDark.addEventListener?.("change", () => { if (!store.get("ak-theme")) syncSwitches(); });
