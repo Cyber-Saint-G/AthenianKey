@@ -665,24 +665,39 @@ html.ak-splash .app, html.ak-splash .nav-wrap { visibility: hidden; }
 .splash-q { font-family: var(--font-display); font-size: 1.4rem; line-height: 1.25; margin: 1.1rem 0 2.2rem; color: var(--muted); text-wrap: balance; }
 .switch {
   position: relative; width: 5.5rem; height: 13.5rem; border-radius: 999px; padding: 0;
-  touch-action: none; -webkit-tap-highlight-color: transparent; cursor: grab; overflow: hidden;
+  touch-action: none; -webkit-tap-highlight-color: transparent; cursor: grab; overflow: visible;   /* ο γυάλινος φακός βγαίνει έξω από τα όρια */
 }
 .switch:active { cursor: grabbing; }
 .switch-fill {
   position: absolute; left: .4rem; right: .4rem; bottom: .4rem; height: 4.7rem; border-radius: 999px;
   background: linear-gradient(to top, var(--accent), var(--blob-1)); opacity: .18;
 }
+/* Λαβή: λευκή σε ηρεμία· στο άγγιγμα γίνεται γυάλινος φακός (όπως ο διακόπτης θέματος).
+   Θέση (transform, ακολουθεί το δάχτυλο) και μέγεθος (scale, με ελατήριο) κινούνται χωριστά. */
 .switch-knob {
   position: absolute; left: .4rem; bottom: .4rem; width: 4.7rem; height: 4.7rem; border-radius: 50%;
-  display: grid; place-items: center; color: var(--accent);
-  background: var(--glass-strong); border: 1px solid var(--glass-edge);
-  box-shadow: inset 0 1px 0 var(--shine), 0 .6rem 1.4rem -.4rem var(--glass-shadow);
-  -webkit-backdrop-filter: blur(18px) saturate(170%); backdrop-filter: blur(18px) saturate(170%);
+  display: grid; place-items: center; color: #156ACC;
+  background: #fff; border: 1px solid transparent;
+  box-shadow: 0 .5rem 1.2rem -.35rem rgba(0, 0, 0, .28), 0 0 0 .5px rgba(0, 0, 0, .05);
+  scale: 1; will-change: transform, scale;
+  transition: scale .5s cubic-bezier(.3, 1.45, .45, 1), background-color .28s ease, box-shadow .28s ease, border-color .28s ease;
 }
-.switch-knob svg { width: 2rem; height: 2rem; }
-.switch.springing .switch-knob, .switch.springing .switch-fill { transition: transform .6s cubic-bezier(.34,1.56,.64,1), height .6s cubic-bezier(.34,1.56,.64,1), opacity .6s ease; }
-.switch.springing .switch-knob svg { transition: transform .6s cubic-bezier(.34,1.56,.64,1); }
-.switch.on .switch-knob { background: var(--accent); color: var(--accent-ink); border-color: transparent; transition: background .35s ease, color .35s ease, transform .6s cubic-bezier(.34,1.56,.64,1); }
+.switch-knob svg { width: 2rem; height: 2rem; transition: opacity .25s ease; }
+.switch.springing .switch-fill { transition: height .6s cubic-bezier(.34,1.56,.64,1), opacity .6s ease; }
+.switch.springing .switch-knob {
+  transition: transform .6s cubic-bezier(.34,1.56,.64,1), scale .5s cubic-bezier(.3, 1.45, .45, 1),
+              background-color .28s ease, box-shadow .28s ease, border-color .28s ease;
+}
+.switch.springing .switch-knob svg { transition: transform .6s cubic-bezier(.34,1.56,.64,1), opacity .25s ease; }
+/* Γυάλινος φακός ενώ πατιέται, σύρεται ή «ανεβαίνει» */
+.switch.is-glass .switch-knob {
+  scale: 1.28;
+  background: rgba(255, 255, 255, .14); border-color: rgba(255, 255, 255, .65);
+  box-shadow: inset 0 1px 1.5px rgba(255, 255, 255, .85), inset 0 -.3rem .6rem rgba(0, 0, 0, .18),
+              inset 0 0 .9rem rgba(255, 255, 255, .25), 0 .6rem 1.4rem rgba(0, 0, 0, .25);
+  -webkit-backdrop-filter: blur(1.5px) saturate(180%) brightness(1.08); backdrop-filter: blur(1.5px) saturate(180%) brightness(1.08);
+}
+.switch.is-glass .switch-knob svg { opacity: 0; }
 .switch-cue { position: absolute; left: 50%; top: 1.3rem; transform: translateX(-50%); display: grid; color: var(--accent); pointer-events: none; transition: opacity .3s; }
 .switch-cue svg { width: 1.2rem; height: 1.2rem; margin-top: -.55rem; animation: cue 1.8s ease-in-out infinite; }
 .switch-cue svg:nth-child(2) { animation-delay: .2s; } .switch-cue svg:nth-child(3) { animation-delay: .4s; }
@@ -1729,9 +1744,10 @@ html.theme-anim .tswitch-thumb { transition: transform .55s cubic-bezier(.3, 1.4
       fill.style.height = `${knob.offsetHeight + off}px`; fill.style.opacity = .18 + .82 * p;
       icon.style.transform = `rotate(${-90 * p}deg)`; cue.style.opacity = 1 - p * 1.6;
     };
+    const settle = (ms) => { clearTimeout(sw._g); sw._g = setTimeout(() => sw.classList.remove("is-glass"), ms); };   // ξαναγίνεται λευκή λαβή
     const finish = (withSound) => {
       if (done) return; done = true;
-      sw.classList.add("springing", "on"); sw.setAttribute("aria-checked", "true");
+      sw.classList.add("springing", "on", "is-glass"); sw.setAttribute("aria-checked", "true"); settle(380);
       off = travel; paint(); if (withSound) chime(); navigator.vibrate?.(18);
       setTimeout(enter, reduce ? 150 : 650);
     };
@@ -1754,7 +1770,7 @@ html.theme-anim .tswitch-thumb { transition: transform .55s cubic-bezier(.3, 1.4
     splash.addEventListener("touchend", () => { if (!done) unlockSound(true); }, { passive: true });   // άγγιγμα οπουδήποτε στη σελίδα
     sw.addEventListener("pointerdown", (e) => {
       if (done) return; unlockSound(true); measure();
-      sw.classList.remove("springing"); sw.setPointerCapture(e.pointerId);
+      sw.classList.remove("springing"); clearTimeout(sw._g); sw.classList.add("is-glass"); sw.setPointerCapture(e.pointerId);
       start = e.clientY; base = off; moved = 0;
     });
     sw.addEventListener("pointermove", (e) => {
@@ -1767,7 +1783,7 @@ html.theme-anim .tswitch-thumb { transition: transform .55s cubic-bezier(.3, 1.4
       if (start === null) return; start = null;
       if (done) { chime(); return; }
       if (moved < 6 || off > travel * .55) finish(true);        // πάτημα ή αρκετό σύρσιμο: ενεργοποίηση
-      else { sw.classList.add("springing"); off = 0; paint(); }  // αλλιώς επιστρέφει κάτω με ελατήριο
+      else { sw.classList.add("springing"); off = 0; paint(); settle(320); }  // αλλιώς επιστρέφει κάτω με ελατήριο
     };
     sw.addEventListener("pointerup", release);
     sw.addEventListener("pointercancel", release);
