@@ -746,6 +746,24 @@ html.ak-splash .app, html.ak-splash .nav-wrap { visibility: hidden; }
 .nav a[aria-current="page"] span { max-width: 8rem; opacity: 1; transition-delay: 0s, .18s; transition-duration: .75s, .5s; }
 .nav a[aria-current="page"] svg { animation: bounce .8s cubic-bezier(.25,.8,.3,1); }
 .nav a.pop { animation: squish .8s cubic-bezier(.25,.8,.3,1); }
+/* Γυάλινος «φακός» κάτω από την ενεργή καρτέλα: γλιστράει από καρτέλα σε καρτέλα
+   και, όσο κινείται ή πατιέται, γίνεται διάφανος και μεγαλώνει (όπως ο διακόπτης θέματος). */
+.nav.has-lens a[aria-current="page"] { background-color: transparent; border-color: transparent; box-shadow: none; }
+.nav a { z-index: 1; }
+.nav-lens {
+  position: absolute; left: 0; top: 0; width: 0; height: 0; border-radius: 999px; z-index: 0; pointer-events: none;
+  background: var(--glass-strong); border: 1px solid var(--glass-edge);
+  box-shadow: inset 0 1px 0 var(--shine), 0 .3rem 1rem -0.4rem var(--glass-shadow);
+  scale: 1; will-change: transform, scale;
+  transition: scale .5s cubic-bezier(.3, 1.45, .45, 1), background-color .28s ease, box-shadow .28s ease, border-color .28s ease;
+}
+.nav-lens.is-glass {
+  scale: 1.07 1.32;
+  background: rgba(255, 255, 255, .12); border-color: rgba(255, 255, 255, .6);
+  box-shadow: inset 0 1px 1.5px rgba(255, 255, 255, .85), inset 0 -.2rem .45rem rgba(0, 0, 0, .16),
+              inset 0 0 .8rem rgba(255, 255, 255, .22), 0 .4rem 1rem rgba(0, 0, 0, .2);
+  -webkit-backdrop-filter: blur(1.5px) saturate(180%) brightness(1.08); backdrop-filter: blur(1.5px) saturate(180%) brightness(1.08);
+}
 @keyframes bounce { 0% { transform: scale(.86); } 45% { transform: scale(1.08) translateY(-1px); } 75% { transform: scale(.98); } 100% { transform: none; } }
 @keyframes squish { 0% { transform: scale(.97); } 50% { transform: scale(1.02); } 100% { transform: none; } }
 
@@ -1356,6 +1374,41 @@ html.theme-anim .tswitch-thumb { transition: transform .55s cubic-bezier(.3, 1.4
     updateSendLinks();
   }
 
+  /* ── Γυάλινος φακός του κάτω μενού ─────────────────────── */
+  const navEl = $("#nav"), lens = document.createElement("span");
+  lens.className = "nav-lens"; lens.setAttribute("aria-hidden", "true"); navEl.prepend(lens); navEl.classList.add("has-lens");
+  const L = { x: 0, y: 0, w: 0, h: 0, raf: 0, glassT: 0 };
+  const tabRect = () => { const a = navEl.querySelector('a[aria-current="page"]'); return a ? { x: a.offsetLeft, y: a.offsetTop, w: a.offsetWidth, h: a.offsetHeight } : null; };
+  const setLens = (r) => { Object.assign(L, { x: r.x, y: r.y, w: r.w, h: r.h }); lens.style.width = r.w + "px"; lens.style.height = r.h + "px"; lens.style.transform = `translate3d(${r.x}px, ${r.y}px, 0)`; };
+  function placeLens() { const r = tabRect(); if (r) { cancelAnimationFrame(L.raf); L.raf = 0; setLens(r); } }
+  function trackLens(ms = 850) {                    // ακολουθεί την καρτέλα όσο αυτή αλλάζει πλάτος (π.χ. στο πρώτο άνοιγμα)
+    const t0 = performance.now(); cancelAnimationFrame(L.raf);
+    const f = (now) => { const r = tabRect(); if (r) setLens(r); L.raf = now - t0 < ms ? requestAnimationFrame(f) : 0; };
+    L.raf = requestAnimationFrame(f);
+  }
+  const springOut = (t) => { const c = 1.15, u = t - 1; return 1 + (c + 1) * u * u * u + c * u * u; };   // ελατήριο με μικρή υπερβολή
+  function lensGlass(ms) { lens.classList.add("is-glass"); clearTimeout(L.glassT); if (ms) L.glassT = setTimeout(() => lens.classList.remove("is-glass"), ms); }
+  function moveLens() {
+    // Γλιστράει από την προηγούμενη θέση στη νέα καρτέλα, ακολουθώντας ζωντανά το πλάτος της καθώς ανοίγει
+    const from = { ...L }, dur = 720, t0 = performance.now();
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches || !from.w) return placeLens();
+    lensGlass(500); L.moving = true;
+    cancelAnimationFrame(L.raf);
+    const step = (now) => {
+      const p = Math.min(1, (now - t0) / dur), e = springOut(p), to = tabRect(); if (!to) { L.raf = 0; L.moving = false; return; }
+      setLens({ x: from.x + (to.x - from.x) * e, y: to.y, w: from.w + (to.w - from.w) * Math.min(1, e), h: to.h });
+      if (p < 1) L.raf = requestAnimationFrame(step); else { L.raf = 0; L.moving = false; placeLens(); }
+    };
+    L.raf = requestAnimationFrame(step);
+  }
+  navEl.addEventListener("pointerdown", (e) => { if (e.target.closest("a")) lensGlass(0); });                 // πάτημα: γίνεται φακός
+  const lensRelease = () => { if (lens.classList.contains("is-glass") && !L.raf) lensGlass(260); else if (lens.classList.contains("is-glass")) lensGlass(500); };
+  navEl.addEventListener("pointerup", lensRelease); navEl.addEventListener("pointercancel", lensRelease);
+  addEventListener("resize", placeLens);
+  document.fonts?.ready.then(placeLens);
+  // όποτε αλλάζει μέγεθος μια καρτέλα (άνοιγμα ετικέτας, γραμματοσειρές), ο φακός προσαρμόζεται — εκτός αν ήδη γλιστράει
+  if (window.ResizeObserver) { const ro = new ResizeObserver(() => { if (!L.moving) { const r = tabRect(); if (r) setLens(r); } }); navEl.querySelectorAll("a").forEach(a => ro.observe(a)); }
+
   /* ── Routing (#home, #services, #request, #contact) ─────── */
   const VIEWS = ["home", "services", "request", "contact"];
   function route(silent) {
@@ -1366,11 +1419,14 @@ html.theme-anim .tswitch-thumb { transition: transform .55s cubic-bezier(.3, 1.4
     if (isRegion) { $("#regionView").classList.remove("revealed"); renderRegion(h); }
     document.querySelectorAll(".view").forEach(el => el.classList.toggle("is-active", el.dataset.view === v));
     const navV = isRegion ? "home" : v;
+    const prevTab = document.querySelector('#nav a[aria-current="page"]');
     document.querySelectorAll("#nav a").forEach(a => {
       const on = a.getAttribute("href") === "#" + navV;
       if (on && !a.hasAttribute("aria-current")) { a.classList.remove("pop"); void a.offsetWidth; a.classList.add("pop"); }
       if (on) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
     });
+    const nowTab = document.querySelector('#nav a[aria-current="page"]');
+    if (prevTab && nowTab && prevTab !== nowTab) moveLens(); else trackLens();
     const bg = $("#regionPhoto");
     bg.hidden = !isRegion;
     document.documentElement.classList.toggle("on-photo", isRegion && !!bg.dataset.src);
