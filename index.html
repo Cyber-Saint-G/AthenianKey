@@ -19,20 +19,26 @@
    Layout: one mobile column, scaled up on desktop; glass bottom nav.
    Φωτεινό θέμα (light) εδώ, σκούρο (dark) στα δύο μπλοκ από κάτω.   */
 :root {
-  --bg:          #F6F8FB;   /* φόντο σελίδας */
-  --ink:         #0C1A2E;   /* κύριο κείμενο */
-  --muted:       #5A6A82;   /* δευτερεύον κείμενο */
-  --accent:      #1D4A8C;   /* μπλε Αιγαίου – κουμπιά, έμφαση */
+  --bg:          #F4F6FA;   /* φόντο σελίδας */
+  --ink:         #14335C;   /* κύριο κείμενο */
+  --muted:       #5B6B82;   /* δευτερεύον κείμενο */
+  --accent:      #156ACC;   /* μπλε Αιγαίου – κουμπιά, έμφαση */
   --accent-ink:  #FFFFFF;   /* κείμενο πάνω στο μπλε */
-  --line:        rgba(12, 26, 46, .09);
-  --glass:       rgba(255, 255, 255, .56);
-  --glass-strong:rgba(255, 255, 255, .78);
-  --glass-edge:  rgba(255, 255, 255, .85);
-  --glass-shadow:rgba(18, 40, 78, .13);
-  --shine:       rgba(255, 255, 255, .9);
-  --blob-1:      #A9C6F2;   /* απαλές «θάλασσες» στο φόντο */
-  --blob-2:      #D6E4F8;
-  --blob-3:      #C3D7F3;
+  --accent-hi:   #5EC2FF;   /* φωτεινό γαλάζιο (10%) */
+  --accent-glow: rgba(40, 150, 255, .40);
+  --line:        rgba(20, 51, 92, .10);
+  --glass:       rgba(255, 255, 255, .42);
+  --glass-strong:rgba(255, 255, 255, .66);
+  --glass-edge:  rgba(255, 255, 255, .9);
+  --glass-shadow:rgba(20, 51, 92, .18);
+  --shine:       rgba(255, 255, 255, .95);
+  --blob-1:      #6E93C9;   /* απαλές «θάλασσες» στο φόντο */
+  --blob-2:      #B9CDEB;
+  --blob-3:      #9FD8FF;
+  --au-1:        rgba(38, 92, 168, .55);   /* aurora πίσω από το γυαλί */
+  --au-2:        rgba(90, 200, 255, .45);
+  --au-3:        rgba(64, 150, 170, .40);
+  --au-4:        rgba(20, 51, 92, .35);
   --scrim:       rgba(12, 26, 46, .22);
   --danger:      #B4232F;
 
@@ -42,18 +48,22 @@
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg:#070E19; --ink:#E8EEF7; --muted:#8B9AB1; --accent:#8FB5EE; --accent-ink:#07101D;
-    --line:rgba(232,238,247,.09); --glass:rgba(22,34,56,.52); --glass-strong:rgba(26,40,64,.82);
-    --glass-edge:rgba(255,255,255,.14); --glass-shadow:rgba(0,0,0,.45); --shine:rgba(255,255,255,.22);
-    --blob-1:#1B3A6E; --blob-2:#0F2442; --blob-3:#173260; --scrim:rgba(0,0,0,.45); --danger:#F08A93;
+    --bg:#050B16; --ink:#EAF0F8; --muted:#93A3BA; --accent:#7CCBFF; --accent-ink:#04121F;
+    --accent-hi:#C4ECFF; --accent-glow:rgba(124,203,255,.40);
+    --line:rgba(234,240,248,.08); --glass:rgba(20,51,92,.30); --glass-strong:rgba(28,62,108,.55);
+    --glass-edge:rgba(190,215,255,.16); --glass-shadow:rgba(0,0,0,.55); --shine:rgba(255,255,255,.18);
+    --blob-1:#14335C; --blob-2:#0C2140; --blob-3:#0E3A5E; --scrim:rgba(0,0,0,.45); --danger:#F08A93;
+    --au-1:rgba(46,110,200,.55); --au-2:rgba(110,210,255,.45); --au-3:rgba(40,170,180,.42); --au-4:rgba(90,70,190,.30);
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg:#070E19; --ink:#E8EEF7; --muted:#8B9AB1; --accent:#8FB5EE; --accent-ink:#07101D;
-  --line:rgba(232,238,247,.09); --glass:rgba(22,34,56,.52); --glass-strong:rgba(26,40,64,.82);
-  --glass-edge:rgba(255,255,255,.14); --glass-shadow:rgba(0,0,0,.45); --shine:rgba(255,255,255,.22);
-  --blob-1:#1B3A6E; --blob-2:#0F2442; --blob-3:#173260; --scrim:rgba(0,0,0,.45); --danger:#F08A93;
+  --bg:#050B16; --ink:#EAF0F8; --muted:#93A3BA; --accent:#7CCBFF; --accent-ink:#04121F;
+  --accent-hi:#C4ECFF; --accent-glow:rgba(124,203,255,.40);
+  --line:rgba(234,240,248,.08); --glass:rgba(20,51,92,.30); --glass-strong:rgba(28,62,108,.55);
+  --glass-edge:rgba(190,215,255,.16); --glass-shadow:rgba(0,0,0,.55); --shine:rgba(255,255,255,.18);
+  --blob-1:#14335C; --blob-2:#0C2140; --blob-3:#0E3A5E; --scrim:rgba(0,0,0,.45); --danger:#F08A93;
+  --au-1:rgba(46,110,200,.55); --au-2:rgba(110,210,255,.45); --au-3:rgba(40,170,180,.42); --au-4:rgba(90,70,190,.30);
   color-scheme: dark;
 }
 </style>
@@ -765,10 +775,36 @@ html.ak-splash .app, html.ak-splash .nav-wrap { visibility: hidden; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition-duration: .01ms !important; }
 }
+
+/* ─── PREMIUM 60·30·10 + AURORA ─── */
+/* Aurora πίσω από το γυαλί */
+.ambient { background: var(--bg); }
+.ambient i { opacity: .55; }
+.ambient b { position:absolute; display:block; pointer-events:none; filter:blur(46px); opacity:.9; will-change:transform; }
+.ambient b:nth-of-type(1) { width:150vw; height:34rem; left:-25vw; top:4rem; border-radius:50%; transform:rotate(-14deg);
+  background:linear-gradient(100deg, transparent 8%, var(--au-1) 28%, var(--au-3) 46%, var(--au-2) 62%, transparent 82%);
+  animation:aurora-a 22s ease-in-out infinite alternate; }
+.ambient b:nth-of-type(2) { width:130vw; height:22rem; left:-15vw; top:46%; border-radius:50%; transform:rotate(10deg); opacity:.7;
+  background:linear-gradient(80deg, transparent 10%, var(--au-4) 30%, var(--au-1) 50%, var(--au-3) 68%, transparent 88%);
+  animation:aurora-b 28s ease-in-out infinite alternate; }
+.ambient b:nth-of-type(3) { width:120vw; height:9rem; left:-10vw; top:30%; border-radius:50%; filter:blur(30px); opacity:.75;
+  background:linear-gradient(90deg, transparent 15%, var(--au-2) 45%, var(--au-3) 55%, transparent 85%);
+  animation:aurora-c 17s ease-in-out infinite alternate; }
+@keyframes aurora-a { 0% { transform:translate3d(-6%,0,0) rotate(-14deg) scaleY(.85); } 100% { transform:translate3d(6%,3rem,0) rotate(-6deg) scaleY(1.15); } }
+@keyframes aurora-b { 0% { transform:translate3d(5%,0,0) rotate(10deg); } 100% { transform:translate3d(-7%,-4rem,0) rotate(2deg) scaleY(1.2); } }
+@keyframes aurora-c { 0% { transform:translate3d(-8%,-2rem,0) rotate(-4deg) scaleX(.9); opacity:.45; } 100% { transform:translate3d(8%,2rem,0) rotate(5deg) scaleX(1.1); opacity:.85; } }
+.ambient::after { content:""; position:absolute; inset:0; opacity:.07; mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+
+/* Liquid glass */
+.glass {
+  -webkit-backdrop-filter: blur(28px) saturate(190%) brightness(1.04);
+          backdrop-filter: blur(28px) saturate(190%) brightness(1.04);
+}
 </style>
 
 <!-- ═══ ΣΕΛΙΔΑ / PAGE ═══════════════════════════════════════════ -->
-<div class="ambient" aria-hidden="true"><i></i><i></i><i></i></div>
+<div class="ambient" aria-hidden="true"><i></i><i></i><i></i><b></b><b></b><b></b></div>
 
 <!-- Φόντο σελίδας προορισμού (η φωτογραφία του προορισμού) -->
 <div class="region-bg" id="regionPhoto" aria-hidden="true" hidden></div>
