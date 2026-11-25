@@ -161,12 +161,14 @@ const CONFIG = {
     "Thermos (CC BY-SA 2.5)", "kallerna (CC BY-SA 4.0)", "Cayambe (CC BY-SA 4.0)", "A.Savin (CC BY-SA 3.0)",
     "Laurens R. Krol (CC BY 4.0)", "Jakub Hałun (CC BY 4.0)", "Bouke ten Cate (CC BY 4.0)",
     "Σπύρος Σαλαμούρας (CC BY-SA 3.0)", "Wolfgang Moroder (CC BY-SA 3.0)", "Moonik (CC BY-SA 3.0)",
-    "C messier (CC BY-SA 4.0)", "via Wikimedia Commons",
+    "C messier (CC BY-SA 4.0)",
+    "Mam16600 for Tripyana (tripyana.com) (CC BY 4.0)", "Alex Blokha (CC BY-SA 4.0)", "Rakoon (CC0)", "Jean Housen (CC BY-SA 4.0)", "Makimonaco (CC BY-SA 3.0)", "DD from Male, Maldives (CC BY-SA 2.0)", "BavariaYachtbau (CC BY-SA 4.0)", "Isles Yacht Club (CC BY 2.0)", "George Mitsouras (CC BY-SA 3.0)", "mikos1 (CC BY-SA 3.0)", "Ввласенко (CC BY-SA 3.0)", "T.Tseng (CC BY 2.0)", "Daderot (CC0)", "Misaochan (CC BY-SA 3.0)", "Judgefloro (CC0)", "John Trainor from Roswell, GA, USA (CC BY 2.0)", "via Wikimedia Commons",
   ],
 
   // Υπηρεσίες – προσθέστε/αφαιρέστε ελεύθερα. icon: car, yacht, dining, villa, compass, chef, sparkle
   services: [
     { id: "transfers", icon: "car",
+      photos: ["images/svc/transfers-1.jpg", "images/svc/transfers-2.jpg", "images/svc/transfers-3.jpg", "images/svc/transfers-4.jpg"],
       el: { title: "VIP Μεταφορές", short: "Οδηγός και πολυτελές όχημα, όποτε το χρειαστείτε.",
             body: "Παραλαβή από αεροδρόμιο, λιμάνι ή ξενοδοχείο με Mercedes V-Class, S-Class ή minivan για ομάδες. Ο οδηγός σας περιμένει με πινακίδα και παρακολουθεί την πτήση σας.",
             points: ["Παραλαβή με πινακίδα ονόματος", "Δίγλωσσοι επαγγελματίες οδηγοί", "Διαθεσιμότητα 24/7"] },
@@ -175,6 +177,7 @@ const CONFIG = {
             points: ["Meet & greet with name sign", "Bilingual professional drivers", "Available 24/7"] } },
 
     { id: "yachts", icon: "yacht",
+      photos: ["images/svc/yachts-1.jpg", "images/svc/yachts-2.jpg", "images/svc/yachts-3.jpg", "images/svc/yachts-4.jpg"],
       el: { title: "Σκάφη & Yachts", short: "Ημερήσιες κρουαζιέρες και ναυλώσεις με πλήρωμα.",
             body: "Από ταχύπλοα για μια μέρα στους κόλπους της Ζακύνθου μέχρι motor yachts για εβδομαδιαία ναύλωση στο Αιγαίο. Επιλέγουμε το σκάφος, το πλήρωμα και τη διαδρομή μαζί σας.",
             points: ["Ταχύπλοα, ιστιοφόρα, motor yachts", "Έμπειρος καπετάνιος και πλήρωμα", "Catering και ποτά επί του σκάφους"] },
@@ -183,6 +186,7 @@ const CONFIG = {
             points: ["Speedboats, sailboats, motor yachts", "Experienced captain and crew", "Catering and drinks on board"] } },
 
     { id: "dining", icon: "dining",
+      photos: ["images/svc/dining-1.jpg", "images/svc/dining-2.jpg", "images/svc/dining-3.jpg", "images/svc/dining-4.jpg"],
       el: { title: "Κρατήσεις Εστιατορίων", short: "Τραπέζια εκεί που είναι δύσκολο να βρείτε.",
             body: "Κλείνουμε τραπέζι στα πιο περιζήτητα εστιατόρια της Αθήνας και των νησιών, συχνά και για την ίδια μέρα. Σας προτείνουμε μέρη ανάλογα με το γούστο και την περίσταση.",
             points: ["Προσωπικές προτάσεις", "Κρατήσεις την ίδια μέρα", "Ειδικές περιστάσεις και ιδιωτικοί χώροι"] },
@@ -191,6 +195,7 @@ const CONFIG = {
             points: ["Personal recommendations", "Same-day bookings", "Special occasions and private rooms"] } },
 
     { id: "villas", icon: "villa",
+      photos: ["images/svc/villas-1.jpg", "images/svc/villas-2.jpg", "images/svc/villas-3.jpg"],
       el: { title: "Βίλες", short: "Επιλεγμένες ιδιωτικές βίλες με θέα και πισίνα.",
             body: "Βίλες που έχουμε επισκεφθεί οι ίδιοι, σε Αθήνα, Ζάκυνθο και Κρήτη. Με καθαριότητα, πρωινό και υπηρεσίες house manager κατά τη διαμονή σας.",
             points: ["Ελεγμένα ακίνητα", "Housekeeping και πρωινό", "Προσωπικός house manager"] },
@@ -199,6 +204,7 @@ const CONFIG = {
             points: ["Personally inspected properties", "Housekeeping and breakfast", "Dedicated house manager"] } },
 
     { id: "experiences", icon: "compass",
+      photos: ["images/ath-acropolis.jpg", "images/cre-knossos.jpg", "images/cre-samaria.jpg", "images/ath-sounion.jpg"],
       el: { title: "Εμπειρίες & Ξεναγήσεις", short: "Ιδιωτικές ξεναγήσεις, οινογνωσίες, πτήσεις.",
             body: "Ακρόπολη πριν ανοίξει στο κοινό, Κνωσός με αρχαιολόγο, οινογνωσία σε κρητικά οινοποιεία ή πτήση με ελικόπτερο πάνω από το Ναυάγιο. Σχεδιάζουμε κάθε εμπειρία στα μέτρα σας.",
             points: ["Πιστοποιημένοι ξεναγοί", "Οινογνωσίες και γαστρονομία", "Πτήσεις ελικοπτέρου"] },
@@ -207,6 +213,7 @@ const CONFIG = {
             points: ["Licensed guides", "Wine and food experiences", "Helicopter flights"] } },
 
     { id: "chef", icon: "chef",
+      photos: ["images/svc/chef-1.jpg", "images/svc/chef-2.jpg", "images/svc/chef-3.jpg"],
       el: { title: "Private Chef", short: "Μενού γευσιγνωσίας στη βίλα ή στο σκάφος σας.",
             body: "Ο σεφ σχεδιάζει μαζί σας το μενού με τοπικά υλικά της εποχής και μαγειρεύει στον χώρο σας, από ένα ελληνικό πρωινό μέχρι δείπνο πολλών πιάτων.",
             points: ["Μενού με εποχικά υλικά", "Σέρβις και καθάρισμα", "Συνδυασμός με ελληνικά κρασιά"] },
@@ -215,6 +222,7 @@ const CONFIG = {
             points: ["Seasonal local menus", "Service and clean-up", "Greek wine pairing"] } },
 
     { id: "events", icon: "sparkle",
+      photos: ["images/svc/events-1.jpg", "images/svc/events-2.jpg", "images/svc/events-3.jpg"],
       el: { title: "Event Planning", short: "Γάμοι, προτάσεις γάμου, εταιρικές εκδηλώσεις.",
             body: "Από μια πρόταση γάμου στο ηλιοβασίλεμα μέχρι έναν γάμο 150 ατόμων ή ένα εταιρικό ταξίδι. Αναλαμβάνουμε τον χώρο, τους συνεργάτες και κάθε λεπτομέρεια.",
             points: ["Επιλογή χώρου", "Διακόσμηση, μουσική, φωτογράφιση", "Συντονισμός την ημέρα του event"] },
@@ -458,7 +466,7 @@ a { color: inherit; text-decoration: none; }
 .tile-veil {
   position: absolute; inset: 0; z-index: -2; border-radius: inherit; pointer-events: none;
   background: linear-gradient(to bottom, rgba(255, 255, 255, .14) 0%, rgba(255, 255, 255, .02) 38%, rgba(6, 18, 36, .18) 58%, rgba(6, 18, 36, .62) 100%);
-  -webkit-backdrop-filter: blur(1.5px) saturate(150%); backdrop-filter: blur(1.5px) saturate(150%);
+  -webkit-backdrop-filter: blur(.6px) saturate(150%); backdrop-filter: blur(.6px) saturate(150%);
 }
 .tile.has-media .ic { color: #fff; filter: drop-shadow(0 1px 6px rgba(0, 0, 0, .35)); }
 .tile.has-media b { color: #fff; text-shadow: 0 1px 10px rgba(0, 0, 0, .45); }
