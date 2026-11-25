@@ -1082,6 +1082,42 @@ html.ak-splash .app, html.ak-splash .nav-wrap { visibility: hidden; }
   }
   let pendingFlipCleanup = null;
 
+  /* Επιστροφή (Back): η φωτογραφία ξαναγίνεται καθαρή, μικραίνει πίσω στη θέση της κάρτας της
+     και η αρχική έρχεται μπροστά από το βάθος (το ακριβώς αντίστροφο του ανοίγματος). */
+  function closeRegion() {
+    const id = currentRegion, sharp = $("#regionPhoto img.sharp");
+    if (opening) return;
+    if (!id || !sharp || !sharp.animate || matchMedia("(prefers-reduced-motion: reduce)").matches) { location.hash = "home"; return; }
+    opening = true;
+    const a = sharp.getBoundingClientRect(), pos = getComputedStyle(sharp).objectPosition;
+    const c = sharp.cloneNode(); c.className = "flip-clone"; c.removeAttribute("style");
+    Object.assign(c.style, { left: a.left + "px", top: a.top + "px", width: a.width + "px", height: a.height + "px", borderRadius: "0px", objectPosition: pos, opacity: "0" });
+    document.body.appendChild(c);
+    // 1. η σελίδα «καθαρίζει» σε καθαρή φωτογραφία (το θόλωμα και το πάνελ σβήνουν από κάτω)
+    const fi = c.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 280, easing: "ease-out", fill: "forwards" });
+    fi.onfinish = () => { pendingFlip = { closeClone: c, id, rect: a, pos }; location.hash = "home"; };
+    fi.oncancel = () => { c.remove(); opening = false; };
+  }
+  function shrinkToCard(clone, card, a, pa) {
+    const photo = card?.querySelector(".photo"), im = photo?.querySelector("img");
+    const end = () => { clone.remove(); opening = false; };
+    if (!photo || !im) { const fo = clone.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 300, fill: "forwards" }); fo.onfinish = end; return; }
+    const b = photo.getBoundingClientRect(), rb = getComputedStyle(photo).borderTopLeftRadius, pb = getComputedStyle(im).objectPosition;
+    card.style.visibility = "hidden";
+    const box = (r, rad, p) => ({ left: r.left + "px", top: r.top + "px", width: r.width + "px", height: r.height + "px", borderRadius: rad, objectPosition: p });
+    const opts = { duration: FLIP.back, easing: FLIP.easing, fill: "forwards" };
+    const sh = clone.animate([box(a, "0px", pa), box(b, rb, pb)], opts);
+    // βάθος: η αρχική έρχεται μπροστά (από μεγεθυσμένη, θολή και σκοτεινή σε κανονική)
+    const app = document.querySelector(".app"), nav = document.querySelector(".nav-wrap");
+    app.style.transformOrigin = `${b.left + b.width / 2}px ${b.top + b.height / 2 + scrollY}px`;
+    const da = app.animate([{ transform: "scale(1.08)", filter: "blur(8px)", opacity: .35 }, { transform: "none", filter: "none", opacity: 1 }], opts);
+    const dn = nav.animate([{ opacity: 0 }, { opacity: 1 }], { ...opts, fill: "both", delay: FLIP.back * .35, duration: FLIP.back * .65 });
+    sh.onfinish = sh.oncancel = () => {
+      card.style.visibility = ""; da.cancel(); dn.cancel(); app.style.transformOrigin = "";
+      const fo = clone.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 160, fill: "forwards" }); fo.onfinish = fo.oncancel = end;
+    };
+  }
+
   /* ── Περιεχόμενο από το CMS (εφαρμόζεται πάνω στο CONFIG) ── */
   const strings = (o) => Object.fromEntries(Object.entries(o || {}).filter(([, v]) => typeof v === "string"));
   function applyContent(d) {
@@ -1197,10 +1233,10 @@ html.ak-splash .app, html.ak-splash .nav-wrap { visibility: hidden; }
     document.documentElement.classList.toggle("on-photo", isRegion && !!bg.dataset.src);
     const f = pendingFlip; pendingFlip = null;
     if (f?.cleanup) pendingFlipCleanup = f.cleanup;
-    if (f && f.back && v === "home") {
-      const card = document.querySelector(`#regions [data-region="${f.back}"]`);
-      card?.scrollIntoView({ block: "center", inline: "center" });
-      flip(f.from, card?.querySelector(".photo"), f.rect, FLIP.back);
+    if (f && f.closeClone && v === "home") {
+      const card = document.querySelector(`#regions [data-region="${f.id}"]`);
+      card?.scrollIntoView({ block: "center", inline: "center", behavior: "instant" });
+      shrinkToCard(f.closeClone, card, f.rect, f.pos);
     } else {
       if (silent !== true) window.scrollTo(0, 0);
       if (f && f.clone && isRegion) revealRegion(f.clone, bg);   // η κάρτα έχει ήδη ανοίξει: αποκάλυψη της σελίδας
@@ -1333,7 +1369,7 @@ html.ak-splash .app, html.ak-splash .nav-wrap { visibility: hidden; }
     if (e.target.closest("[data-close]")) return closeSheet();
     const rg = e.target.closest("[data-region]");
     if (rg) { openRegion(rg); return; }
-    if (e.target.closest("[data-back]")) { const bg = $("#regionPhoto"); pendingFlip = { from: bg, rect: bg.querySelector("img")?.getBoundingClientRect(), back: currentRegion }; location.hash = "home"; return; }
+    if (e.target.closest("[data-back]")) { closeRegion(); return; }
     const ex = e.target.closest("[data-exp]"); if (ex) return expSheet(ex.dataset.exp);
     const pl = e.target.closest("[data-plan]"); if (pl) { setRegion(pl.dataset.plan); return; }
     const er = e.target.closest("[data-exp-request]");
