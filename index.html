@@ -77,6 +77,7 @@ const CONFIG = {
   brand: "AthenianKeys",
   defaultLang: "en",                       // "en" ή "el"
   introSound: "sounds/chime.mp3",          // ήχος του διακόπτη στη σελίδα εισόδου ("" = παράγεται αυτόματα)
+  themeSounds: { dark: "sounds/switch-dark.mp3", light: "sounds/switch-light.mp3" },   // ήχοι διακόπτη θέματος ("" = χωρίς ήχο)
 
   // Στοιχεία επικοινωνίας (προσωρινά – αλλάξτε τα)
   contact: {
@@ -1549,6 +1550,7 @@ html.theme-anim .tswitch-thumb { transition: transform .55s cubic-bezier(.3, 1.4
     const thumb = sw.querySelector(".tswitch-thumb");
     let x0 = null, moved = 0, travel = 0, from = false;
     const glassBlip = () => { sw.classList.add("is-glass"); clearTimeout(sw._t); sw._t = setTimeout(() => sw.classList.remove("is-glass"), 380); };
+    sw.addEventListener("touchstart", () => unlockSound(true), { passive: true });   // ήχος έτοιμος από το πρώτο άγγιγμα
     sw.addEventListener("pointerdown", (e) => {
       x0 = e.clientX; moved = 0; from = isDark();
       travel = sw.clientWidth - thumb.offsetWidth - 2 * thumb.offsetLeft;
@@ -1566,12 +1568,12 @@ html.theme-anim .tswitch-thumb { transition: transform .55s cubic-bezier(.3, 1.4
       const dx = e.clientX - x0; x0 = null;
       const next = moved < 4 ? !from : ((from ? travel : 0) + dx) > travel / 2;
       sw.classList.remove("dragging"); thumb.style.removeProperty("--x");
-      if (next !== from) setTheme(next);
+      if (next !== from) { playThemeSound(next); setTheme(next); }
       clearTimeout(sw._t); sw._t = setTimeout(() => sw.classList.remove("is-glass"), 380);   // ξαναγίνεται λευκή λαβή
     };
     sw.addEventListener("pointerup", up);
     sw.addEventListener("pointercancel", up);
-    sw.addEventListener("click", (e) => { e.preventDefault(); if (e.detail === 0) { glassBlip(); setTheme(!isDark()); } });   // πληκτρολόγιο / βοηθητικές τεχνολογίες
+    sw.addEventListener("click", (e) => { e.preventDefault(); if (e.detail === 0) { glassBlip(); playThemeSound(!isDark()); setTheme(!isDark()); } });   // πληκτρολόγιο / βοηθητικές τεχνολογίες
   });
   syncSwitches();
 
@@ -1645,7 +1647,34 @@ html.theme-anim .tswitch-thumb { transition: transform .55s cubic-bezier(.3, 1.4
     } catch {}
   }
   // Ξεκλειδώνει τον ήχο σε κάθε άγγιγμα (χωρίς να ακούγεται), ώστε να μπορεί να παίξει αμέσως μετά
+  /* Σύντομοι ήχοι διακόπτη θέματος (≈0.58s, όσο η κίνηση της λαβής) */
+  const swSnd = {}, swBuf = {};
+  function themeAudio(k) {
+    const src = CONFIG.themeSounds?.[k]; if (!src) return null;
+    if (!swSnd[k]) {
+      const a = new Audio(); a.preload = "auto"; a.setAttribute("playsinline", ""); a.src = src; a.load(); swSnd[k] = a;
+      fetch(src).then(r => r.ok ? r.arrayBuffer() : Promise.reject()).then(b => { swBuf[k] = b; }).catch(() => {});
+    }
+    return swSnd[k];
+  }
+  function playThemeSound(dark) {
+    const k = dark ? "dark" : "light", a = themeAudio(k); if (!a) return;
+    a._want = true;
+    try { a.muted = false; if (a.readyState > 0) a.currentTime = 0; } catch {}
+    const viaWebAudio = () => {                                       // εφεδρεία αν μπλοκαριστεί το <audio>
+      if (!wa || wa.state !== "running" || !swBuf[k]) return;
+      const play = (buf) => { const s = wa.createBufferSource(); s.buffer = buf; s.connect(wa.destination); s.start(); };
+      if (swBuf[k] instanceof AudioBuffer) play(swBuf[k]);
+      else wa.decodeAudioData(swBuf[k].slice(0), b => { swBuf[k] = b; play(b); }, () => {});
+    };
+    try { const p = a.play(); p?.catch(viaWebAudio); } catch { viaWebAudio(); }
+  }
   function unlockSound(prime) {
+    if (prime) ["dark", "light"].forEach(k => {                      // αθόρυβο «ξεκλείδωμα» και των ήχων του διακόπτη
+      const a = themeAudio(k); if (!a || a.dataset.primed || !a.paused) return;
+      try { a.muted = true; a.play()?.then(() => { a.dataset.primed = "1"; if (!a._want) { a.pause(); try { a.currentTime = 0; } catch {} } a.muted = false; },
+        () => { if (!a._want) a.muted = false; }); } catch {}
+    });
     try { if (navigator.audioSession) navigator.audioSession.type = "playback"; } catch {}
     prepareChime();
     try {
