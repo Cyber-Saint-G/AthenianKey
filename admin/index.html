@@ -410,7 +410,11 @@ function supabaseApi() {
     async requestEvents(id) { return ok(await sb.from("request_events").select("*").eq("request_id", id).order("at")); },
     async customers() { return ok(await sb.rpc("admin_customers")); },
     async traffic(from, to) { return ok(await sb.rpc("admin_traffic_stats", { p_from: from, p_to: to })); },
-    async business(from, to) { return ok(await sb.rpc("admin_business_stats", { p_from: from, p_to: to })); },
+    async business(from, to) {
+      const b = ok(await sb.rpc("admin_business_stats", { p_from: from, p_to: to }));
+      try { b.by_plan = ok(await sb.rpc("admin_plan_stats", { p_from: from, p_to: to })); } catch { b.by_plan = []; }
+      return b;
+    },
     async content() { return ok(await sb.from("site_content").select("data, version_id, updated_at").eq("id", 1).maybeSingle()); },
     async versions() { return ok(await sb.from("content_versions").select("id, note, created_at").order("id", { ascending: false }).limit(200)); },
     async version(id) { return ok(await sb.from("content_versions").select("data").eq("id", id).single()).data; },
@@ -451,7 +455,7 @@ function demoApi() {
     const sv = [pick(services)]; if (rnd() > .6) sv.push(pick(services));
     requests.push({
       id: "r" + i, ref: "AK-" + (100000 + i * 7919).toString(36).toUpperCase().padStart(6, "X") + "DEMO".slice(0, 2), created_at: created.toISOString(), customer_id: c.id,
-      services: [...new Set(sv)], region: pick(regions), travel_date: isoDay(new Date(created.getTime() + (10 + rnd() * 90) * DAY)),
+      plan: pick([null, null, "day-key", "weekend-key", "master-key"]), services: [...new Set(sv)], region: pick(regions), travel_date: isoDay(new Date(created.getTime() + (10 + rnd() * 90) * DAY)),
       guests: 1 + Math.floor(rnd() * 7), full_name: c.full_name, phone: c.phone, email: c.email,
       notes: pick(["", "Arriving on flight A3 602 at 14:20.", "Anniversary dinner, table with a view please.", "Δύο παιδιά 5 και 8 ετών.", "Prefer a crewed motor yacht.", ""]),
       lang: pick(["en", "en", "el"]), channel: pick(["whatsapp", "whatsapp", "email"]), status: st,
@@ -515,7 +519,7 @@ function demoApi() {
         daily: days(f, t).map(d => ({ d, requests: q.filter(r => isoDay(r.created_at) === d).length,
           revenue: q.filter(r => paid(r) && isoDay(r.created_at) === d).reduce((a, r) => a + (r.amount || 0), 0),
           new_customers: newC.filter(c => isoDay(c.first_seen_at) === d).length })),
-        by_status: count(q.map(r => r.status)), by_service: count(q.flatMap(r => r.services)), by_region: count(q.map(r => r.region || "-")) });
+        by_plan: count(q.map(r => r.plan || "-")), by_status: count(q.map(r => r.status)), by_service: count(q.flatMap(r => r.services)), by_region: count(q.map(r => r.region || "-")) });
     },
     async content() { return wait(content); },
     async versions() { return wait(versions.slice().reverse().map(({ id, note, created_at }) => ({ id, note, created_at }))); },
@@ -651,6 +655,7 @@ function loadSiteDefaults() {
 }
 let EFFECTIVE = null;     // περιεχόμενο όπως φαίνεται τώρα στο site
 const svcLabel = (id) => (EFFECTIVE || SITE_DEFAULTS)?.services?.find(s => s.id === id)?.el?.title || id;
+const planLabel = (id) => (!id || id === "-") ? "–" : ((EFFECTIVE || SITE_DEFAULTS)?.plans?.find(p => p.id === id)?.el?.name || id);
 const regLabel = (id) => (!id || id === "-") ? "–" : ((EFFECTIVE || SITE_DEFAULTS)?.regions?.find(r => r.id === id)?.el || id);
 
 /* ══════════════════════════════════════════════════════════════════
@@ -702,7 +707,7 @@ function drawRequests() {
     (RQ.customer ? `<button class="chip" type="button" data-clear-customer aria-pressed="true">Πελάτης: ${esc(RQ.customer.name)} ✕</button>` : "");
   const list = filteredRequests();
   if (!list.length) { $("#rqBody").innerHTML = `<div class="empty">${all.length ? "Κανένα αίτημα με αυτά τα φίλτρα." : "Δεν υπάρχουν αιτήματα ακόμη. Θα εμφανίζονται εδώ μόλις τα στέλνουν οι επισκέπτες."}</div>`; return; }
-  const svcs = (r) => r.services.map(svcLabel).join(", ");
+  const svcs = (r) => (r.plan ? planLabel(r.plan) + " · " : "") + r.services.map(svcLabel).join(", ");
   $("#rqBody").innerHTML = `
     <div class="table-wrap rq-table"><table>
       <thead><tr><th></th><th>Κωδικός</th><th>Πελάτης</th><th>Υπηρεσίες</th><th>Προορισμός</th><th>Ταξίδι</th><th>Ελήφθη</th><th>Ποσό</th><th>Κατάσταση</th></tr></thead>
@@ -751,6 +756,7 @@ async function openRequest(id) {
       <dt>Ιστορικό</dt><dd>${r.customer_id ? `<a href="#customers" data-customer-open="${esc(r.customer_id)}">Όλα τα αιτήματα του πελάτη</a>` : "–"}</dd>
     </dl></div>
     <div><p class="section-t">Αίτημα</p><dl class="dl">
+      <dt>Πλάνο</dt><dd>${esc(planLabel(r.plan))}</dd>
       <dt>Υπηρεσίες</dt><dd>${esc(r.services.map(svcLabel).join(", "))}</dd>
       <dt>Προορισμός</dt><dd>${esc(regLabel(r.region))}</dd>
       <dt>Ημ/νία ταξιδιού</dt><dd class="num">${fmtDate(r.travel_date)}</dd>
@@ -855,6 +861,9 @@ async function drawStats() {
         <div class="card card-pad"><h2>Αιτήματα ανά υπηρεσία</h2>${bars(bz.by_service, svcLabel)}</div>
         <div class="card card-pad"><h2>Αιτήματα ανά προορισμό</h2>${bars(bz.by_region, regLabel)}</div>
         <div class="card card-pad"><h2>Αιτήματα ανά κατάσταση</h2>${bars(bz.by_status, k => STATUS[k]?.label || k)}</div>
+      </div>
+      <div class="grid-3">
+        <div class="card card-pad"><h2>Αιτήματα ανά πλάνο</h2>${bars(bz.by_plan, k => k === "-" ? "Χωρίς πλάνο" : planLabel(k))}</div>
       </div>`;
   } catch (x) { $("#stBody").innerHTML = failed(x); }
 }
@@ -975,6 +984,7 @@ function effectiveContent(data) {
   out.services = Array.isArray(d.services) && d.services.length ? d.services : base.services;
   out.regions = Array.isArray(d.regions) && d.regions.length ? d.regions : base.regions;
   out.photoCredits = Array.isArray(d.photoCredits) ? d.photoCredits : base.photoCredits;
+  out.plans = Array.isArray(d.plans) && d.plans.length ? d.plans : (base.plans || []);
   return clone(out);
 }
 async function viewContent() {
@@ -986,18 +996,18 @@ async function viewContent() {
     drawContent();
   } catch (x) { $("#cmBody").innerHTML = failed(x); }
 }
-const TABS = [["texts", "Κείμενα"], ["services", "Υπηρεσίες"], ["regions", "Προορισμοί"], ["contact", "Επικοινωνία"], ["images", "Φωτογραφίες"], ["history", "Ιστορικό εκδόσεων"]];
+const TABS = [["texts", "Κείμενα"], ["services", "Υπηρεσίες"], ["regions", "Προορισμοί"], ["plans", "Πλάνα"], ["contact", "Επικοινωνία"], ["images", "Φωτογραφίες"], ["history", "Ιστορικό εκδόσεων"]];
 function drawContent() {
   $("#cmBody").innerHTML = `
     <div class="tabs" role="tablist">${TABS.map(([k, l]) => `<button type="button" role="tab" data-cm-tab="${k}" aria-selected="${CM_TAB === k}">${l}</button>`).join("")}</div>
-    ${["texts", "services", "regions"].includes(CM_TAB) ? `<div class="toolbar"><div class="chips">${[["el", "Ελληνικά"], ["en", "English"]].map(([k, l]) => `<button class="chip" type="button" data-cm-lang="${k}" aria-pressed="${CM_LANG === k}">${l}</button>`).join("")}</div>
+    ${["texts", "services", "regions", "plans"].includes(CM_TAB) ? `<div class="toolbar"><div class="chips">${[["el", "Ελληνικά"], ["en", "English"]].map(([k, l]) => `<button class="chip" type="button" data-cm-lang="${k}" aria-pressed="${CM_LANG === k}">${l}</button>`).join("")}</div>
       ${CM_TAB === "texts" ? '<input class="input search" id="cmFilter" type="search" placeholder="Αναζήτηση πεδίου">' : ""}</div>` : ""}
     <div id="cmTab"></div>
     <div class="savebar" id="saveBar" ${DRAFT_DIRTY ? "" : "hidden"}>
       <b>Μη αποθηκευμένες αλλαγές</b>
       <div class="acts"><button class="btn btn-sm" type="button" data-cm-discard>Απόρριψη</button><button class="btn btn-sm" type="button" data-cm-preview>Προεπισκόπηση</button><button class="btn btn-sm btn-primary" type="button" data-cm-save>Αποθήκευση</button></div>
     </div>`;
-  ({ texts: tabTexts, services: tabServices, regions: tabRegions, contact: tabContact, images: tabImages, history: tabHistory })[CM_TAB]();
+  ({ texts: tabTexts, services: tabServices, regions: tabRegions, plans: tabPlans, contact: tabContact, images: tabImages, history: tabHistory })[CM_TAB]();
   $("#cmFilter")?.addEventListener("input", (e) => { const q = e.target.value.toLowerCase(); $$("#cmTab .field").forEach(f => f.hidden = q && !f.textContent.toLowerCase().includes(q) && !f.querySelector("input,textarea").value.toLowerCase().includes(q)); });
 }
 const fieldHTML = (path, label, value, long) => `<label class="field ${long ? "full" : ""}"><span class="label">${esc(label)}</span>${long || String(value || "").length > 70
@@ -1047,6 +1057,22 @@ function tabRegions() {
       <button class="btn btn-sm" type="button" data-add-exp="${i}">+ Νέα εμπειρία</button>
     </div>`).join("")}</div>`;
 }
+function tabPlans() {
+  const L = CM_LANG;
+  $("#cmTab").innerHTML = `<div class="fields">${(DRAFT.plans || []).map((p, i) => `<div class="card block">
+      <div class="block-head"><h3>${esc(p.el?.name || p.id)}</h3></div>
+      ${imgSlot(`plans.${i}.image`, p.image, "Φωτογραφία πλάνου")}
+      <div class="fieldgrid">
+        ${fieldHTML(`plans.${i}.${L}.name`, "Όνομα", p[L]?.name)}
+        ${fieldHTML(`plans.${i}.${L}.label`, "Μικρό label (π.χ. SILVER)", p[L]?.label)}
+        ${fieldHTML(`plans.${i}.${L}.tag`, "Ετικέτα στη φωτογραφία", p[L]?.tag)}
+        ${fieldHTML(`plans.${i}.${L}.badge`, "Badge (προαιρετικό)", p[L]?.badge || "")}
+        ${fieldHTML(`plans.${i}.${L}.text`, "Περιγραφή (μία γραμμή)", p[L]?.text, true)}
+        <label class="field full"><span class="label">Σημεία (ένα ανά γραμμή)</span><textarea class="input" data-path="plans.${i}.${L}.points" data-lines rows="4">${esc((p[L]?.points || []).join("\n"))}</textarea></label>
+        ${fieldHTML(`plans.${i}.${L}.price`, "Τιμή", p[L]?.price)}
+        ${fieldHTML(`plans.${i}.${L}.note`, "Σημείωση (προαιρετική)", p[L]?.note || "")}
+      </div></div>`).join("")}</div>`;
+}
 function tabContact() {
   const c = DRAFT.contact;
   $("#cmTab").innerHTML = `<div class="card block"><div class="fieldgrid">
@@ -1061,6 +1087,7 @@ function tabContact() {
 function usages(url) {
   const out = [];
   DRAFT.regions.forEach(r => { if (r.image === url) out.push(r.el); (r.experiences || []).forEach(x => { if (x.image === url) out.push(x.el?.title); }); });
+  (DRAFT.plans || []).forEach(p => { if (p.image === url) out.push(p.el?.name); });
   return out;
 }
 async function tabImages() {

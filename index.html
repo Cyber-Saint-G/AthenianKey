@@ -156,6 +156,31 @@ const CONFIG = {
       ] },
   ],
 
+  // Πλάνα (κάρτες στη φόρμα αιτήματος). theme: silver | aegean | gold
+  plans: [
+    { id: "day-key", theme: "silver", image: "images/ath-acropolis.jpg",
+      el: { name: "The Day Key", label: "SILVER", tag: "ΜΟΝΟΗΜΕΡΟ", text: "Μία τέλεια μέρα, από την πόρτα σας και πίσω.",
+            points: ["Παραλαβή με Mercedes S/V-Class", "Μία εμπειρία-ναυαρχίδα με ιδιωτικό ξεναγό", "Τραπέζι + VIP transfer", "Concierge στο WhatsApp όλη τη μέρα"],
+            price: "Από €[ΤΙΜΗ] / άτομο" },
+      en: { name: "The Day Key", label: "SILVER", tag: "ONE DAY", text: "One perfect day, from your door and back.",
+            points: ["Pick-up in a Mercedes S/V-Class", "One signature experience with a private guide", "Dinner table + VIP transfer", "WhatsApp concierge all day"],
+            price: "From €[PRICE] / person" } },
+    { id: "weekend-key", theme: "aegean", image: "images/svc/villa-own-1.jpg",
+      el: { name: "The Weekend Key", label: "AEGEAN", tag: "3 ΝΥΧΤΕΣ", text: "Ένα σύντομο ταξίδι, χωρίς καμία έγνοια.",
+            points: ["Βίλα από τη συλλογή μας", "VIP transfer άφιξης/αναχώρησης", "1 εμπειρία + 2 δείπνα με transfer", "Δώρο καλωσορίσματος"],
+            price: "Από €[ΤΙΜΗ] / διαμονή" },
+      en: { name: "The Weekend Key", label: "AEGEAN", tag: "3 NIGHTS", text: "A short escape, without a single worry.",
+            points: ["A villa from our collection", "VIP arrival & departure transfers", "1 experience + 2 dinners with transfers", "Welcome gift"],
+            price: "From €[PRICE] / stay" } },
+    { id: "master-key", theme: "gold", image: "images/svc/yacht-own-1.jpg",
+      el: { name: "The Master Key", label: "BLACK · GOLD", tag: "ΠΛΗΡΕΙΣ ΔΙΑΚΟΠΕΣ", badge: "Το πιο ολοκληρωμένο", text: "Από τη στιγμή που προσγειώνεστε μέχρι την πτήση της επιστροφής.",
+            points: ["Πτήσεις πήγαινε–έλα ή συγχρονισμός με τις δικές σας", "Βίλα με house manager", "Εστιατόρια, σκάφος, private chef όποια μέρα θέλετε", "Προσωπικός concierge 24/7"],
+            price: "Τιμή κατόπιν αιτήματος", note: "Αναβάθμιση Odyssey: δύο προορισμοί" },
+      en: { name: "The Master Key", label: "BLACK · GOLD", tag: "FULL HOLIDAY", badge: "Most complete", text: "From the moment you land until your flight home.",
+            points: ["Return flights or synced with yours", "Villa with a house manager", "Restaurants, yacht, private chef, any day you like", "Personal concierge 24/7"],
+            price: "Price on request", note: "Odyssey upgrade: two destinations" } },
+  ],
+
   // Πηγές φωτογραφιών (Wikimedia Commons)
   photoCredits: [
     "Thermos (CC BY-SA 2.5)", "kallerna (CC BY-SA 4.0)", "Cayambe (CC BY-SA 4.0)", "A.Savin (CC BY-SA 3.0)",
@@ -255,7 +280,7 @@ const CONFIG = {
       servicesTitle: "Υπηρεσίες", servicesIntro: "Πατήστε μια υπηρεσία για λεπτομέρειες.",
       sheetCta: "Αίτημα για αυτή την υπηρεσία", close: "Κλείσιμο",
       requestTitle: "Αίτημα", requestIntro: "Συμπληρώστε τα βασικά. Το μήνυμα ανοίγει έτοιμο στο WhatsApp ή στο email σας.",
-      fService: "Υπηρεσίες", fServiceHint: "· επιλέξτε μία ή περισσότερες", fRegion: "Προορισμός", fDate: "Ημερομηνία", fGuests: "Άτομα",
+      fPlan: "Πλάνο", fPlanHint: "· προαιρετικό", fService: "Υπηρεσίες", fServiceHint: "· επιλέξτε μία ή περισσότερες", fRegion: "Προορισμός", fDate: "Ημερομηνία", fGuests: "Άτομα",
       fName: "Ονοματεπώνυμο", fPhone: "Τηλέφωνο", fEmail: "Email (προαιρετικό)", fNotes: "Λεπτομέρειες",
       fNamePh: "π.χ. Μαρία Παπαδοπούλου", fPhonePh: "+30 …", fEmailPh: "name@email.com",
       fNotesPh: "Ώρα, αριθμός πτήσης, προτιμήσεις…",
@@ -294,7 +319,7 @@ const CONFIG = {
       servicesTitle: "Services", servicesIntro: "Tap a service for details.",
       sheetCta: "Request this service", close: "Close",
       requestTitle: "Request", requestIntro: "Fill in the basics. Your message opens ready to send in WhatsApp or email.",
-      fService: "Services", fServiceHint: "· choose one or more", fRegion: "Destination", fDate: "Date", fGuests: "Guests",
+      fPlan: "Plan", fPlanHint: "· optional", fService: "Services", fServiceHint: "· choose one or more", fRegion: "Destination", fDate: "Date", fGuests: "Guests",
       fName: "Full name", fPhone: "Phone", fEmail: "Email (optional)", fNotes: "Details",
       fNamePh: "e.g. Anna Smith", fPhonePh: "+44 …", fEmailPh: "name@email.com",
       fNotesPh: "Time, flight number, preferences…",
@@ -603,6 +628,50 @@ html.on-photo .topbar .wordmark svg { color: #fff; }
 .label .hint { text-transform: none; letter-spacing: 0; font-weight: 450; }
 .chips { display: flex; flex-wrap: wrap; gap: .45rem; }
 /* Επιλογή προορισμού στη φόρμα: μικρές κάθετες κάρτες με φωτογραφία (όπως στην αρχική) */
+/* Πλάνα: κάρτες σε οριζόντια λίστα (όπως οι προορισμοί) */
+.plans { display: flex; gap: .7rem; overflow-x: auto; scroll-snap-type: x mandatory; margin-inline: -1.25rem; padding: .35rem 1.25rem .7rem; scrollbar-width: none; scroll-padding-inline: 1.25rem; align-items: stretch; }
+.plans::-webkit-scrollbar { display: none; }
+.plan { position: relative; flex: 0 0 15.5rem; scroll-snap-align: start; border-radius: 1.6rem; padding: .3rem; cursor: pointer; display: flex; flex-direction: column;
+  transition: transform .35s cubic-bezier(.34,1.56,.64,1), box-shadow .3s ease; -webkit-tap-highlight-color: transparent; }
+.plan input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
+.plan:active { transform: scale(.97); }
+.plan.silver { background: linear-gradient(160deg, #FFFFFF, #E4E9F0); border: 1px solid #FFFFFF; color: #14335C; box-shadow: 0 1rem 2.2rem -1.3rem rgba(20,51,92,.5); }
+.plan.aegean { background: linear-gradient(160deg, #1D74D6, #0F4F9A); color: #fff; box-shadow: 0 1rem 2.2rem -1.2rem rgba(21,106,204,.65); }
+.plan.gold { background: linear-gradient(165deg, #1A1D24, #0A0C10); border: 1px solid #C9A961; color: #F3EEE3; box-shadow: 0 1.3rem 2.6rem -1.2rem rgba(10,12,16,.7); }
+.plan-media { position: relative; height: 8.6rem; border-radius: 1.3rem; overflow: hidden; background: #0F4F9A; flex: none; }
+.plan-media img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .6s cubic-bezier(.2,.8,.2,1); }
+.plan-tag, .plan-badge { position: absolute; top: .5rem; padding: .3rem .6rem; border-radius: 999px; font-size: .6rem; font-weight: 600; letter-spacing: .1em; }
+.plan-tag { left: .5rem; color: #fff; background: rgba(255,255,255,.22); border: 1px solid rgba(255,255,255,.5); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
+.plan.gold .plan-tag { color: #E8D29B; background: rgba(10,12,16,.45); border-color: rgba(201,169,97,.7); }
+.plan-badge { right: .5rem; background: #C9A961; color: #14110A; font-weight: 700; letter-spacing: .03em; }
+.plan-body { padding: .9rem .8rem .8rem; display: flex; flex-direction: column; flex: 1; }
+.plan-label { display: flex; align-items: center; gap: .4rem; font-size: .6rem; letter-spacing: .18em; font-weight: 700; color: #7A8597; }
+.plan-label svg { width: .9rem; height: .9rem; }
+.plan.aegean .plan-label { color: #BFE3FF; } .plan.gold .plan-label { color: #C9A961; }
+.plan-name { margin: .3rem 0 0; font-family: "Marcellus", "GFS Didot", Georgia, serif; font-weight: 400; font-size: 1.45rem; line-height: 1.1; }
+.plan.gold .plan-name { color: #F3E3B5; }
+.plan-text { margin: .3rem 0 0; font-size: .75rem; line-height: 1.45; color: #5B6B82; }
+.plan.aegean .plan-text { color: #D6EAFF; } .plan.gold .plan-text { color: #B9B3A6; }
+.plan-list { list-style: none; padding: 0; margin: .75rem 0 0; display: grid; gap: .45rem; }
+.plan-list li { display: grid; grid-template-columns: .95rem 1fr; gap: .45rem; font-size: .74rem; line-height: 1.35; align-items: start; }
+.plan-list svg { width: .95rem; height: .95rem; margin-top: .05rem; color: #156ACC; }
+.plan.aegean .plan-list svg { color: #5EC2FF; } .plan.gold .plan-list svg { color: #C9A961; }
+.plan-note { margin-top: .75rem; padding: .5rem .65rem; border-radius: .8rem; border: 1px dashed rgba(201,169,97,.55); font-size: .68rem; color: #F3E3B5; }
+.plan-price { margin-top: auto; padding-top: .7rem; border-top: 1px solid rgba(20,51,92,.1); font-family: "Marcellus", "GFS Didot", Georgia, serif; font-size: 1rem; }
+.plan-list + .plan-price, .plan-note + .plan-price { margin-top: .8rem; }
+.plan.aegean .plan-price { border-color: rgba(255,255,255,.2); }
+.plan.gold .plan-price { border-color: rgba(201,169,97,.25); color: #F3E3B5; }
+.plan .tick { position: absolute; top: .85rem; right: .85rem; z-index: 2; width: 1.6rem; height: 1.6rem; border-radius: 50%; display: grid; place-items: center;
+  background: var(--accent); color: var(--accent-ink); box-shadow: 0 .3rem .8rem -.2rem rgba(0,0,0,.35);
+  opacity: 0; transform: scale(.4); transition: opacity .25s ease, transform .4s cubic-bezier(.34,1.56,.64,1); }
+.plan.gold .tick { background: #C9A961; color: #14110A; }
+.plan .tick svg { width: .9rem; height: .9rem; stroke-width: 2.4; }
+.plan:has(.plan-badge) .tick { top: 2.6rem; }
+.plan:has(input:checked) { box-shadow: 0 0 0 2px var(--accent), 0 1rem 2.2rem -1.2rem var(--glass-shadow); }
+.plan.gold:has(input:checked) { box-shadow: 0 0 0 2px #C9A961, 0 1.3rem 2.6rem -1.2rem rgba(10,12,16,.7); }
+.plan:has(input:checked) .tick { opacity: 1; transform: none; }
+.plan:has(input:checked) .plan-media img { transform: scale(1.05); }
+.plan:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 3px; }
 .picks { display: flex; gap: .55rem; overflow-x: auto; scroll-snap-type: x mandatory; margin-inline: -1.25rem; padding: .3rem 1.25rem .5rem; scrollbar-width: none; scroll-padding-inline: 1.25rem; }
 .picks::-webkit-scrollbar { display: none; }
 .pick { position: relative; flex: 0 0 6.6rem; padding: .26rem; border-radius: 1.3rem; cursor: pointer; scroll-snap-align: start;
@@ -1018,6 +1087,10 @@ html.theme-anim .tswitch-thumb { transition: transform .55s cubic-bezier(.3, 1.4
       </div>
       <form class="form" id="form" novalidate>
         <div class="field">
+          <span class="label"><span data-t="fPlan"></span> <span class="hint" data-t="fPlanHint"></span></span>
+          <div class="plans" id="planCards" role="radiogroup"></div>
+        </div>
+        <div class="field">
           <span class="label"><span data-t="fService"></span> <span class="hint" data-t="fServiceHint"></span></span>
           <div class="chips" id="serviceChips" role="group"></div>
         </div>
@@ -1142,7 +1215,7 @@ html.theme-anim .tswitch-thumb { transition: transform .55s cubic-bezier(.3, 1.4
   const waHref = (msg) => `https://wa.me/${C.whatsapp}` + (msg ? `?text=${encodeURIComponent(msg)}` : "");
 
   const newRef = () => "AK-" + Array.from(crypto.getRandomValues(new Uint8Array(8)), b => "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"[b % 32]).join("");
-  const state = { services: [], region: null, guests: 2, ref: newRef(), sent: false };
+  const state = { plan: null, services: [], region: null, guests: 2, ref: newRef(), sent: false };
   let currentRegion = null, pendingFlip = null;
   const focal = (r) => /^[\d.]+% [\d.]+%$/.test(r?.backgroundPosition || "") ? r.backgroundPosition : "50% 50%";
   const img = (src, alt) => src && /^(https:\/\/|images\/|blob:)/.test(src) ? `<img src="${esc(src)}" alt="${esc(alt)}" loading="eager" decoding="async" onerror="this.remove()">` : "";
@@ -1316,6 +1389,8 @@ html.theme-anim .tswitch-thumb { transition: transform .55s cubic-bezier(.3, 1.4
     CONFIG.services = Array.isArray(d.services) && d.services.length ? d.services : base.services;
     CONFIG.regions = Array.isArray(d.regions) && d.regions.length ? d.regions : base.regions;
     CONFIG.photoCredits = Array.isArray(d.photoCredits) ? d.photoCredits : base.photoCredits;
+    CONFIG.plans = Array.isArray(d.plans) && d.plans.length ? d.plans : base.plans;
+    if (state.plan && !CONFIG.plans.some(p => p.id === state.plan)) state.plan = null;
     state.services = state.services.filter(id => CONFIG.services.some(x => x.id === id));
     render(); route(true);
   }
@@ -1383,6 +1458,21 @@ html.theme-anim .tswitch-thumb { transition: transform .55s cubic-bezier(.3, 1.4
     if (currentRegion) renderRegion(currentRegion);
     $("#regionsInline").textContent = CONFIG.regions.map(r => r[lang]).join(" · ");
 
+    const keyIc = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="8" cy="12" r="4.2"/><path d="M12.2 12H21M17.5 12v3M20 12v2.2"/></svg>`;
+    $("#planCards").innerHTML = (CONFIG.plans || []).map(p => { const L = p[lang] || p.en || {}; return `
+      <label class="plan ${["silver","aegean","gold"].includes(p.theme) ? p.theme : "silver"}">
+        <input type="radio" name="plan" value="${esc(p.id)}" ${state.plan === p.id ? "checked" : ""}>
+        <span class="plan-media">${img(p.image, L.name || "")}${L.tag ? `<span class="plan-tag">${esc(L.tag)}</span>` : ""}${L.badge ? `<span class="plan-badge">${esc(L.badge)}</span>` : ""}</span>
+        <span class="tick" aria-hidden="true">${svg("check")}</span>
+        <span class="plan-body">
+          <span class="plan-label">${keyIc}${esc(L.label || "")}</span>
+          <span class="plan-name">${esc(L.name || "")}</span>
+          ${L.text ? `<span class="plan-text">${esc(L.text)}</span>` : ""}
+          <span class="plan-list">${(L.points || []).map(x => `<span style="display:grid;grid-template-columns:.95rem 1fr;gap:.45rem;font-size:.74rem;line-height:1.35">${svg("check")}<span>${esc(x)}</span></span>`).join("")}</span>
+          ${L.note ? `<span class="plan-note">${esc(L.note)}</span>` : ""}
+          ${L.price ? `<span class="plan-price">${esc(L.price)}</span>` : ""}
+        </span>
+      </label>`; }).join("");
     $("#serviceChips").innerHTML = CONFIG.services.map(s => `
       <label class="chip"><input type="checkbox" name="service" value="${s.id}" ${state.services.includes(s.id) ? "checked" : ""}><span>${esc(s[lang].title)}</span></label>`).join("");
     $("#regionChips").innerHTML = CONFIG.regions.map(r => `
@@ -1563,9 +1653,11 @@ html.theme-anim .tswitch-thumb { transition: transform .55s cubic-bezier(.3, 1.4
   const val = (id) => $(id).value.trim();
   function buildMessage() {
     const ss = CONFIG.services.filter(x => state.services.includes(x.id));
+    const pl = (CONFIG.plans || []).find(x => x.id === state.plan);
     const r = CONFIG.regions.find(x => x.id === state.region);
     const lines = [
       T("msgHeader"), `${T("refLabel")}: ${state.ref}`, "",
+      ...(pl ? [`${T("fPlan")}: ${pl[lang]?.name || pl.id}`] : []),
       `${T("fService")}: ${ss.length ? ss.map(x => x[lang].title).join(", ") : "–"}`,
       `${T("fRegion")}: ${r ? r[lang] : "–"}`,
       `${T("fDate")}: ${val("#fDate") || "–"}`,
@@ -1598,7 +1690,7 @@ html.theme-anim .tswitch-thumb { transition: transform .55s cubic-bezier(.3, 1.4
     if (!validate()) { e.preventDefault(); return; }
     const msg = buildMessage();
     if (!PREVIEW) rpc("submit_request", { p: {
-      ref: state.ref, services: state.services, region: state.region, date: val("#fDate") || null,
+      ref: state.ref, plan: state.plan, services: state.services, region: state.region, date: val("#fDate") || null,
       guests: state.guests, name: val("#fName"), phone: val("#fPhone"), email: val("#fEmail"),
       notes: val("#fNotes"), lang, channel: e.currentTarget.id === "sendWa" ? "whatsapp" : "email",
     } });
@@ -1703,7 +1795,20 @@ html.theme-anim .tswitch-thumb { transition: transform .55s cubic-bezier(.3, 1.4
 
   $("#langBtn").addEventListener("click", () => { lang = lang === "el" ? "en" : "el"; store.set("ak-lang-v2", lang); render(); });
 
+  // Πλάνο: σαν radio, αλλά δεύτερο πάτημα στο ίδιο το αποεπιλέγει
+  $("#planCards").addEventListener("click", (e) => {
+    const lab = e.target.closest("label.plan"); if (!lab) return;
+    e.preventDefault();
+    const inp = lab.querySelector("input"), id = inp.value;
+    state.plan = state.plan === id ? null : id;
+    document.querySelectorAll('#planCards input').forEach(i => { i.checked = i.value === state.plan; });
+    freshRef(); updateSendLinks();
+  });
+  $("#planCards").addEventListener("keydown", (e) => {
+    if (e.key === " " && e.target.name === "plan" && e.target.checked && state.plan === e.target.value) { e.preventDefault(); e.target.checked = false; state.plan = null; updateSendLinks(); }
+  });
   $("#form").addEventListener("change", (e) => {
+    if (e.target.name === "plan") state.plan = e.target.value;
     if (e.target.name === "service") { state.services = [...document.querySelectorAll("#serviceChips input:checked")].map(i => i.value); $("#formError").textContent = ""; }
     if (e.target.name === "region") state.region = e.target.value;
     updateSendLinks();
