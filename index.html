@@ -1518,7 +1518,9 @@ html.theme-anim .tswitch-thumb { transition: transform .55s cubic-bezier(.3, 1.4
     document.querySelectorAll("#rail .tile.has-media, #regions .dest.has-media").forEach((tile, i) => {
       const dest = tile.classList.contains("dest");
       const id = dest ? "dest:" + tile.dataset.region : tile.dataset.open, imgs = tile.querySelectorAll(dest ? ".photo img" : ".tile-media img"); if (imgs.length < 2) return;
-      if (!slideNext[id]) slideNext[id] = now + SLIDES.every + i * SLIDES.stagger;
+      const k = dest ? [...tile.parentNode.children].indexOf(tile) : i;            // οι προορισμοί έχουν δική τους σειρά
+      if (!slideNext[id]) slideNext[id] = now + (dest ? 3500 : SLIDES.every) + k * SLIDES.stagger;
+      const r0 = tile.getBoundingClientRect(); if (r0.bottom < 0 || r0.top > innerHeight) { slideNext[id] = Math.max(slideNext[id], now + 2500); return; }   // αρχίζει όταν φανεί
       if (now < slideNext[id]) return;
       const r = tile.getBoundingClientRect(); if (r.right < 0 || r.left > innerWidth || r.bottom < 0 || r.top > innerHeight) return;   // μόνο ορατά
       const cur = slideIdx[id] || 0, nxt = (cur + 1) % imgs.length;
