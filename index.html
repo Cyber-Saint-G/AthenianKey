@@ -89,7 +89,8 @@ const CONFIG = {
 
   // Προορισμοί: φωτογραφία, πληροφορίες και εμπειρίες. Οι φωτογραφίες είναι στον φάκελο images/
   regions: [
-    { id: "athens", el: "Αθήνα", en: "Athens", coords: "37.98° N · 23.73° E", image: "images/athens.jpg", background: "images/bg-athens.jpg", backgroundBlurred: true,
+    { id: "athens", el: "Αθήνα", en: "Athens", coords: "37.98° N · 23.73° E", image: "images/athens.jpg", background: "images/bg-athens.jpg",
+      photos: ["images/athens.jpg", "images/ath-card-1.jpg", "images/ath-card-2.jpg", "images/ath-card-3.jpg", "images/ath-card-4.jpg", "images/ath-card-5.jpg"],   // εναλλαγή στην κάρτα της αρχικής backgroundBlurred: true,
       intro: {
         el: "Η πόλη της Ακρόπολης, των ταρατσών με θέα και της Αθηναϊκής Ριβιέρας. Ιδανική για ένα city break με ιστορία, γαστρονομία και θάλασσα σε απόσταση μισής ώρας.",
         en: "The city of the Acropolis, rooftop views and the Athens Riviera. Ideal for a city break with history, great food and the sea half an hour away." },
@@ -613,6 +614,11 @@ html.on-photo .topbar .wordmark svg { color: #fff; }
   transform-origin: 0 0; will-change: transform, clip-path, opacity; backface-visibility: hidden; }
 .zoom-scrim { position: fixed; inset: 0; z-index: 25; pointer-events: none; background: rgba(6, 14, 26, .55); opacity: 0; will-change: opacity; }
 .dest .photo img { object-position: var(--focal, 50% 50%); }
+/* Εναλλαγή φωτογραφιών στην κάρτα προορισμού (όπως στις υπηρεσίες) */
+.dest .photo img.slide { opacity: 0; filter: blur(16px); scale: 1.1;
+  transition: opacity 1.9s cubic-bezier(.4,0,.2,1), filter 1.9s cubic-bezier(.4,0,.2,1), scale 7s cubic-bezier(.2,.6,.3,1); }
+.dest .photo img.slide.on { opacity: 1; filter: blur(0); scale: 1; }
+.dest .photo .caption { z-index: 2; }
 .privacy { margin: -.4rem 0 0; font-size: .72rem; color: var(--muted); line-height: 1.5; }
 .ak-loading .app, .ak-loading .nav-wrap { opacity: 0; }
 .app, .nav-wrap { transition: opacity .4s ease; }
@@ -1319,7 +1325,7 @@ html.theme-anim .tswitch-thumb { transition: transform .55s cubic-bezier(.3, 1.4
   }
   function openRegion(card) {
     const id = card.dataset.region, r = CONFIG.regions.find(x => x.id === id);
-    const photo = card.querySelector(".photo"), im = photo?.querySelector("img");
+    const photo = card.querySelector(".photo"), im = photo?.querySelector("img.on") || photo?.querySelector("img");
     if (opening) return;
     if (!r || !im || !im.animate || matchMedia("(prefers-reduced-motion: reduce)").matches) { location.hash = id; return; }
     opening = true; preloadBg(id);
@@ -1350,7 +1356,7 @@ html.theme-anim .tswitch-thumb { transition: transform .55s cubic-bezier(.3, 1.4
   }
   function closeRegion() {
     const id = currentRegion, r = CONFIG.regions.find(x => x.id === id);
-    const cardImg = document.querySelector(`#regions [data-region="${id}"] img`), bg = $("#regionPhoto");
+    const cardImg = document.querySelector(`#regions [data-region="${id}"] img.on`) || document.querySelector(`#regions [data-region="${id}"] img`), bg = $("#regionPhoto");
     if (opening) return;
     if (!r || !cardImg || !cardImg.animate || matchMedia("(prefers-reduced-motion: reduce)").matches) { location.hash = "home"; return; }
     opening = true;
@@ -1449,8 +1455,10 @@ html.theme-anim .tswitch-thumb { transition: transform .55s cubic-bezier(.3, 1.4
       </button>`).join("");
 
     $("#regions").innerHTML = CONFIG.regions.map(r => `
-      <button class="dest glass" type="button" data-region="${r.id}">
-        <span class="photo" style="--focal:${focal(r)}">${img(r.image, r[lang])}
+      <button class="dest glass${(r.photos || []).length > 1 ? " has-media" : ""}" type="button" data-region="${r.id}">
+        <span class="photo" style="--focal:${focal(r)}">${(r.photos || []).length > 1
+          ? r.photos.filter(x => /^(https:\/\/|images\/|blob:)/.test(x)).map((x, i) => `<img class="slide${i === (slideIdx["dest:" + r.id] || 0) % r.photos.length ? " on" : ""}" src="${esc(x)}" alt="${esc(r[lang])}" decoding="async" ${i ? 'loading="lazy"' : ""}>`).join("")
+          : img(r.image, r[lang])}
           <span class="caption"><b>${esc(r[lang])}</b><span>${r.coords}</span></span></span>
       </button>`).join("");
     const cr = CONFIG.photoCredits || [];
@@ -1505,8 +1513,9 @@ html.theme-anim .tswitch-thumb { transition: transform .55s cubic-bezier(.3, 1.4
   setInterval(() => {
     if (document.hidden || !document.querySelector('.view[data-view="home"].is-active') || document.documentElement.classList.contains("ak-splash")) return;
     const now = performance.now();
-    document.querySelectorAll("#rail .tile.has-media").forEach((tile, i) => {
-      const id = tile.dataset.open, imgs = tile.querySelectorAll(".tile-media img"); if (imgs.length < 2) return;
+    document.querySelectorAll("#rail .tile.has-media, #regions .dest.has-media").forEach((tile, i) => {
+      const dest = tile.classList.contains("dest");
+      const id = dest ? "dest:" + tile.dataset.region : tile.dataset.open, imgs = tile.querySelectorAll(dest ? ".photo img" : ".tile-media img"); if (imgs.length < 2) return;
       if (!slideNext[id]) slideNext[id] = now + SLIDES.every + i * SLIDES.stagger;
       if (now < slideNext[id]) return;
       const r = tile.getBoundingClientRect(); if (r.right < 0 || r.left > innerWidth || r.bottom < 0 || r.top > innerHeight) return;   // μόνο ορατά
