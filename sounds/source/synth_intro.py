@@ -63,8 +63,8 @@ def save(path, mix):
     with wave.open(path, 'wb') as w: w.setnchannels(2); w.setsampwidth(2); w.setframerate(SR); w.writeframes(pcm.tobytes())
 
 
-# ── Καμπανάκι εισόδου v3: δύο ψηλές νότες και μία λίγο πιο χαμηλή στο τέλος (Λα5 – Ντο6 – Φα5) ──
-A5, C6, F5 = 880.0, 1046.50, 698.46
-notes = [(A5, 0.00, 1.6, 0.55, .85), (C6, 0.20, 1.6, 0.55, .8), (F5, 0.42, 2.1, 0.95, 1.0)]
-save(sys.argv[1] + '/intro-v3.wav', render(notes, rhodes, 2.6))
+# ── Καμπανάκι εισόδου: ίδιο με το αρχικό «lounge» (Φα–Λα–Ντο–Φα), σε συντομότερη εκδοχή ──
+F4, A4, C5, F5 = 349.23, 440.0, 523.25, 698.46
+notes = [(F4, 0.00, 2.2, .75, .9), (A4, 0.22, 2.2, .75, .85), (C5, 0.44, 2.2, .8, .8), (F5, 0.66, 2.3, 1.05, .9)]
+save(sys.argv[1] + '/intro-short.wav', render(notes, rhodes, 3.0))
 print("ok")
