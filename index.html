@@ -643,9 +643,18 @@ html.on-photo .topbar .wordmark svg { color: #fff; }
   transition: transform .35s cubic-bezier(.34,1.56,.64,1), box-shadow .3s ease; -webkit-tap-highlight-color: transparent; }
 .plan input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
 .plan:active { transform: scale(.97); }
-.plan.silver { background: linear-gradient(160deg, #FFFFFF, #E4E9F0); border: 1px solid #FFFFFF; color: #14335C; box-shadow: 0 1rem 2.2rem -1.3rem rgba(20,51,92,.5); }
-.plan.aegean { background: linear-gradient(160deg, #1D74D6, #0F4F9A); color: #fff; box-shadow: 0 1rem 2.2rem -1.2rem rgba(21,106,204,.65); }
-.plan.gold { background: linear-gradient(165deg, #1A1D24, #0A0C10); border: 1px solid #C9A961; color: #F3EEE3; box-shadow: 0 1.3rem 2.6rem -1.2rem rgba(10,12,16,.7); }
+/* Liquid glass: ημιδιάφανο χρώμα του πλάνου + θόλωμα του φόντου + γυάλινες ανταύγειες */
+.plan { -webkit-backdrop-filter: blur(22px) saturate(180%); backdrop-filter: blur(22px) saturate(180%); isolation: isolate; }
+.plan::before { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: -1;
+  background: radial-gradient(120% 55% at 15% 0%, rgba(255,255,255,.5), transparent 60%); opacity: .55; }
+.plan.silver { background: linear-gradient(160deg, rgba(255,255,255,.72), rgba(228,233,240,.5)); border: 1px solid rgba(255,255,255,.9); color: #14335C;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.95), 0 1rem 2.2rem -1.3rem rgba(20,51,92,.5); }
+.plan.aegean { background: linear-gradient(160deg, rgba(29,116,214,.72), rgba(15,79,154,.62)); border: 1px solid rgba(190,225,255,.45); color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 1rem 2.2rem -1.2rem rgba(21,106,204,.65); }
+.plan.aegean::before { opacity: .3; }
+.plan.gold { background: linear-gradient(165deg, rgba(26,29,36,.78), rgba(10,12,16,.7)); border: 1px solid #C9A961; color: #F3EEE3;
+  box-shadow: inset 0 1px 0 rgba(243,227,181,.35), 0 1.3rem 2.6rem -1.2rem rgba(10,12,16,.7); }
+.plan.gold::before { background: radial-gradient(120% 55% at 15% 0%, rgba(243,227,181,.35), transparent 60%); opacity: .4; }
 .plan-media { position: relative; height: 8.6rem; border-radius: 1.3rem; overflow: hidden; background: #0F4F9A; flex: none; }
 .plan-media img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .6s cubic-bezier(.2,.8,.2,1); }
 .plan-tag, .plan-badge { position: absolute; top: .5rem; padding: .3rem .6rem; border-radius: 999px; font-size: .6rem; font-weight: 600; letter-spacing: .1em; }
@@ -675,7 +684,7 @@ html.on-photo .topbar .wordmark svg { color: #fff; }
 .plan.gold .tick { background: #C9A961; color: #14110A; }
 .plan .tick svg { width: .9rem; height: .9rem; stroke-width: 2.4; }
 .plan:has(.plan-badge) .tick { top: 2.6rem; }
-.plan:has(input:checked) { box-shadow: 0 0 0 2px var(--accent), 0 1rem 2.2rem -1.2rem var(--glass-shadow); }
+.plan:has(input:checked) { box-shadow: inset 0 1px 0 rgba(255,255,255,.6), 0 0 0 2px var(--accent), 0 1rem 2.2rem -1.2rem var(--glass-shadow); }
 .plan.gold:has(input:checked) { box-shadow: 0 0 0 2px #C9A961, 0 1.3rem 2.6rem -1.2rem rgba(10,12,16,.7); }
 .plan:has(input:checked) .tick { opacity: 1; transform: none; }
 .plan:has(input:checked) .plan-media img { transform: scale(1.05); }
